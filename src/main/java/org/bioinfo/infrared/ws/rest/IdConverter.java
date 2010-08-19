@@ -1,12 +1,13 @@
-package org.bioinfo.infrared.ws.rest.impl;
+package org.bioinfo.infrared.ws.rest;
 
 import javax.ws.rs.core.UriInfo;
 
+
 public class IdConverter extends AbstractInfraredRest {
 
-	public IdConverter(String species, UriInfo uriInfo) {
-		super(species, uriInfo);
-	}
+//	public IdConverter(String species, UriInfo uriInfo) {
+//		super(species, uriInfo);
+//	}
 
 	
 	

@@ -1,4 +1,4 @@
-package org.bioinfo.infrared.ws.rest.impl;
+package org.bioinfo.infrared.ws.rest;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -27,14 +27,20 @@ public abstract class AbstractInfraredRest {
 	protected boolean compress;
 	protected String version;
 	
-	public AbstractInfraredRest(String species, UriInfo uriInfo) {
+//	public AbstractInfraredRest(String species, UriInfo uriInfo) {
+//		this.species = species;
+//		this.uriInfo = uriInfo;
+//		parseCommonQueryParameters(uriInfo.getQueryParameters());
+//	}
+	
+	protected abstract boolean isValidSpecies(String species);
+    
+	protected void init(String species, UriInfo uriInfo) {
 		this.species = species;
 		this.uriInfo = uriInfo;
 		parseCommonQueryParameters(uriInfo.getQueryParameters());
 	}
 	
-	protected abstract boolean isValidSpecies(String species);
-    
 	protected void parseCommonQueryParameters(MultivaluedMap<String, String> multivaluedMap) {
 		separator = (multivaluedMap.get("separator") != null) ? multivaluedMap.get("separator").get(0) : "\n";
 		outputFormat = (multivaluedMap.get("output") != null) ? multivaluedMap.get("output").get(0) : "txt";
