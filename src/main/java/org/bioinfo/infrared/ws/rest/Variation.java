@@ -6,6 +6,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
@@ -41,10 +42,9 @@ public class Variation extends AbstractInfraredRest {
 	
 	@GET
 	@Path("/info")
-	public Response getAllSnps(@PathParam("version") String version, @PathParam("species") String species, ) {
+	public Response getAllSnps(@PathParam("version") String version, @PathParam("species") String species, @PathParam("variationId") String longText, @Context UriInfo ui) {
 		try {
 			init(version, species, ui);
-			
 			connect();
 			snpDbManager = new SNPDBManager(infraredDBConnector);
 			FeatureList<SNP> snps;
