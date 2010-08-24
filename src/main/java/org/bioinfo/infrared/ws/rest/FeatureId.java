@@ -98,6 +98,22 @@ public class FeatureId extends AbstractInfraredRest{
 		}
 	}
 	
+	@GET
+	@Path("/sequence")
+//	public Response getAllByExternalId(@PathParam("version") String version, @PathParam("species") String species, @PathParam("id") String idsString, @Context UriInfo ui) {
+//		try {
+//			init(version, species, ui);
+//			List<String> ids = StringUtils.toList(idsString, ",");
+//			connect();
+//			GeneDBManager geneDbManager = new GeneDBManager(infraredDBConnector);
+//			List<FeatureList<Gene>> genes = geneDbManager.getAllByExternalIds(ids);
+//			return generateResponse(createResultString(ids, genes), outputFormat, compress);
+//		} catch (Exception e) {
+//			return generateErrorMessage(e.toString());
+//		}
+//	}
+	
+	
 		//	public Response getSnpsByRegion(@PathParam("species") String species, @PathParam("region") String regionString, @Context UriInfo ui) {
 		//		init(species, ui);
 		//		List<Region> regions = Region.parseRegion(regionString);

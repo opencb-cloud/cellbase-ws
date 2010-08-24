@@ -18,7 +18,7 @@ import org.bioinfo.infrared.variation.dbsql.SnpEffectDBManager;
 import org.bioinfo.infrared.variation.dbsql.SpliceSiteDBManager;
 
 
-@Path("/{species}/variation/{variationId}")
+@Path("/{version}/{species}/variation/{variationId}")
 @Produces("text/plain")
 public class Variation extends AbstractInfraredRest {
 
@@ -41,8 +41,10 @@ public class Variation extends AbstractInfraredRest {
 	
 	@GET
 	@Path("/info")
-	public Response getAllSnps(@PathParam("species") String species, @PathParam("region") String longText) {
+	public Response getAllSnps(@PathParam("version") String version, @PathParam("species") String species, ) {
 		try {
+			init(version, species, ui);
+			
 			connect();
 			snpDbManager = new SNPDBManager(infraredDBConnector);
 			FeatureList<SNP> snps;
