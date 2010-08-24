@@ -2,6 +2,7 @@ package org.bioinfo.infrared.ws.rest;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import javax.ws.rs.core.MediaType;
@@ -12,6 +13,9 @@ import javax.ws.rs.core.UriInfo;
 import org.bioinfo.commons.Config;
 import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.infrared.common.dbsql.DBConnector;
+import org.bioinfo.infrared.common.feature.Feature;
+import org.bioinfo.infrared.common.feature.FeatureList;
+import org.bioinfo.infrared.ws.rest.exception.VersionException;
 
 
 public abstract class AbstractInfraredRest {
@@ -35,9 +39,13 @@ public abstract class AbstractInfraredRest {
 	
 	protected abstract boolean isValidSpecies(String species);
     
-	protected void init(String species, UriInfo uriInfo) {
+	protected void init(String version, String species, UriInfo uriInfo) throws VersionException {
+		this.version = version;
 		this.species = species;
 		this.uriInfo = uriInfo;
+		if(version.equals("v2")) {
+			throw new VersionException("No public version");
+		}
 		parseCommonQueryParameters(uriInfo.getQueryParameters());
 	}
 	
@@ -58,6 +66,34 @@ public abstract class AbstractInfraredRest {
     	if(infraredDBConnector != null) {
     		infraredDBConnector.disconnect();
     	}
+    }
+    
+    protected <E extends Feature> String createResultString(List<String> ids, FeatureList<E> features) {
+    	StringBuilder result = new StringBuilder();
+		for(int i=0; i<ids.size(); i++) {
+			if(features.get(i) != null) {
+				result.append(ids.get(i)).append("\t").append(features.get(i).toString()).append(separator);
+			}else {
+				result.append(ids.get(i)).append("\t").append("not found").append(separator);
+			}
+		}
+		return result.toString().trim();
+    }
+    
+    protected <E extends Feature> String createResultString(List<String> ids, List<FeatureList<E>> features) {
+    	StringBuilder result = new StringBuilder();
+		for(int i=0; i<ids.size(); i++) {
+			if(features.get(i) != null) {
+				for(E feature: features.get(i)) {
+					if(feature != null) {
+						result.append(ids.get(i)).append("\t").append(feature.toString()).append(separator);
+					}
+				}
+			}else {
+				result.append(ids.get(i)).append("\t").append("not found").append(separator);
+			}
+		}
+		return result.toString().trim();
     }
     
     protected Response generateResponse(String entity, String outputFormat, boolean compress) throws IOException {

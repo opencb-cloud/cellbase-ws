@@ -8,6 +8,16 @@ body {
 	text-align: justify;
 }
 
+img {
+	border: 3px solid #ccc;
+	width: 800px;
+	margin: 10px 0px;
+}
+
+#toggle {
+	display: none;
+}
+
 #wrapper {
 	padding: 10px 10px 3px 10px;
 	width: 1024px;
@@ -15,38 +25,46 @@ body {
 	background: #fff;
 }
 
+#header img {
+	border: none;
+	width: 1024px;
+	margin: 0px;
+}
+
 #menu {
 	float: left;
 	width: 200px;
 	background: #fff;
-	margin-bottom: 10px;
-	margin-top: 15px;
 	text-align: left;
 	font-size: 1em;
 	color: #fff;
 }
 
-#menu ol {
+#menu li a {
 	padding: 5px 10px 10px 10px;
 	margin: 0;
+	color: #444;
+}
+
+#menu li a:visited {
+	color: #444;
 }
 
 #menu a {
-	color: #444;
+	color: #fff;
 	text-decoration: none;
 }
 
 #menu a:visited {
-	color: #FFF;
+	color: #fff;
 	text-decoration: none;
 }
 
 #main {
-	margin: 10px 10px 10px 0;
 	float: right;
 	width: 800px;
 	background: #fff;
-	padding: 0 0 10px;}
+}
 
 #main a {
 	color: #000;
@@ -77,13 +95,36 @@ li {
 }
 
 h3 {
+	font-family: monospace;
 	padding: 0 10px 0 10px;
+	font-size: 1.4em;
 	color: #fff;
-	background: #747474;
+	background: #777;
 	height: auto;
 	line-height: 24px;
-	margin: 10px 0 10px 0
+	margin: 10px 0 10px 0;
 }
 
+#main h3 {
+	font-size: 1.6em;
+}
+
+h4 {
+	font-size: 1.02em;
+}
+
+h7 {
+	font-family: monospace;
+	font-size: 1.2em;
+	background: #ddd;
+	margin: 0 0 0 10px;
+	padding: 5px;
+}
+
+hr {
+	border: none;
+	height: 2px;
+	background: #999;
+}
 
 */#495C81

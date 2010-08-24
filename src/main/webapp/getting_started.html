@@ -6,34 +6,54 @@
 <title>Infrared API Tool</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <link rel="stylesheet" type="text/css" href="style/style.css" media="screen" />
+
+<script type="text/javascript">
+
+	function toggle(div_id) {
+		if(document.getElementById(div_id).style.display == 'inline') {
+			document.getElementById(div_id).style.display = 'none';
+		}else {
+			document.getElementById(div_id).style.display = 'inline';
+		}
+		
+	}
+
+</script>
+
 </head>
 
 <body>
 	<div id="wrapper">
-	
 		<div id="header">
-			<h1>INFRARED WS</h1>
-			<h2>API Tool Documentation Website</h2>
+			<a href="index.html"><img src="img/header_grey.png" alt="Infrared WS"/></a>
 		</div>
 		
 		<div id="menu">
-			<h3><a href="index.html" style="color:#290101">Home</a></h3>
-			<h3><a href="documentation.html" style="color:#290101">Documentation</a></h3>
+			<h3><a href="index.html">Home</a></h3>
+			<h3><a href="documentation.html" >Documentation</a></h3>
+			<div id="documentation">
+				<ul>
+					<li><a href="getting_started.html">Getting Started</a></li> 
+					<li><a href="documentation.html">API Documentation</a></li> 
+					<li><a href="snippets.html">Code Snippets</a></li> 
+				</ul>
+			</div>
 			<h3>Categories</h3>
-			<ul>
-				<li><a href="idconverter.html">Id Converter</a></li> 
-				<li><a href="variation.html">Variation</a></li> 
-				<li><a href="genomic.html">Genomic</a></li> 
-				<li><a href="regulatory.html">Regulatory</a></li>
-			</ul>
-			<h3><a href="technical_info.html" style="color:#290101">Technical Information</a></h3>
-			<h3><a href="faq.html" style="color:#290101">FAQ</a></h3>
+				<div id="categories">
+					<ul>
+						<li><a href="documentation.html#xref">External References</a></li> 
+						<li><a href="documentation.html#variation">Variation</a></li> 
+						<li><a href="documentation.html#genomic">Genomic</a></li> 
+						<li><a href="documentation.html#xxx">xxx</a></li>
+					</ul>
+				</div>
+			<h3><a href="documentation.html#technical_information">Technical Information</a></h3>
+			<h3><a href="faq.html">FAQ</a></h3>
 		</div>
 		
 		<div id="main">
-			<h3>Getting Started!</h3>
-			<p></p>
-			<br>
+			<h3>Getting Started</h3>
+			<p>Page under construction</p>
 		</div>
 		
 		<div id="footer">
