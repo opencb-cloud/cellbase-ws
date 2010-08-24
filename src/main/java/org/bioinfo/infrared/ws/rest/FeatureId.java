@@ -20,14 +20,14 @@ import org.bioinfo.infrared.core.dbsql.XRefDBManager;
 import org.bioinfo.infrared.funcannot.dbsql.AnnotationDBManager;
 
 
-@Path("/{version}/{species}/id/{id}")
+@Path("/{version}/{species}/feature/{id}")
 @Produces("text/plain")
 public class FeatureId extends AbstractInfraredRest{
 
 
 	@GET
 	@Path("/xref")
-	public Response getAllDBNames(@PathParam("version") String version, @PathParam("species") String species, @PathParam("id") String idsString, @Context UriInfo ui) {
+	public Response getAllDBNames(@PathParam("version") String version, @PathParam("species") String species, @PathParam("feature") String idsString, @Context UriInfo ui) {
 		try {
 			init(version, species, ui);
 
@@ -54,7 +54,7 @@ public class FeatureId extends AbstractInfraredRest{
 
 	@GET
 	@Path("/annotation")
-	public Response getxxxxxx(@PathParam("version") String version, @PathParam("species") String species, @PathParam("id") String idsString, @Context UriInfo ui) {
+	public Response getxxxxxx(@PathParam("version") String version, @PathParam("species") String species, @PathParam("feature") String idsString, @Context UriInfo ui) {
 		try {
 			init(version, species, ui);
 			connect();
@@ -83,7 +83,7 @@ public class FeatureId extends AbstractInfraredRest{
 	
 	@GET
 	@Path("/info")
-	public Response getAllByExternalId(@PathParam("version") String version, @PathParam("species") String species, @PathParam("id") String idsString, @Context UriInfo ui) {
+	public Response getAllByExternalId(@PathParam("version") String version, @PathParam("species") String species, @PathParam("feature") String idsString, @Context UriInfo ui) {
 		try {
 			init(version, species, ui);
 			List<String> ids = StringUtils.toList(idsString, ",");
@@ -98,7 +98,7 @@ public class FeatureId extends AbstractInfraredRest{
 	
 	@GET
 	@Path("/sequence")
-//	public Response getAllByExternalId(@PathParam("version") String version, @PathParam("species") String species, @PathParam("id") String idsString, @Context UriInfo ui) {
+//	public Response getAllByExternalId(@PathParam("version") String version, @PathParam("species") String species, @PathParam("feature") String idsString, @Context UriInfo ui) {
 //		try {
 //			init(version, species, ui);
 //			List<String> ids = StringUtils.toList(idsString, ",");

@@ -53,7 +53,6 @@ public abstract class AbstractInfraredRest {
 			parseCommonQueryParameters(uriInfo.getQueryParameters());
 		}else {
 			if(StringUtils.toList(config.getProperty("PRIVATE.VERSION"), ",").contains(version)) {
-				System.err.println(uriInfo.getQueryParameters().get("user")+":"+uriInfo.getQueryParameters().get("user").size()+":"+uriInfo.getQueryParameters().get("password"));
 				if(uriInfo.getQueryParameters().get("user") != null && uriInfo.getQueryParameters().get("user").get(0).equals(config.getProperty("PRIVATE.VERSION.USER")) && uriInfo.getQueryParameters().get("password") != null && uriInfo.getQueryParameters().get("password").get(0).equals(config.getProperty("PRIVATE.VERSION.PASSWORD"))) {
 					parseCommonQueryParameters(uriInfo.getQueryParameters());
 				}else {
