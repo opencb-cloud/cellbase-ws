@@ -20,17 +20,17 @@ import org.bioinfo.infrared.variation.SNP;
 import org.bioinfo.infrared.variation.dbsql.SNPDBManager;
 
 
-@Path("/{species}/genomic/{region}")
+@Path("/{version}/{species}/genomic/{region}")
 @Produces("text/plain")
 public class Genomic extends AbstractInfraredRest{
 
 
 	@GET
 	@Path("/gene")
-	public Response getGenesByRegion(@PathParam("species") String species, @PathParam("region") String regionString, @Context UriInfo ui) {
-		init(species, ui);
-		List<Region> regions = Region.parseRegion(regionString);
+	public Response getGenesByRegion(@PathParam("version") String version, @PathParam("species") String species, @PathParam("region") String regionString, @Context UriInfo ui) {
 		try {
+			init(version, species, ui);
+			List<Region> regions = Region.parseRegion(regionString);
 			connect();
 			GeneDBManager geneDbManager = new GeneDBManager(infraredDBConnector);
 			FeatureList<Gene> genes = new FeatureList<Gene>();
@@ -84,10 +84,10 @@ public class Genomic extends AbstractInfraredRest{
 
 	@GET
 	@Path("/snp")
-	public Response getSnpsByRegion(@PathParam("species") String species, @PathParam("region") String regionString, @Context UriInfo ui) {
-		init(species, ui);
-		List<Region> regions = Region.parseRegion(regionString);
+	public Response getSnpsByRegion(@PathParam("version") String version, @PathParam("species") String species, @PathParam("region") String regionString, @Context UriInfo ui) {
 		try {
+			init(version, species, ui);
+			List<Region> regions = Region.parseRegion(regionString);
 			connect();
 			SNPDBManager snpDbManager = new SNPDBManager(infraredDBConnector);
 			FeatureList<SNP> snps = new FeatureList<SNP>();
