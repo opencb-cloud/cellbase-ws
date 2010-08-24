@@ -1,9 +1,6 @@
 package org.bioinfo.infrared.ws.rest;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -60,11 +57,12 @@ public class FeatureId extends AbstractInfraredRest{
 	public Response getxxxxxx(@PathParam("version") String version, @PathParam("species") String species, @PathParam("id") String idsString, @Context UriInfo ui) {
 		try {
 			init(version, species, ui);
-
+			connect();
+			
 			List<String> ids = StringUtils.toList(idsString, ",");
 			List<String> dbnames = null;
 			
-			connect();
+			
 			AnnotationDBManager annotationDbManager = new AnnotationDBManager(infraredDBConnector);
 //			FeatureList<AnnotationObject> annotation = new FeatureList<AnnotationObject>();
 			if(ui.getQueryParameters().get("dbname") != null) {

@@ -18,29 +18,29 @@ public class RestPathsTest {
 			sb1.append("a");
 		}
 		System.out.println("punto -1 ");
-		String urlStr = "http://localhost:8080/infrared-ws/rest/hsa/gettest/"+sb1.toString();
+		String urlStr = "http://localhost:8080/infrared-ws/api/v1/hsa/gettest/"+sb1.toString();
 		URL url;
 		try {
 			url = new URL(urlStr);
 			System.out.println("aqui si");
-			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-
-			conn.setConnectTimeout(20000);
-			System.out.println(conn.getContentLength());
-			if (conn.getResponseCode() != 200) {
-				throw new IOException(conn.getResponseMessage());
-			}
-
-			// Buffer the result into a string
-			BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-			StringBuilder sb = new StringBuilder();
-			String line;
-			while ((line = rd.readLine()) != null) {
-				sb.append(line);
-			}
-			rd.close();
-
-			conn.disconnect();
+//			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+//
+//			conn.setConnectTimeout(20000);
+//			System.out.println(conn.getContentLength());
+//			if (conn.getResponseCode() != 200) {
+//				throw new IOException(conn.getResponseMessage());
+//			}
+//
+//			// Buffer the result into a string
+//			BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+//			StringBuilder sb = new StringBuilder();
+//			String line;
+//			while ((line = rd.readLine()) != null) {
+//				sb.append(line);
+//			}
+//			rd.close();
+//
+//			conn.disconnect();
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
