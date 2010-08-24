@@ -20,20 +20,20 @@ import org.bioinfo.infrared.core.dbsql.XRefDBManager;
 import org.bioinfo.infrared.funcannot.dbsql.AnnotationDBManager;
 
 
-@Path("/{version}/{species}/feature/{id}")
+@Path("/{version}/{species}/feature/{featureId}")
 @Produces("text/plain")
 public class FeatureId extends AbstractInfraredRest{
 
 
 	@GET
 	@Path("/xref")
-	public Response getAllDBNames(@PathParam("version") String version, @PathParam("species") String species, @PathParam("feature") String idsString, @Context UriInfo ui) {
+	public Response getAllDBNames(@PathParam("version") String version, @PathParam("species") String species, @PathParam("featureId") String idsString, @Context UriInfo ui) {
 		try {
 			init(version, species, ui);
-
+			connect();
+			
 			List<String> ids = StringUtils.toList(idsString, ",");
 			List<String> dbnames = null;
-			connect();
 			XRefDBManager xrefDbManager = new XRefDBManager(infraredDBConnector);
 			FeatureList<XRef> xref = new FeatureList<XRef>();
 			if(ui.getQueryParameters().get("dbname") != null) {
@@ -54,15 +54,13 @@ public class FeatureId extends AbstractInfraredRest{
 
 	@GET
 	@Path("/annotation")
-	public Response getxxxxxx(@PathParam("version") String version, @PathParam("species") String species, @PathParam("feature") String idsString, @Context UriInfo ui) {
+	public Response getxxxxxx(@PathParam("version") String version, @PathParam("species") String species, @PathParam("featureId") String idsString, @Context UriInfo ui) {
 		try {
 			init(version, species, ui);
 			connect();
 			
 			List<String> ids = StringUtils.toList(idsString, ",");
 			List<String> dbnames = null;
-			
-			
 			AnnotationDBManager annotationDbManager = new AnnotationDBManager(infraredDBConnector);
 //			FeatureList<AnnotationObject> annotation = new FeatureList<AnnotationObject>();
 			if(ui.getQueryParameters().get("dbname") != null) {
@@ -83,7 +81,7 @@ public class FeatureId extends AbstractInfraredRest{
 	
 	@GET
 	@Path("/info")
-	public Response getAllByExternalId(@PathParam("version") String version, @PathParam("species") String species, @PathParam("feature") String idsString, @Context UriInfo ui) {
+	public Response getAllByExternalId(@PathParam("version") String version, @PathParam("species") String species, @PathParam("featureId") String idsString, @Context UriInfo ui) {
 		try {
 			init(version, species, ui);
 			List<String> ids = StringUtils.toList(idsString, ",");
@@ -98,7 +96,7 @@ public class FeatureId extends AbstractInfraredRest{
 	
 	@GET
 	@Path("/sequence")
-//	public Response getAllByExternalId(@PathParam("version") String version, @PathParam("species") String species, @PathParam("feature") String idsString, @Context UriInfo ui) {
+//	public Response getAllByExternalId(@PathParam("version") String version, @PathParam("species") String species, @PathParam("featureId") String idsString, @Context UriInfo ui) {
 //		try {
 //			init(version, species, ui);
 //			List<String> ids = StringUtils.toList(idsString, ",");

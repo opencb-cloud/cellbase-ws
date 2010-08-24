@@ -30,8 +30,9 @@ public class Genomic extends AbstractInfraredRest{
 	public Response getGenesByRegion(@PathParam("version") String version, @PathParam("species") String species, @PathParam("region") String regionString, @Context UriInfo ui) {
 		try {
 			init(version, species, ui);
-			List<Region> regions = Region.parseRegion(regionString);
 			connect();
+			
+			List<Region> regions = Region.parseRegion(regionString);
 			GeneDBManager geneDbManager = new GeneDBManager(infraredDBConnector);
 			FeatureList<Gene> genes = new FeatureList<Gene>();
 			FeatureList<Gene> genesByBiotype = new FeatureList<Gene>();
@@ -87,8 +88,9 @@ public class Genomic extends AbstractInfraredRest{
 	public Response getSnpsByRegion(@PathParam("version") String version, @PathParam("species") String species, @PathParam("region") String regionString, @Context UriInfo ui) {
 		try {
 			init(version, species, ui);
-			List<Region> regions = Region.parseRegion(regionString);
 			connect();
+
+			List<Region> regions = Region.parseRegion(regionString);
 			SNPDBManager snpDbManager = new SNPDBManager(infraredDBConnector);
 			FeatureList<SNP> snps = new FeatureList<SNP>();
 			FeatureList<SNP> snpsByConsequenceType = new FeatureList<SNP>();
