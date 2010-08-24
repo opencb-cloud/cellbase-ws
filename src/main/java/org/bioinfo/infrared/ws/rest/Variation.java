@@ -6,6 +6,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
@@ -18,7 +19,7 @@ import org.bioinfo.infrared.variation.dbsql.SnpEffectDBManager;
 import org.bioinfo.infrared.variation.dbsql.SpliceSiteDBManager;
 
 
-@Path("/{species}/variation/{variationId}")
+@Path("/{version}/{species}/variation/{variationId}")
 @Produces("text/plain")
 public class Variation extends AbstractInfraredRest {
 
@@ -41,8 +42,9 @@ public class Variation extends AbstractInfraredRest {
 	
 	@GET
 	@Path("/info")
-	public Response getAllSnps(@PathParam("species") String species, @PathParam("region") String longText) {
+	public Response getAllSnps(@PathParam("version") String version, @PathParam("species") String species, @PathParam("variationId") String longText, @Context UriInfo ui) {
 		try {
+			init(version, species, ui);
 			connect();
 			snpDbManager = new SNPDBManager(infraredDBConnector);
 			FeatureList<SNP> snps;
