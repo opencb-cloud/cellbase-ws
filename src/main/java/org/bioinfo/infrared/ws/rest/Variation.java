@@ -1,6 +1,7 @@
 package org.bioinfo.infrared.ws.rest;
 
 import java.io.IOException;
+import java.util.List;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -11,21 +12,24 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.bioinfo.commons.utils.ListUtils;
+import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.infrared.common.feature.FeatureList;
+import org.bioinfo.infrared.core.Gene;
+import org.bioinfo.infrared.core.XRef;
+import org.bioinfo.infrared.core.dbsql.XRefDBManager;
+import org.bioinfo.infrared.variation.Omega;
 import org.bioinfo.infrared.variation.SNP;
 import org.bioinfo.infrared.variation.SnpEffect;
+import org.bioinfo.infrared.variation.dbsql.OmegaDBManager;
 import org.bioinfo.infrared.variation.dbsql.SNPDBManager;
 import org.bioinfo.infrared.variation.dbsql.SnpEffectDBManager;
 import org.bioinfo.infrared.variation.dbsql.SpliceSiteDBManager;
+import org.bioinfo.infrared.ws.rest.Genomic.Region;
 
 
 @Path("/{version}/{species}/variation/{variationId}")
 @Produces("text/plain")
 public class Variation extends AbstractInfraredRest {
-
-	private SNPDBManager snpDbManager;
-	private SnpEffectDBManager snpEffectDbManager;
-	private SpliceSiteDBManager spliceSiteDBManager;
 
 //	public Variation(String species, UriInfo uriInfo) {
 //		super(species, uriInfo);
@@ -42,23 +46,76 @@ public class Variation extends AbstractInfraredRest {
 	
 	@GET
 	@Path("/info")
-	public Response getAllSnps(@PathParam("version") String version, @PathParam("species") String species, @PathParam("variationId") String longText, @Context UriInfo ui) {
+	public Response getSNPListByIds(@PathParam("version") String version, @PathParam("species") String species, @PathParam("variationId") String snpIds, @Context UriInfo ui) {
 		try {
 			init(version, species, ui);
 			connect();
-			snpDbManager = new SNPDBManager(infraredDBConnector);
-			FeatureList<SNP> snps;
-			if(uriInfo.getQueryParameters().get("chromosome") != null) {
-				snps = snpDbManager.getAllByLocation(uriInfo.getQueryParameters().get("chromosome").get(0), 1, 20000);
-			}else {
-				snps = snpDbManager.getAllByConsequenceType("NON_SYNONYMOUS_CODING");
-			}
-			return generateResponse(ListUtils.toString(snps, separator), outputFormat, compress);
+			
+			List<String> snps = StringUtils.toList(snpIds, ",");
+			SNPDBManager snpDbManager = new SNPDBManager(infraredDBConnector);
+			FeatureList<SNP> snplist = snpDbManager.getSNPListByIds(snps);
+			return generateResponse(createResultString(snps, snplist), outputFormat, compress);
 		} catch (Exception e) {
 			return generateErrorMessage(e.toString());
 		}
 	}
 
+	@GET
+	@Path("/consequencetype")
+	public Response getxxx(@PathParam("version") String version, @PathParam("species") String species, @PathParam("variationId") String snpIds, @Context UriInfo ui) {
+		try {
+			init(version, species, ui);
+			connect();
+			
+			List<String> snps = StringUtils.toList(snpIds, ",");
+			SNPDBManager snpDbManager = new SNPDBManager(infraredDBConnector);
+			FeatureList<SNP> snplist = snpDbManager.getSNPListByIds(snps);
+			return generateResponse(createResultString(snps, snplist), outputFormat, compress);
+		} catch (Exception e) {
+			return generateErrorMessage(e.toString());
+		}
+	}
+	
+	@GET
+	@Path("/omegas")
+	public Response getAllBySnpIds(@PathParam("version") String version, @PathParam("species") String species, @PathParam("variationId") String snpIds, @Context UriInfo ui) {
+		try {
+			init(version, species, ui);
+			connect();
+			
+			List<String> snps = StringUtils.toList(snpIds, ",");
+			OmegaDBManager omegaDbManager = new OmegaDBManager(infraredDBConnector);
+
+			if(ui.getQueryParameters().get("min") != null && ui.getQueryParameters().get("max") != null) {
+				
+			}else{
+				List<FeatureList<Omega>> omegas = omegaDbManager.getAllBySnpIds(snps);
+			}
+			return generateResponse(createResultString(snps,omegas)), outputFormat, compress);
+			
+				List<String> biotypes = StringUtils.toList(ui.getQueryParameters().get("biotype").get(0), ",");
+				for(Gene gene: genes) {
+					if(biotypes.contains(gene.getBiotype())) {
+						genesByBiotype.add(gene);
+					}
+				}
+				genes = genesByBiotype;
+			}
+			
+		try {
+			init(version, species, ui);
+			connect();
+			
+			List<String> snps = StringUtils.toList(snpIds, ",");
+			OmegaDBManager omegaDbManager = new OmegaDBManager(infraredDBConnector);
+			FeatureList<SNP> snplist = omegaDbManager.getSNPListByIds(snps);
+			return generateResponse(createResultString(snps, snplist), outputFormat, compress);
+		} catch (Exception e) {
+			return generateErrorMessage(e.toString());
+		}
+	}
+	
+	
 	public Response getSnpInfo() {
 		try {
 			return generateResponse("funciona!!!", outputFormat, compress);
@@ -79,10 +136,10 @@ public class Variation extends AbstractInfraredRest {
 	public Response getSnpsByConsequenceType() {
 		try {
 			connect();
-			snpDbManager = new SNPDBManager(infraredDBConnector);
+			omegaDbManager = new SNPDBManager(infraredDBConnector);
 
 			if(uriInfo.getPathParameters().get("consequencetype") != null) {
-				FeatureList<SNP> snps = snpDbManager.getAllByConsequenceType(uriInfo.getQueryParameters().get("consequencetype").get(0));
+				FeatureList<SNP> snps = omegaDbManager.getAllByConsequenceType(uriInfo.getQueryParameters().get("consequencetype").get(0));
 				return generateResponse(ListUtils.toString(snps, separator), outputFormat, compress);
 			}else {
 				return generateResponse("Please, type a valid consequence type.", outputFormat, compress);
@@ -95,14 +152,14 @@ public class Variation extends AbstractInfraredRest {
 	public Response getSnpsByRegion() {
 		try {
 			connect();
-			snpDbManager = new SNPDBManager(infraredDBConnector);
+			omegaDbManager = new SNPDBManager(infraredDBConnector);
 			FeatureList<SNP> snps;
 			String region = uriInfo.getPathParameters().get("region").get(0);
 			String[] items = region.split("[:-]");
 			if(items.length == 3) {
-				snps = snpDbManager.getAllByLocation(items[0], Integer.parseInt(items[1]), Integer.parseInt(items[2]));
+				snps = omegaDbManager.getAllByLocation(items[0], Integer.parseInt(items[1]), Integer.parseInt(items[2]));
 			}else {
-				snps = snpDbManager.getAllByConsequenceType("NON_SYNONYMOUS_CODING");
+				snps = omegaDbManager.getAllByConsequenceType("NON_SYNONYMOUS_CODING");
 			}
 			return generateResponse(ListUtils.toString(snps, separator), outputFormat, compress);
 		} catch (Exception e) {
@@ -163,5 +220,16 @@ public class Variation extends AbstractInfraredRest {
 		}
 		return false;
 	}
-
+	
+	private String createVariationResultString(List<String> ids, FeatureList<SNP> features) {
+		StringBuilder result = new StringBuilder();
+		for(int i=0; i<ids.size(); i++) {
+			if(features.get(i) != null) {
+				result.append(ids.get(i)).append("\t").append(features.get(i).getChromosome()+"\t"+features.get(i).getStart()+"\t"+features.get(i).getEnd()+"\t"+features.get(i).getStrand()+"\t"+features.get(i).getAllele()+"\t"+features.get(i).getConsequence_type()+"\t"+features.get(i).getSequence()).append(separator);
+			}else {
+				result.append(ids.get(i)).append("\t").append("not found").append(separator);
+			}
+		}
+		return result.toString().trim();
+	}
 }

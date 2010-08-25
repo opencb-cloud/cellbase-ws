@@ -26,7 +26,7 @@ public class FeatureId extends AbstractInfraredRest{
 
 
 	@GET
-	@Path("/xref")
+	@Path("/xref") //Crear metodo para devolver IDs con y sin dbname list
 	public Response getAllDBNames(@PathParam("version") String version, @PathParam("species") String species, @PathParam("featureId") String idsString, @Context UriInfo ui) {
 		try {
 			init(version, species, ui);
@@ -53,7 +53,7 @@ public class FeatureId extends AbstractInfraredRest{
 	}
 
 	@GET
-	@Path("/annotation")
+	@Path("/annotation")//Crear metodo para devolver annotations segun dbname (con y sin)
 	public Response getxxxxxx(@PathParam("version") String version, @PathParam("species") String species, @PathParam("featureId") String idsString, @Context UriInfo ui) {
 		try {
 			init(version, species, ui);
@@ -84,8 +84,9 @@ public class FeatureId extends AbstractInfraredRest{
 	public Response getAllByExternalId(@PathParam("version") String version, @PathParam("species") String species, @PathParam("featureId") String idsString, @Context UriInfo ui) {
 		try {
 			init(version, species, ui);
-			List<String> ids = StringUtils.toList(idsString, ",");
 			connect();
+			
+			List<String> ids = StringUtils.toList(idsString, ",");
 			GeneDBManager geneDbManager = new GeneDBManager(infraredDBConnector);
 			List<FeatureList<Gene>> genes = geneDbManager.getAllByExternalIds(ids);
 			return generateResponse(createResultString(ids, genes), outputFormat, compress);
@@ -95,20 +96,84 @@ public class FeatureId extends AbstractInfraredRest{
 	}
 	
 	@GET
-	@Path("/sequence")
-//	public Response getAllByExternalId(@PathParam("version") String version, @PathParam("species") String species, @PathParam("featureId") String idsString, @Context UriInfo ui) {
-//		try {
-//			init(version, species, ui);
-//			List<String> ids = StringUtils.toList(idsString, ",");
-//			connect();
-//			GeneDBManager geneDbManager = new GeneDBManager(infraredDBConnector);
-//			List<FeatureList<Gene>> genes = geneDbManager.getAllByExternalIds(ids);
-//			return generateResponse(createResultString(ids, genes), outputFormat, compress);
-//		} catch (Exception e) {
-//			return generateErrorMessage(e.toString());
-//		}
-//	}
+	@Path("/sequence") // Crear metodo que devuelva la seq segun featureID
+	public Response getxxx(@PathParam("version") String version, @PathParam("species") String species, @PathParam("featureId") String idsString, @Context UriInfo ui) {
+		try {
+			init(version, species, ui);
+			connect();
+			
+			List<String> ids = StringUtils.toList(idsString, ",");
+			GeneDBManager geneDbManager = new GeneDBManager(infraredDBConnector);
+			List<FeatureList<Gene>> genes = geneDbManager.getAllByExternalIds(ids);
+			return generateResponse(createResultString(ids, genes), outputFormat, compress);
+		} catch (Exception e) {
+			return generateErrorMessage(e.toString());
+		}
+	}
 	
+	@GET
+	@Path("/snps") // Crear metodo que devuelva los snps que se encuentran en un featureId
+		public Response getxxx1(@PathParam("version") String version, @PathParam("species") String species, @PathParam("featureId") String idsString, @Context UriInfo ui) {
+		try {
+			init(version, species, ui);
+			connect();
+			
+			List<String> ids = StringUtils.toList(idsString, ",");
+			GeneDBManager geneDbManager = new GeneDBManager(infraredDBConnector);
+			List<FeatureList<Gene>> genes = geneDbManager.getAllByExternalIds(ids);
+			return generateResponse(createResultString(ids, genes), outputFormat, compress);
+		} catch (Exception e) {
+			return generateErrorMessage(e.toString());
+		}
+	}
+			
+	@GET
+	@Path("/regulatory") // Crear metodo que devuelva los elementos reguladores de un featureId
+		public Response getxxx2(@PathParam("version") String version, @PathParam("species") String species, @PathParam("featureId") String idsString, @Context UriInfo ui) {
+		try {
+			init(version, species, ui);
+			connect();
+			
+			List<String> ids = StringUtils.toList(idsString, ",");
+			GeneDBManager geneDbManager = new GeneDBManager(infraredDBConnector);
+			List<FeatureList<Gene>> genes = geneDbManager.getAllByExternalIds(ids);
+			return generateResponse(createResultString(ids, genes), outputFormat, compress);
+		} catch (Exception e) {
+			return generateErrorMessage(e.toString());
+		}
+	}
+	
+	@GET
+	@Path("/exons") // Crear metodo que devuelva los exones de un featureId
+			public Response getxxx3(@PathParam("version") String version, @PathParam("species") String species, @PathParam("featureId") String idsString, @Context UriInfo ui) {
+		try {
+			init(version, species, ui);
+			connect();
+			
+			List<String> ids = StringUtils.toList(idsString, ",");
+			GeneDBManager geneDbManager = new GeneDBManager(infraredDBConnector);
+			List<FeatureList<Gene>> genes = geneDbManager.getAllByExternalIds(ids);
+			return generateResponse(createResultString(ids, genes), outputFormat, compress);
+		} catch (Exception e) {
+			return generateErrorMessage(e.toString());
+		}
+	}
+	
+	@GET
+	@Path("/location") // Crear metodo que devuelva la localizacion de un featureId
+			public Response getxxx4(@PathParam("version") String version, @PathParam("species") String species, @PathParam("featureId") String idsString, @Context UriInfo ui) {
+		try {
+			init(version, species, ui);
+			connect();
+			
+			List<String> ids = StringUtils.toList(idsString, ",");
+			GeneDBManager geneDbManager = new GeneDBManager(infraredDBConnector);
+			List<FeatureList<Gene>> genes = geneDbManager.getAllByExternalIds(ids);
+			return generateResponse(createResultString(ids, genes), outputFormat, compress);
+		} catch (Exception e) {
+			return generateErrorMessage(e.toString());
+		}
+	}
 	
 		//	public Response getSnpsByRegion(@PathParam("species") String species, @PathParam("region") String regionString, @Context UriInfo ui) {
 		//		init(species, ui);

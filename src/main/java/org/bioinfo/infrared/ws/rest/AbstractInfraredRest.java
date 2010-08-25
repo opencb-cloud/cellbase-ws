@@ -17,6 +17,8 @@ import org.bioinfo.infrared.common.feature.Feature;
 import org.bioinfo.infrared.common.feature.FeatureList;
 import org.bioinfo.infrared.ws.rest.exception.VersionException;
 
+import com.google.gson.Gson;
+
 
 public abstract class AbstractInfraredRest {
 
@@ -82,15 +84,22 @@ public abstract class AbstractInfraredRest {
 	}
 
 	protected <E extends Feature> String createResultString(List<String> ids, FeatureList<E> features) {
-		StringBuilder result = new StringBuilder();
-		for(int i=0; i<ids.size(); i++) {
-			if(features.get(i) != null) {
-				result.append(ids.get(i)).append("\t").append(features.get(i).toString()).append(separator);
-			}else {
-				result.append(ids.get(i)).append("\t").append("not found").append(separator);
+		if(outputFormat.equals("txt")) {
+			StringBuilder result = new StringBuilder();
+			for(int i=0; i<ids.size(); i++) {
+				if(features.get(i) != null) {
+					result.append(ids.get(i)).append(":\t").append(features.get(i).toString()).append(separator);
+				}else {
+					result.append(ids.get(i)).append(":\t").append("not found").append(separator);
+				}
+			}
+			return result.toString().trim();	
+		}else {
+			if(outputFormat.equals("json")) {
+				return new Gson().toJson(features);
 			}
 		}
-		return result.toString().trim();
+		return null;
 	}
 
 	protected <E extends Feature> String createResultString(List<String> ids, List<FeatureList<E>> features) {
@@ -99,11 +108,11 @@ public abstract class AbstractInfraredRest {
 			if(features.get(i) != null) {
 				for(E feature: features.get(i)) {
 					if(feature != null) {
-						result.append(ids.get(i)).append("\t").append(feature.toString()).append(separator);
+						result.append(ids.get(i)).append(":\t").append(feature.toString()).append(separator);
 					}
 				}
 			}else {
-				result.append(ids.get(i)).append("\t").append("not found").append(separator);
+				result.append(ids.get(i)).append(":\t").append("not found").append(separator);
 			}
 		}
 		return result.toString().trim();
