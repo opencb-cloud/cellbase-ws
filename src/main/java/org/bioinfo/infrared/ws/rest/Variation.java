@@ -15,16 +15,12 @@ import org.bioinfo.commons.utils.ListUtils;
 import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.infrared.common.feature.FeatureList;
 import org.bioinfo.infrared.core.Gene;
-import org.bioinfo.infrared.core.XRef;
-import org.bioinfo.infrared.core.dbsql.XRefDBManager;
 import org.bioinfo.infrared.variation.Omega;
 import org.bioinfo.infrared.variation.SNP;
 import org.bioinfo.infrared.variation.SnpEffect;
 import org.bioinfo.infrared.variation.dbsql.OmegaDBManager;
 import org.bioinfo.infrared.variation.dbsql.SNPDBManager;
 import org.bioinfo.infrared.variation.dbsql.SnpEffectDBManager;
-import org.bioinfo.infrared.variation.dbsql.SpliceSiteDBManager;
-import org.bioinfo.infrared.ws.rest.Genomic.Region;
 
 
 @Path("/{version}/{species}/variation/{variationId}")
@@ -43,6 +39,7 @@ public class Variation extends AbstractInfraredRest {
 			return generateErrorMessage(e.toString());
 		}
 	}
+	
 	
 	@GET
 	@Path("/info")
