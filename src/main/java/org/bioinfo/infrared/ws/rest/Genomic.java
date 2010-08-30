@@ -20,13 +20,13 @@ import org.bioinfo.infrared.variation.SNP;
 import org.bioinfo.infrared.variation.dbsql.SNPDBManager;
 
 
-@Path("/{version}/{species}/genomic/{region}")
+@Path("/{version}/{species}/genomic")
 @Produces("text/plain")
 public class Genomic extends AbstractInfraredRest{
 
 
 	@GET
-	@Path("/gene")
+	@Path("/{region}/genes")
 	public Response getGenesByRegion(@PathParam("version") String version, @PathParam("species") String species, @PathParam("region") String regionString, @Context UriInfo ui) {
 		try {
 			init(version, species, ui);
@@ -84,7 +84,7 @@ public class Genomic extends AbstractInfraredRest{
 	//	}
 
 	@GET
-	@Path("/snp")
+	@Path("/{region}/snp")
 	public Response getSnpsByRegion(@PathParam("version") String version, @PathParam("species") String species, @PathParam("region") String regionString, @Context UriInfo ui) {
 		try {
 			init(version, species, ui);
@@ -97,17 +97,17 @@ public class Genomic extends AbstractInfraredRest{
 			for(Region region: regions) {
 				if(region != null && region.getChromosome() != null && !region.getChromosome().equals("")) {
 					if(region.getStart() == 0 && region.getEnd() == 0) {
-						snps.addAll(snpDbManager.getAllByLocation(region.getChromosome(), 1, Integer.MAX_VALUE));
+						snps.addAll(snpDbManager.getAllByRegion(region.getChromosome(), 1, Integer.MAX_VALUE));
 					}else {
-						snps.addAll(snpDbManager.getAllByLocation(region.getChromosome(), region.getStart(), region.getEnd()));
+						snps.addAll(snpDbManager.getAllByRegion(region.getChromosome(), region.getStart(), region.getEnd()));
 					}
 				}
 			}
 			// if there is a consequence type filter lets filter!
-			if(ui.getQueryParameters().get("consequence_type") != null) {
-				List<String> consequencetype = StringUtils.toList(ui.getQueryParameters().get("consequence_type").get(0), ",");
+			if(ui.getQueryParameters().get("consequencetype") != null) {
+				List<String> consequencetype = StringUtils.toList(ui.getQueryParameters().get("consequencetype").get(0), ",");
 				for(SNP snp: snps) {
-					for(String consquenceType: snp.getConsequence_type()) {
+					for(String consquenceType: snp.getConsequenceType()) {
 						if(consequencetype.contains(consquenceType)) {
 							snpsByConsequenceType.add(snp);
 						}

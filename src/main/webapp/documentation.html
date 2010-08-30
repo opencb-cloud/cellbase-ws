@@ -51,8 +51,42 @@
 		
 		<div id="main">
 			<h3>API Documentation</h3>
-			<h4 id="xref">External References</h4>
+			<h4 id="xref">Working with External References</h4>
 			<hr></hr>
+			<p>With this application it is possible to search easily for any external reference of an identifier. 
+			External references are divided into different types:</p>
+				<ul>
+					<li>Functional Annotation</li>
+					<li>Identifier</li>
+					<li>Microarray probeset</li>
+					<li>Pathway</li>
+					<li>Regulatory region</li>
+				</ul>
+			<p>A list of the possible databases are available typing the following URLs:</p>
+			<table class="urlTable">
+				<tr><td class="head" colspan="2">DataBases</td></tr>
+				<tr>
+					<td class="names">All</td>
+					<td class="url">http://bioinfo.cipf.es/infrared-ws/api/{version}/{specie}/feature/dbnames</td>
+				</tr>
+				<tr>
+					<td class="names">Identifier</td>
+					<td class="url">http://bioinfo.cipf.es/infrared-ws/api/{version}/{specie}/feature/dbnames?type=Identifier</td>
+				</tr>
+				<tr>
+					<td class="names">Microarray probeset</td>
+					<td class="url">http://bioinfo.cipf.es/infrared-ws/api/{version}/{specie}/feature/dbnames?type=Microarray Probeset</td>
+				</tr>
+				<tr>
+					<td class="names">Pathway</td>
+					<td class="url">http://bioinfo.cipf.es/infrared-ws/api/{version}/{specie}/feature/dbnames?type=Pathway</td>
+				</tr>
+				<tr>
+					<td class="names">Regulatory region</td>
+					<td class="url">http://bioinfo.cipf.es/infrared-ws/api/{version}/{specie}/feature/dbnames?type=Regulatory Region</td>
+				</tr>
+			</table>
+			<p>It is also possible to combine different database names.</p>
 			<h4 id="xref">External References</h4>
 			<hr></hr>
 			<h4 id="variation">Variation</h4>
