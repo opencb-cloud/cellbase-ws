@@ -24,6 +24,8 @@ public abstract class AbstractInfraredRest {
 
 	protected DBConnector infraredDBConnector;
 	protected Config config;
+	
+	protected String version;
 	protected String species;
 	protected UriInfo uriInfo;
 
@@ -31,7 +33,7 @@ public abstract class AbstractInfraredRest {
 	protected String separator;
 	protected String outputFormat;
 	protected boolean compress;
-	protected String version;
+	
 
 	//	public AbstractInfraredRest(String species, UriInfo uriInfo) {
 	//		this.species = species;
