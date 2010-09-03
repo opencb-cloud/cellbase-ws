@@ -51,11 +51,8 @@ public class Variation extends AbstractInfraredRest {
 
 	@GET
 	@Path("/ct")
-	public Response getConsequenceType(@PathParam("version") String version, @PathParam("species") String species, @PathParam("variationId") String snpIds, @Context UriInfo ui) {
+	public Response getConsequenceType() {
 		try {
-			init(version, species, ui);
-			connect();
-
 			SNPDBManager snpDbManager = new SNPDBManager(infraredDBConnector);
 			List<String> ids = snpDbManager.getAllConsequenceTypes();
 			return generateResponse(ListUtils.toString(ids, separator), outputFormat, compress);
@@ -68,9 +65,6 @@ public class Variation extends AbstractInfraredRest {
 	@Path("/{variationId}/info")
 	public Response getSNPListByIds(@PathParam("variationId") String snpIds) {
 		try {
-//			init(version, species, uriInfo);
-//			connect();
-
 			List<String> ids = StringUtils.toList(snpIds, ",");
 			SNPDBManager snpDbManager = new SNPDBManager(infraredDBConnector);
 			FeatureList<SNP> snplist = snpDbManager.getByName(ids);
@@ -82,16 +76,13 @@ public class Variation extends AbstractInfraredRest {
 
 	@GET
 	@Path("/{variationId}/consequencetype")
-	public Response getAllFilteredByConsequenceType(@PathParam("version") String version, @PathParam("species") String species, @PathParam("variationId") String snpIds, @Context UriInfo ui) {
+	public Response getAllFilteredByConsequenceType(@PathParam("variationId") String snpIds) {
 		try {
-			init(version, species, ui);
-			connect();
-
 			List<String> ids = StringUtils.toList(snpIds, ",");
 			FeatureList<SNP> snplist;
 			SNPDBManager snpDbManager = new SNPDBManager(infraredDBConnector);
-			if(ui.getQueryParameters().get("consequencetype") != null) {
-				List<String> consequenceTypes = StringUtils.toList(ui.getQueryParameters().get("consequencetype").get(0), ",");
+			if(uriInfo.getQueryParameters().get("consequencetype") != null) {
+				List<String> consequenceTypes = StringUtils.toList(uriInfo.getQueryParameters().get("consequencetype").get(0), ",");
 				snplist = snpDbManager.getAllFilteredByConsequenceType(ids, consequenceTypes);
 			}else {
 				snplist = snpDbManager.getByName(ids);
@@ -104,16 +95,13 @@ public class Variation extends AbstractInfraredRest {
 
 	@GET
 	@Path("/{variationId}/frequencies")
-	public Response getxxx(@PathParam("version") String version, @PathParam("species") String species, @PathParam("variationId") String snpIds, @Context UriInfo ui) {
+	public Response getVariationFrequencies(@PathParam("variationId") String snpIds) {
 		try {
-			init(version, species, ui);
-			connect();
-
 			List<String> ids = StringUtils.toList(snpIds, ",");
 			FeatureList<VariationFrequency> snplist;
 			VariationFrequencyDBManager variationFrequencyDbManager = new VariationFrequencyDBManager(infraredDBConnector);
-			if(ui.getQueryParameters().get("population") != null) {
-				List<String> populations = StringUtils.toList(ui.getQueryParameters().get("populations").get(0), ",");
+			if(uriInfo.getQueryParameters().get("population") != null) {
+				List<String> populations = StringUtils.toList(uriInfo.getQueryParameters().get("populations").get(0), ",");
 				snplist = variationFrequencyDbManager.getBySnpIds(ids);
 			}else {
 				snplist = variationFrequencyDbManager.getBySnpIds(ids);
@@ -126,16 +114,13 @@ public class Variation extends AbstractInfraredRest {
 
 	@GET
 	@Path("/{variationId}/omegas")
-	public Response getAllBySnpIds(@PathParam("version") String version, @PathParam("species") String species, @PathParam("variationId") String snpIds, @Context UriInfo ui) {
+	public Response getAllBySnpIds(@PathParam("variationId") String snpIds) {
 		try {
-			init(version, species, ui);
-			connect();
-
 			List<String> snps = StringUtils.toList(snpIds, ",");
 			OmegaDBManager omegaDbManager = new OmegaDBManager(infraredDBConnector);
 			List<FeatureList<Omega>> omegas;
-			if(ui.getQueryParameters().get("min") != null && ui.getQueryParameters().get("max") != null) {
-				omegas = omegaDbManager.getAllBySnpIds(snps, Double.parseDouble(ui.getQueryParameters().get("min").get(0)), Double.parseDouble(ui.getQueryParameters().get("max").get(0)));
+			if(uriInfo.getQueryParameters().get("min") != null && uriInfo.getQueryParameters().get("max") != null) {
+				omegas = omegaDbManager.getAllBySnpIds(snps, Double.parseDouble(uriInfo.getQueryParameters().get("min").get(0)), Double.parseDouble(uriInfo.getQueryParameters().get("max").get(0)));
 			}else{
 				omegas = omegaDbManager.getAllBySnpIds(snps);
 			}

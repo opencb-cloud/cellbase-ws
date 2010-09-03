@@ -3,16 +3,16 @@
 body {
 	font: .8em Arial, Sans-Serif;
 	line-height: 1.8em;
-	background: #fff;
+	background: url(img/background.gif) top center repeat-y;
 	color: #444;
 	text-align: justify;
 }
 
-img {
+/*img {
 	border: 3px solid #ccc;
 	width: 800px;
 	margin: 10px 0px;
-}
+}*/
 
 #toggle {
 	display: none;
@@ -88,9 +88,12 @@ img {
 	text-decoration: none;
 }
 
+#main ul {
+	margin: 5px 0px 5px 35px;
+}
+
 #main li {
 	list-style-type: disc;
-	margin-left: 35px;
 	line-height: 1.4em;
 }
 
@@ -142,15 +145,28 @@ h3 {
 }
 
 h4 {
-	font-size: 1.02em;
+	font-size: 1.1em;
+	color: #005599;
+}
+
+h5 {
+	color: saddleBrown;
+	font-size: 1em;
+	border-bottom: 1px dotted #BBBBBB;
 }
 
 h7 {
 	font-family: monospace;
 	font-size: 1.2em;
-	background: #ddd;
+	color: #333;
+	background: #eee;
 	margin: 0 0 0 10px;
 	padding: 5px;
+}
+
+url {
+	font-family: monospace;
+	font-size: 1.2em;
 }
 
 hr {

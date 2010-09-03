@@ -15,33 +15,35 @@
 		}else {
 			document.getElementById(div_id).style.display = 'inline';
 		}
-		
 	}
-
 </script>
 
 </head>
 
 <body>
 	<div id="wrapper">
+	
+<!-- HEADER  -->
+
 		<div id="header">
 			<a href="index.html"><img src="img/header_grey.png" alt="Infrared WS"/></a>
 		</div>
 		
+<!-- MENU -->
 		<div id="menu">
 			<h3><a href="index.html">Home</a></h3>
 			<h3>Documentation</h3>
 				<ul>
-					<li><a href="getting_started.html">Getting Started</a></li> 
-					<li><a href="documentation.html">API Documentation</a></li> 
-					<li><a href="snippets.html">Code Snippets</a></li> 
+					<li><a href="getting_started.html">Getting Started</a></li>
+					<li><a href="documentation.html">API Documentation</a></li>
+					<li><a href="snippets.html">Code Snippets</a></li>
 				</ul>
 			<h3>Categories</h3>
 				<div id="categories">
 					<ul>
-						<li><a href="documentation.html#xref">External References</a></li> 
-						<li><a href="documentation.html#variation">Variation</a></li> 
-						<li><a href="documentation.html#genomic">Genomic</a></li> 
+						<li><a href="documentation.html#xref">External References</a></li>
+						<li><a href="documentation.html#variation">Variation</a></li>
+						<li><a href="documentation.html#genomic">Genomic</a></li>
 						<li><a href="documentation.html#xxx">xxx</a></li>
 					</ul>
 				</div>
@@ -49,8 +51,16 @@
 			<h3><a href="faq.html">FAQ</a></h3>
 		</div>
 		
+<!-- MAIN -->
+
 		<div id="main">
 			<h3>API Documentation</h3>
+			
+<!-- 
+**************************************************************************************************************
+External References
+**************************************************************************************************************-->
+			
 			<h4 id="xref">Working with External References</h4>
 			<hr></hr>
 			<p>With this application it is possible to search easily for any external reference of an identifier. 
@@ -75,7 +85,7 @@
 				</tr>
 				<tr>
 					<td class="names">Microarray probeset</td>
-					<td class="url">http://bioinfo.cipf.es/infrared-ws/api/{version}/{specie}/feature/dbnames?type=Microarray Probeset</td>
+					<td class="url"><pre>http://bioinfo.cipf.es/infrared-ws/api/{version}/{specie}/feature/dbnames?type=Microarray Probeset</pre></td>
 				</tr>
 				<tr>
 					<td class="names">Pathway</td>
@@ -86,12 +96,229 @@
 					<td class="url">http://bioinfo.cipf.es/infrared-ws/api/{version}/{specie}/feature/dbnames?type=Regulatory Region</td>
 				</tr>
 			</table>
-			<p>It is also possible to combine different database names.</p>
-			<h4 id="xref">External References</h4>
+			<p>It is also possible to combine different database names:</p>
+			<h7>http://bioinfo.cipf.es/infrared-ws/api/{version}/{specie}/feature/dbnames?type=Pathway,Regulatory Region</h7>
+			<br /><br />
+			
+			<a href="http://bioinfo.cipf.es/infrared-ws/src/main/webapp/documentation.html"><img src="img/backtotop/handmade.jpeg" alt="Back to top"
+			style="float: right; border: none;"/></a>
+			
+<!--
+**************************************************************************************************************
+Genomic
+**************************************************************************************************************-->
+			
+			<h4 id="genomic">Working with Genomic</h4>
 			<hr></hr>
+			<p>Genomic category deals with the concept of genomic location in order to get specific information. That way, 
+			with this tool it is possible to retrieve biological data about a location. The concept "location" can be specified 
+			in different ways depending on what we are looking for:</p>
+				<ul>
+					<li><b>Position: </b>Chromosome and position. <i>E.g.: <url>1:893801</url></i>.</li>
+					<li><b>Region: </b>Chromosome, start and end. It is also possible to introduce a whole chromosome indicating the number.<br />
+					<i>E.g.: <url>5:958453-962854; 21</url></i>.</li>
+					<li><b>Cytoband: </b>Comming soon.</li>
+				</ul>
+			<p>You can <u>concatenate</u> positions or regions (not mixed) typing them one after the other and separating them using 
+			a comma.<br />
+			<i>E.g.: <url>3:893801-1000000,5:958453-962854,13,4:156832030-358639550,8</url></i><br />
+			<i>E.g.: <url>1:845962,16:54854,11:38745,7:68786307</url></i><br />
+			The available URLs provide the user with information about:</p>
+			
+<!-- Genes *****************************************************************************************************-->
+			<h5>Genes</h5>
+			<p>It is possible to know all genes contained in a <i>region</i> and also in a whole chromosome. This application is 
+			also provided with a <b>Biotype filter</b> where you can delimit the results for one ore more biotypes. The list
+			with the possible biotypes is <a href="img/biotypes.txt"><u>here</u></a>. Such queries have the following format:</p>
+			
+			<h7><b>http://bioinfo.cipf.es/infrared-ws/api/{version}/{specie}/genomic/region/{region}/gene?biotype={biotype}</b></h7>
+			
+			<br />Some examples:<br />
+			<a href="http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/genomic/region/2:1000-1200000,5:234234-4564564,21/gene">
+			<h7>http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/genomic/region/2:1000-1200000,5:234234-4564564,21/gene</h7></a>
+			
+			<a href="http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/genomic/region/5:234234-4564564,21?biotype=protein_coding,misc_RNA">
+			<h7>http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/genomic/region/5:234234-4564564,21?biotype=protein_coding,misc_RNA</a></h7>
+			<br /><br />
+			
+<!-- SNPS ********************************************************************************************************-->
+			<h5>SNPs (Single Nucleotide Polimorfisms)</h5>
+			<p>SNP information can be accesed through a <i>region</i> or a <i>position</i>. If your query is related to one or 
+			more regions, it is possible also to <b>filter by Consequence type</b>. The list with the possible consequence types 
+			is <a href="img/consequencetypes.txt"><u>here</u></a>. If your query is related to some specific positions, the search 
+			will let you know if there is any SNP related. The two types of search look like this:</p>
+			
+			<pre><h7><b>http://bioinfo.cipf.es/infrared-ws/api/{version}/{specie}/genomic/region/{region}/snp?consequencetype={consequencetype}</b></h7></pre>
+			<h7><b>http://bioinfo.cipf.es/infrared-ws/api/{version}/{specie}/genomic/position/{position}/snp</b></h7>
+			
+			<br />Some examples:<br />
+			
+			<a href="http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/genomic/region/2:1000-1200000,5:234234-4564564,21/snp">
+			<h7>http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/genomic/region/2:1000-1200000,5:234234-4564564,21/snp</h7></a><br />
+			
+			<a href="http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/genomic/region/5:1-800000/snp?consequencetype=3PRIME_UTR,UPSTREAM">
+			<h7>http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/genomic/region/5:1-800000/snp?consequencetype=3PRIME_UTR,UPSTREAM</a><br />
+			
+			<a href="http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/genomic/position/5:11784,10:60325/snp">
+			<h7>http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/genomic/position/5:11784,10:60325/snp</h7></a>
+			<br /><br />
+			
+			<a href="http://bioinfo.cipf.es/infrared-ws/src/main/webapp/documentation.html"><img src="img/backtotop/handmade.jpeg" alt="Back to top"
+			style="float: right; border: none;"/></a>
+			
+<!-- Splice Site *************************************************************************************************-->
+			<h5>Splice Sites</h5>
+			<p>It is possible to know if one or more <i>postions</i> belong to a splice site. The way to access that information 
+			follow the same patron as explained above:</p>
+			
+			<h7><b>http://bioinfo.cipf.es/infrared-ws/api/{version}/{specie}/genomic/position/{position}/splicesite</b></h7>
+			
+			<br />Example:<br />
+			
+			<a href="http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/genomic/position/.../splicesite">
+			<h7>http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/genomic/...</h7></a>
+			<br /><br />
+			
+<!-- Conserved Regions *******************************************************************************************-->
+			<h5>Conserved Regions</h5>
+			<p>It is possible to know if one or more <i>positions</i> belong to a conserved region. The way to access that information 
+			is the following:</p>
+			
+			<h7><b>http://bioinfo.cipf.es/infrared-ws/api/{version}/{specie}/genomic/position/{position}/conservedregion</b></h7>
+			
+			<br />Example:<br />
+			
+			<a href="http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/genomic/position/12:67700,4:45000,6:48752/conservedregion">
+			<h7>http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/genomic/position/12:67700,4:45000,6:48752/conservedregion</h7></a>
+			<br /><br />
+			
+<!-- TFBS (Transcription Factor Binding Sites) *******************************************************************-->
+			<h5>TFBS (Transcription Factor Binding Sites)</h5>
+			<p>By entering one or more <i>positions</i> in the URL you will be able to know whether these particular locations 
+			belong to a transcription factor binding site. It is necessary to specify a <b>filter by database</b> and the 
+			available options are:</p>
+			<ul>
+					<li>Jaspar</li>
+					<li>ORegAnno</li>
+				</ul>
+			<p>The URL query will look like this:</p>
+			<h7><b>http://bioinfo.cipf.es/infrared-ws/api/{version}/{specie}/genomic/position/{position}/tfbs?filter={db}</b></h7>
+			
+			<br />Examples:<br />
+			
+			<a href="http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/genomic/position/1:893801,9:785426,6:46096774/tfbs?filter=jaspar">
+			<h7>http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/genomic/position/1:893801,9:785426,6:46096774/tfbs?filter=jaspar</h7></a>
+			
+			<a href="http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/genomic/position/2:128175992,4:156832030,X:33229755/tfbs?filter=oreganno">
+			<pre><h7>http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/genomic/position/2:128175992,4:156832030,X:33229755/tfbs?filter=oreganno</h7></a></pre>
+			<br />
+			
+			<a href="http://bioinfo.cipf.es/infrared-ws/src/main/webapp/documentation.html"><img src="img/backtotop/handmade.jpeg" alt="Back to top"
+			style="float: right; border: none;"/></a>
+			
+<!-- miRNA targets ***********************************************************************************************-->
+			<h5>miRNA Targets</h5>
+			<p>In order to know whether one or more <i>positions</i> are targets of a miRNA you can run the following query:</p>
+
+			<h7><b>http://bioinfo.cipf.es/infrared-ws/api/{version}/{specie}/genomic/position/{position}/mirna_target</b></h7>
+			
+			<br />Example:<br />
+			
+			<a href="http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/genomic/position/2:120155845,17:30743/mirna_target">
+			<h7>http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/genomic/position/2:120155845,17:30743/mirna_target</h7></a>
+			<br /><br />
+			
+<!-- miRNA genes *************************************************************************************************-->
+			<h5>miRNA Genes</h5>
+			<p>It is possible to know if one or more <i>positions</i> belong to a miRNA gene. The way to access that information 
+			is the following:</p>
+
+			<h7><b>http://bioinfo.cipf.es/infrared-ws/api/{version}/{specie}/genomic/position/{position}/mirna_gene</b></h7>
+			
+			<br />Example:<br />
+			
+			<a href="http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/genomic/position/2:120155845,17:30743/mirna_gene">
+			<h7>http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/genomic/position/2:120155845,17:30743/mirna_gene</h7></a>
+			<br /><br />
+			
+<!-- Triplex *****************************************************************************************************-->
+			<h5>Triplex</h5>
+			<p>To know if one or more <i>positions</i> belong to a triplex. You can access typing a query in that way:</p>
+
+			<h7><b>http://bioinfo.cipf.es/infrared-ws/api/{version}/{specie}/genomic/position/{position}/triplex</b></h7>
+			
+			<br />Example:<br />
+			
+			<a href="http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/genomic/position/2:120155845,17:30743/triplex">
+			<h7>http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/genomic/position/2:120155845,17:30743/triplex</h7></a>
+			<br /><br />
+						
+			<a href="http://bioinfo.cipf.es/infrared-ws/src/main/webapp/documentation.html"><img src="img/backtotop/handmade.jpeg" alt="Back to top"
+			style="float: right; border: none;"/></a>
+			
+			
+<!-- 
+**************************************************************************************************************
+Variation
+**************************************************************************************************************-->
 			<h4 id="variation">Variation</h4>
 			<hr></hr>
-			<h4 id="genomic">Genomic</h4>
+			<p>The aim of this implementation is to offer the user an easy way to retrieve any information related with 
+			genetic variation, such as general information, consequence type, omega codon values, etc. Results can be accessed 
+			just adding your reference IDs (rs) separated by commas in the query. The general URL looks like this:</p>
+			
+			<h7><b>http://bioinfo.cipf.es/infrared-ws/api/{version}/{specie}/variation/{variation_IDs}/{feature}</b></h7>
+			
+			<p>Depending on the feature choosen, it is possible to filter the results by some extra features (<i>i.e: 
+			consequence type, population</i>).</p>
+			<br />
+			
+<!-- SNP Information *********************************************************************************************-->
+			<h5>SNP Information</h5>
+			<p>This implementation lets the user easily know some general features about a collection of SNP IDs. Results 
+			will contain information about the location of the SNPs in the genome, the strand, the bases involved and 
+			the consequence type. Such queries will have the following format:</p>
+			
+			<h7><b>http://bioinfo.cipf.es/infrared-ws/api/{version}/{specie}/variation/{variation_IDs}/info</b></h7>
+			
+			<br />Example:<br />
+			
+			<a href="http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/variation/rs6311,rs9959,rs6313/info">
+			<h7>http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/genomic/region/2:1000-1200000,5:234234-4564564,21/gene</h7></a>
+			<br /><br />
+			
+<!-- Consequence Type ********************************************************************************************-->
+			<h5>Consequence Type</h5>
+			<p>Information about the consequence type/s of a collection of SNP IDs can be accessed through the following 
+			query:</p>
+			
+			<h7><b>http://bioinfo.cipf.es/infrared-ws/api/{version}/{specie}/variation/{variation_IDs}/consequencetype</b></h7>
+			<!-- *************** -->
+			
+			This implementation lets the user easily know some general features about a collection of SNP IDs. Results 
+			will contain information about the location of the SNPs in the genome, the strand, the bases involved and 
+			the consequence type. Such queries will have the following format:
+			
+			<h7><b>http://bioinfo.cipf.es/infrared-ws/api/{version}/{specie}/variation/{variation_IDs}/info</b></h7>
+			
+			<br />Example:<br />
+			
+			<a href="http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/variation/rs6311,rs9959,rs6313/consequencetype">
+			<h7>http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/genomic/region/2:1000-1200000,5:234234-4564564,21/gene</h7></a>
+			<br /><br />
+			
+			
+<!-- Frequencies *************************************************************************************************-->
+			<h5>Allel and Genotipe Frequencies</h5>
+			
+			
+			
+			
+<!-- Omegas ******************************************************************************************************-->
+			<h5>Omega Values</h5>
+			
+			
+			<h4 id="xref">External References</h4>
 			<hr></hr>
 			<h4 id="xxx">XXX</h4>
 			<hr></hr>

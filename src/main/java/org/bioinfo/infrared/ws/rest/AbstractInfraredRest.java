@@ -107,10 +107,12 @@ public abstract class AbstractInfraredRest {
 	protected <E extends Feature> String createResultString(List<String> ids, List<FeatureList<E>> features) {
 		StringBuilder result = new StringBuilder();
 		for(int i=0; i<ids.size(); i++) {
-			if(features.get(i) != null) {
+			if(features.get(i) != null && features.get(i).size() > 0) {
 				for(E feature: features.get(i)) {
 					if(feature != null) {
 						result.append(ids.get(i)).append(":\t").append(feature.toString()).append(separator);
+					}else {
+						result.append(ids.get(i)).append(":\t").append("not found").append(separator);
 					}
 				}
 			}else {

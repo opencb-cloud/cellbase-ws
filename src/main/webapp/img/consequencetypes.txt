@@ -1,0 +1,20 @@
++------------------------+
+| consequencetype        |
++------------------------+
+| 3PRIME_UTR             |
+| 5PRIME_UTR             |
+| COMPLEX_INDEL          |
+| DOWNSTREAM             |
+| ESSENTIAL_SPLICE_SITE  |
+| FRAMESHIFT_CODING      |
+| INTRONIC               |
+| NON_SYNONYMOUS_CODING  |
+| REGULATORY_REGION      |
+| SPLICE_SITE            |
+| STOP_GAINED            |
+| STOP_LOST              |
+| SYNONYMOUS_CODING      |
+| UPSTREAM               |
+| WITHIN_MATURE_miRNA    |
+| WITHIN_NON_CODING_GENE |
++------------------------+

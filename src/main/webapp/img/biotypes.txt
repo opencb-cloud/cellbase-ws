@@ -1,0 +1,26 @@
++----------------------+
+| biotype              |
++----------------------+
+| IG_C_gene            |
+| IG_D_gene            |
+| IG_J_gene            |
+| IG_V_gene            |
+| miRNA                |
+| miRNA_pseudogene     |
+| misc_RNA             |
+| misc_RNA_pseudogene  |
+| Mt_rRNA              |
+| Mt_tRNA              |
+| Mt_tRNA_pseudogene   |
+| processed_transcript |
+| protein_coding       |
+| pseudogene           |
+| rRNA                 |
+| rRNA_pseudogene      |
+| scRNA_pseudogene     |
+| snoRNA               |
+| snoRNA_pseudogene    |
+| snRNA                |
+| snRNA_pseudogene     |
+| tRNA_pseudogene      |
++----------------------+
