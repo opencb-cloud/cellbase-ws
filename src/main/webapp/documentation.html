@@ -289,22 +289,22 @@ Variation
 			
 <!-- Consequence Type ********************************************************************************************-->
 			<h5>Consequence Type</h5>
-			<p>Information about the consequence type/s of a collection of SNP IDs can be accessed through the following 
+			<p>Information about the consequence type of a collection of SNP IDs can be accessed through the following 
 			query:</p>
 			
-			<h7><b>http://bioinfo.cipf.es/infrared-ws/api/{version}/{specie}/variation/{variation_IDs}/consequencetype</b></h7>
-			<!-- *************** -->
+			<h7><b>http://bioinfo.cipf.es/infrared-ws/api/{version}/{specie}/variation/{variation_IDs}/consequencetype</b></h7><br />
 			
-			This implementation lets the user easily know some general features about a collection of SNP IDs. Results 
-			will contain information about the location of the SNPs in the genome, the strand, the bases involved and 
-			the consequence type. Such queries will have the following format:
+			The output shows information about the location of the SNPs in the genome, the strand, the bases involved and, 
+			obviously, the consequence type. It is possible to <b>filter</b> the query <b>by consequence type</b> just to 
+			retrieve those SNPs from your collection which contain one or more specified consequence type.
 			
-			<h7><b>http://bioinfo.cipf.es/infrared-ws/api/{version}/{specie}/variation/{variation_IDs}/info</b></h7>
+			<br />Some examples:<br />
 			
-			<br />Example:<br />
+			<a href="http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/variation/rs6311,rs8181239,rs6313,rs3874697,rs3121179,rs9635634/consequencetype">
+			<pre><h7>http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/variation/rs6311,rs8181239,rs6313,rs3874697,rs3121179,rs9635634/consequencetype</h7></a></pre>
 			
-			<a href="http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/variation/rs6311,rs9959,rs6313/consequencetype">
-			<h7>http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/genomic/region/2:1000-1200000,5:234234-4564564,21/gene</h7></a>
+			<a href="http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/variation/rs6311,rs8181239,rs6313,rs3874697,rs3121179,rs9635634/consequencetype?consequencetype=5PRIME_UTR,UPSTREAM">
+			<h7>http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/variation/rs6311,rs8181239,rs6313,rs3874697,rs3121179,rs9635634/consequencetype?consequencetype=5PRIME_UTR,UPSTREAM</h7></a>
 			<br /><br />
 			
 			
