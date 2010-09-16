@@ -166,6 +166,21 @@ Genomic
 			<a href="http://bioinfo.cipf.es/infrared-ws/src/main/webapp/documentation.html"><img src="img/backtotop/handmade.jpeg" alt="Back to top"
 			style="float: right; border: none;"/></a>
 			
+<!-- Consequence Type ********************************************************************************************-->
+			<h5>Consequence Type</h5>
+			<p>This is, probably, one of the most powerfull tools implemented. The application developed lets the user know about 
+			the consequence type of any position in the genome. The reason why this is interesting is the fact that it allows 
+			the user to know whether a particular position in the genome belongs to some functional or regulatory element. The 
+			query must have the following structure:</p>
+			
+			<h7><b>http://bioinfo.cipf.es/infrared-ws/api/{version}/{specie}/genomic/position/{position}/consequencetype</b></h7>
+			
+			<br />Some examples:<br />
+			
+			<a href="http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/genomic/position/2:128175992,4:156832030,X:33229755,1:169823221/consequencetype">
+			<pre><h7>http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/genomic/position/2:128175992,4:156832030,X:33229755,1:169823221/consequencetype</pre></h7></a>
+			<br />
+						
 <!-- Splice Site *************************************************************************************************-->
 			<h5>Splice Sites</h5>
 			<p>It is possible to know if one or more <i>postions</i> belong to a splice site. The way to access that information 
@@ -284,7 +299,7 @@ Variation
 			<br />Example:<br />
 			
 			<a href="http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/variation/rs6311,rs9959,rs6313/info">
-			<h7>http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/genomic/region/2:1000-1200000,5:234234-4564564,21/gene</h7></a>
+			<h7>http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/variation/rs6311,rs9959,rs6313/info</h7></a>
 			<br /><br />
 			
 <!-- Consequence Type ********************************************************************************************-->
@@ -294,11 +309,11 @@ Variation
 			
 			<h7><b>http://bioinfo.cipf.es/infrared-ws/api/{version}/{specie}/variation/{variation_IDs}/consequencetype</b></h7><br />
 			
-			The output shows information about the location of the SNPs in the genome, the strand, the bases involved and, 
+			<p>The output shows information about the location of the SNPs in the genome, the strand, the bases involved and, 
 			obviously, the consequence type. It is possible to <b>filter</b> the query <b>by consequence type</b> just to 
 			retrieve those SNPs from your collection which contain one or more specified consequence type.
 			
-			<br />Some examples:<br />
+			<br />Some examples:</p>
 			
 			<a href="http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/variation/rs6311,rs8181239,rs6313,rs3874697,rs3121179,rs9635634/consequencetype">
 			<pre><h7>http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/variation/rs6311,rs8181239,rs6313,rs3874697,rs3121179,rs9635634/consequencetype</h7></a></pre>
@@ -307,17 +322,57 @@ Variation
 			<h7>http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/variation/rs6311,rs8181239,rs6313,rs3874697,rs3121179,rs9635634/consequencetype?consequencetype=5PRIME_UTR,UPSTREAM</h7></a>
 			<br /><br />
 			
+			<a href="http://bioinfo.cipf.es/infrared-ws/src/main/webapp/documentation.html"><img src="img/backtotop/handmade.jpeg" alt="Back to top"
+			style="float: right; border: none;"/></a>
 			
 <!-- Frequencies *************************************************************************************************-->
 			<h5>Allel and Genotipe Frequencies</h5>
+			<p>Seaching for the allelic and genotipic frequencies of a collection of SNPs is as easy as the examples described 
+			above. The seach will look like this:</p>
+
+			<h7><b>http://bioinfo.cipf.es/infrared-ws/api/{version}/{specie}/variation/{variation_IDs}/frequencies</b></h7><br />
 			
+			<p>The output will retrieve not only information about the location of the SNP but also the allelic and genotipic 
+			frequencies for each population described. Soon it will be available a <b>filter by population</b> which will 
+			make easier the seach.
 			
+			<br />Example:</p>
 			
+			<a href="http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/variation/rs9959,rs6313,rs6311,rs8181239/frequencies">
+			<h7>http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/variation/rs9959,rs6313,rs6311,rs8181239/frequencies</h7></a>
+			<br /><br />
 			
 <!-- Omegas ******************************************************************************************************-->
 			<h5>Omega Values</h5>
+			<p>Omega values, which are the ratio of the rate of non-synonymous substitutions (Ka) to the rate of 
+			synonymous substitutions (Ks), can be used as an indicator of selective pressure on a protein-coding gene. 
+			Knowing these values may help us to find out whether a gene is evolving under positive selection.<br />
+			It is expected for those SNPs comming from diseases to have lower values of omega.<br />
+			In order to retrieve this information from a collection of SNPs, the URL must have the following format:</p>
 			
+			<h7><b>http://bioinfo.cipf.es/infrared-ws/api/{version}/{specie}/variation/{variation_IDs}/omegas</b></h7><br />
 			
+			<p>It is possible to <b>filter by range of values</b> just indicating the <i>minimum</i> and the <i>maximum</i> 
+			values of omega. The query, then, will be:</p>
+			
+			<pre><h7><b>http://bioinfo.cipf.es/infrared-ws/api/{version}/{specie}/variation/{variation_IDs}/omegas?min={minimum}&max={maximum}</b></h7></pre>
+			
+			Some examples:<br />
+			
+			<a href="http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/variation/variation/rs1006954,rs10065269,rs10062026,rs1005190,rs10048853/omegas">
+			<pre><h7>http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/variation/variation/rs1006954,rs10065269,rs10062026,rs1005190,rs10048853/omegas</h7></pre></a>
+			
+			<a href="http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/variation/rs1006954,rs10065269,rs10062026,rs1005190,rs10048853/omegas?min=0.01&max=0.2">
+			<pre><h7>http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/variation/rs1006954,rs10062026,rs1005190,rs10048853/omegas?min=0.01&max=0.2</h7></pre></a>
+			<br /><br />
+
+			<a href="http://bioinfo.cipf.es/infrared-ws/src/main/webapp/documentation.html"><img src="img/backtotop/handmade.jpeg" alt="Back to top"
+			style="float: right; border: none;"/></a>
+				
+<!-- 
+**************************************************************************************************************
+Variation
+**************************************************************************************************************-->
 			<h4 id="xref">External References</h4>
 			<hr></hr>
 			<h4 id="xxx">XXX</h4>

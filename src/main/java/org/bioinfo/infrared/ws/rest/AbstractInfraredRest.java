@@ -15,6 +15,7 @@ import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.infrared.common.dbsql.DBConnector;
 import org.bioinfo.infrared.common.feature.Feature;
 import org.bioinfo.infrared.common.feature.FeatureList;
+import org.bioinfo.infrared.variation.TranscriptConsequenceType;
 import org.bioinfo.infrared.ws.rest.exception.VersionException;
 
 import com.google.gson.Gson;
@@ -24,7 +25,7 @@ public abstract class AbstractInfraredRest {
 
 	protected DBConnector infraredDBConnector;
 	protected Config config;
-	
+
 	protected String version;
 	protected String species;
 	protected UriInfo uriInfo;
@@ -33,7 +34,7 @@ public abstract class AbstractInfraredRest {
 	protected String separator;
 	protected String outputFormat;
 	protected boolean compress;
-	
+
 
 	//	public AbstractInfraredRest(String species, UriInfo uriInfo) {
 	//		this.species = species;
@@ -47,11 +48,11 @@ public abstract class AbstractInfraredRest {
 		this.version = version;
 		this.species = species;
 		this.uriInfo = uriInfo;
-		
+
 		// load properties file
 		ResourceBundle databaseConfig = ResourceBundle.getBundle("org.bioinfo.infrared.ws.application");
 		config = new Config(databaseConfig);
-		
+
 		// check public version
 		if(StringUtils.toList(config.getProperty("PUBLIC.VERSION"), ",").contains(version)) {
 			parseCommonQueryParameters(uriInfo.getQueryParameters());
@@ -101,25 +102,57 @@ public abstract class AbstractInfraredRest {
 				return new Gson().toJson(features);
 			}
 		}
-		return null;
+		return "output format '"+outputFormat+"' not valid";
 	}
 
 	protected <E extends Feature> String createResultString(List<String> ids, List<FeatureList<E>> features) {
-		StringBuilder result = new StringBuilder();
-		for(int i=0; i<ids.size(); i++) {
-			if(features.get(i) != null && features.get(i).size() > 0) {
-				for(E feature: features.get(i)) {
-					if(feature != null) {
-						result.append(ids.get(i)).append(":\t").append(feature.toString()).append(separator);
-					}else {
-						result.append(ids.get(i)).append(":\t").append("not found").append(separator);
+		if(outputFormat.equals("txt")) {
+			StringBuilder result = new StringBuilder();
+			for(int i=0; i<ids.size(); i++) {
+				if(features.get(i) != null && features.get(i).size() > 0) {
+					for(E feature: features.get(i)) {
+						if(feature != null) {
+							result.append(ids.get(i)).append(":\t").append(feature.toString()).append(separator);
+						}else {
+							result.append(ids.get(i)).append(":\t").append("not found").append(separator);
+						}
 					}
+				}else {
+					result.append(ids.get(i)).append(":\t").append("not found").append(separator);
 				}
-			}else {
-				result.append(ids.get(i)).append(":\t").append("not found").append(separator);
+			}
+			return result.toString().trim();
+		}else {
+			if(outputFormat.equals("json")) {
+				return new Gson().toJson(features);
 			}
 		}
-		return result.toString().trim();
+		return "output format '"+outputFormat+"' not valid";
+	}
+	
+	protected String createResultStringByTranscriptConsequenceType(List<String> ids, List<List<TranscriptConsequenceType>> features) {
+		if(outputFormat.equals("txt")) {
+			StringBuilder result = new StringBuilder();
+			for(int i=0; i<ids.size(); i++) {
+				if(features.get(i) != null && features.get(i).size() > 0) {
+					for(TranscriptConsequenceType feature: features.get(i)) {
+						if(feature != null) {
+							result.append(ids.get(i)).append(":\t").append(feature.toString()).append(separator);
+						}else {
+							result.append(ids.get(i)).append(":\t").append("not found").append(separator);
+						}
+					}
+				}else {
+					result.append(ids.get(i)).append(":\t").append("not found").append(separator);
+				}
+			}
+			return result.toString().trim();
+		}else {
+			if(outputFormat.equals("json")) {
+				return new Gson().toJson(features);
+			}
+		}
+		return "output format '"+outputFormat+"' not valid";
 	}
 
 	protected Response generateResponse(String entity, String outputFormat, boolean compress) throws IOException {

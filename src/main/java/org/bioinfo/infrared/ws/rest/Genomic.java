@@ -16,6 +16,7 @@ import org.bioinfo.commons.utils.ListUtils;
 import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.infrared.common.feature.FeatureList;
 import org.bioinfo.infrared.core.Gene;
+import org.bioinfo.infrared.core.Position;
 import org.bioinfo.infrared.core.dbsql.GeneDBManager;
 import org.bioinfo.infrared.regulatory.ConservedRegion;
 import org.bioinfo.infrared.regulatory.JasparTfbs;
@@ -31,8 +32,10 @@ import org.bioinfo.infrared.regulatory.dbsql.OregannoTfbsDBManager;
 import org.bioinfo.infrared.regulatory.dbsql.TriplexDBManager;
 import org.bioinfo.infrared.variation.SNP;
 import org.bioinfo.infrared.variation.SpliceSite;
+import org.bioinfo.infrared.variation.TranscriptConsequenceType;
 import org.bioinfo.infrared.variation.dbsql.SNPDBManager;
 import org.bioinfo.infrared.variation.dbsql.SpliceSiteDBManager;
+import org.bioinfo.infrared.variation.dbsql.VariationPositionDBManager;
 import org.bioinfo.infrared.ws.rest.exception.VersionException;
 
 
@@ -157,7 +160,21 @@ public class Genomic extends AbstractInfraredRest{
 			return generateErrorMessage(e.toString());
 		}
 	}
-
+	
+	@GET
+	@Path("/position/{position}/consequencetype")
+	public Response getConsequenceType(@PathParam("position") String positionString) {
+		try {
+			List<Position> positions = Position.parsePosition(positionString);
+			VariationPositionDBManager variationPositionDBManager = new VariationPositionDBManager(infraredDBConnector);
+			List<List<TranscriptConsequenceType>> ct = new ArrayList<List<TranscriptConsequenceType>>();
+			ct = variationPositionDBManager.getConsequenceType(positions);
+			return generateResponse(createResultStringByTranscriptConsequenceType(StringUtils.toList(positionString, ","), ct), outputFormat, compress);
+		} catch (Exception e) {
+			return generateErrorMessage(e.toString());
+		}
+	}
+	
 	@GET
 	@Path("/position/{position}/splicesite")
 	public Response getSpliceSiteByPosition(@PathParam("position") String positionString) {
@@ -190,7 +207,7 @@ public class Genomic extends AbstractInfraredRest{
 			List<FeatureList<ConservedRegion>> conservedRegions = new ArrayList<FeatureList<ConservedRegion>>();
 			for(Position position: positions) {
 				if(position != null && position.getChromosome() != null && !position.getChromosome().equals("") && position.getPosition() != 0) {
-					conservedRegion = conservedRegionDbManager.getAllByLocation(position.getChromosome(), position.getPosition());
+					conservedRegion = conservedRegionDbManager.getAllByPosition(position.getChromosome(), position.getPosition());
 				}else {
 					conservedRegion = null;
 				}
@@ -214,7 +231,7 @@ public class Genomic extends AbstractInfraredRest{
 					List<FeatureList<JasparTfbs>> tfbs = new ArrayList<FeatureList<JasparTfbs>>();
 					for(Position position: positions) {
 						if(position != null && position.getChromosome() != null && !position.getChromosome().equals("") && position.getPosition() != 0) {
-							jasparTfbs = jasparTfbsDbManager.getAllByLocation(position.getChromosome(), position.getPosition());
+							jasparTfbs = jasparTfbsDbManager.getAllByPosition(position.getChromosome(), position.getPosition());
 						}else {
 							jasparTfbs = null;
 						}
@@ -228,7 +245,7 @@ public class Genomic extends AbstractInfraredRest{
 						List<FeatureList<OregannoTfbs>> tfbs = new ArrayList<FeatureList<OregannoTfbs>>();
 						for(Position position: positions) {
 							if(position != null && position.getChromosome() != null && !position.getChromosome().equals("") && position.getPosition() != 0) {
-								oregannoTfbs = oregannoTfbsDBManager.getAllByLocation(position.getChromosome(), position.getPosition());
+								oregannoTfbs = oregannoTfbsDBManager.getAllByPosition(position.getChromosome(), position.getPosition());
 							}else {
 								oregannoTfbs = null;
 							}
@@ -257,7 +274,7 @@ public class Genomic extends AbstractInfraredRest{
 			List<FeatureList<MiRnaGene>> miRnasGene = new ArrayList<FeatureList<MiRnaGene>>();
 			for(Position position: positions) {
 				if(position != null && position.getChromosome() != null && !position.getChromosome().equals("") && position.getPosition() != 0) {
-					miRnaGene = miRnaGeneDbManager.getAllByLocation(position.getChromosome(), position.getPosition());
+					miRnaGene = miRnaGeneDbManager.getAllByPosition(position.getChromosome(), position.getPosition());
 				}else {
 					miRnaGene = null;
 				}
@@ -279,7 +296,7 @@ public class Genomic extends AbstractInfraredRest{
 			List<FeatureList<MiRnaTarget>> miRnasTarget = new ArrayList<FeatureList<MiRnaTarget>>();
 			for(Position position: positions) {
 				if(position != null && position.getChromosome() != null && !position.getChromosome().equals("") && position.getPosition() != 0) {
-					miRnaTarget = miRnaTargetDbManager.getAllByLocation(position.getChromosome(), position.getPosition());
+					miRnaTarget = miRnaTargetDbManager.getAllByPosition(position.getChromosome(), position.getPosition());
 				}else {
 					miRnaTarget = null;
 				}
@@ -301,7 +318,7 @@ public class Genomic extends AbstractInfraredRest{
 			List<FeatureList<Triplex>> triplexList = new ArrayList<FeatureList<Triplex>>();
 			for(Position position: positions) {
 				if(position != null && position.getChromosome() != null && !position.getChromosome().equals("") && position.getPosition() != 0) {
-					triplex = triplexDBManager.getAllByLocation(position.getChromosome(), position.getPosition());
+					triplex = triplexDBManager.getAllByPosition(position.getChromosome(), position.getPosition());
 				}else {
 					triplex = null;
 				}
@@ -383,51 +400,6 @@ public class Genomic extends AbstractInfraredRest{
 
 		public void setEnd(int end) {
 			this.end = end;
-		}
-	}
-
-	static class Position {
-		private String chromosome;
-		private int position;
-
-		public Position(String chromosome, int position) {
-			this.chromosome = chromosome;
-			this.position = position;
-		}
-
-		public static List<Position> parsePosition(String positionString) {
-			List<Position> positions = new ArrayList<Position>();
-			String[] positionItems = positionString.split(",");
-			for(String posString: positionItems) {
-				String[] fields = posString.split(":", -1);
-				if(fields.length == 2) {
-					positions.add(new Position(fields[0], Integer.parseInt(fields[1])));
-				}else {
-					positions.add(null);
-				}
-			}
-			return positions;
-		}
-
-		@Override
-		public String toString() {
-			return chromosome+":"+position;
-		}
-
-		public String getChromosome() {
-			return chromosome;
-		}
-
-		public void setChromosome(String chromosome) {
-			this.chromosome = chromosome;
-		}
-
-		public int getPosition() {
-			return position;
-		}
-
-		public void setPosition(int position) {
-			this.position = position;
 		}
 	}
 }
