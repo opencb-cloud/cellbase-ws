@@ -20,8 +20,8 @@ public class GenomicTest {
 //		response = r.accept(MediaType.TEXT_PLAIN).header("X-FOO", "BAR").get(String.class);
 //		System.out.println(response);
 		
-		response = r.path("hsa").path("genomic").path("3:100-2000000").path("gene").accept(MediaType.TEXT_PLAIN).header("X-FOO", "BAR").get(String.class);
-		System.out.println(response);
+//		response = r.path("hsa").path("genomic").path("3:100-2000000").path("gene").accept(MediaType.TEXT_PLAIN).header("X-FOO", "BAR").get(String.class);
+//		System.out.println(response);
 //		fail("Not yet implemented");
 	}
 

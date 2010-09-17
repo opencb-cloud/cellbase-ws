@@ -35,7 +35,6 @@ import org.bioinfo.infrared.variation.SpliceSite;
 import org.bioinfo.infrared.variation.TranscriptConsequenceType;
 import org.bioinfo.infrared.variation.dbsql.SNPDBManager;
 import org.bioinfo.infrared.variation.dbsql.SpliceSiteDBManager;
-import org.bioinfo.infrared.variation.dbsql.VariationPositionDBManager;
 import org.bioinfo.infrared.ws.rest.exception.VersionException;
 
 
@@ -161,19 +160,19 @@ public class Genomic extends AbstractInfraredRest{
 		}
 	}
 	
-	@GET
-	@Path("/position/{position}/consequencetype")
-	public Response getConsequenceType(@PathParam("position") String positionString) {
-		try {
-			List<Position> positions = Position.parsePosition(positionString);
-			VariationPositionDBManager variationPositionDBManager = new VariationPositionDBManager(infraredDBConnector);
-			List<List<TranscriptConsequenceType>> ct = new ArrayList<List<TranscriptConsequenceType>>();
-			ct = variationPositionDBManager.getConsequenceType(positions);
-			return generateResponse(createResultStringByTranscriptConsequenceType(StringUtils.toList(positionString, ","), ct), outputFormat, compress);
-		} catch (Exception e) {
-			return generateErrorMessage(e.toString());
-		}
-	}
+//	@GET
+//	@Path("/position/{position}/consequencetype")
+//	public Response getConsequenceType(@PathParam("position") String positionString) {
+//		try {
+//			List<Position> positions = Position.parsePosition(positionString);
+//			VariationPositionDBManager variationPositionDBManager = new VariationPositionDBManager(infraredDBConnector);
+//			List<List<TranscriptConsequenceType>> ct = new ArrayList<List<TranscriptConsequenceType>>();
+//			ct = variationPositionDBManager.getConsequenceType(positions);
+//			return generateResponse(createResultStringByTranscriptConsequenceType(StringUtils.toList(positionString, ","), ct), outputFormat, compress);
+//		} catch (Exception e) {
+//			return generateErrorMessage(e.toString());
+//		}
+//	}
 	
 	@GET
 	@Path("/position/{position}/splicesite")

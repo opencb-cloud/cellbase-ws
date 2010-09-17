@@ -67,7 +67,7 @@ public class Variation extends AbstractInfraredRest {
 		try {
 			List<String> ids = StringUtils.toList(snpIds, ",");
 			SNPDBManager snpDbManager = new SNPDBManager(infraredDBConnector);
-			FeatureList<SNP> snplist = snpDbManager.getByName(ids);
+			FeatureList<SNP> snplist = snpDbManager.getByNames(ids);
 			return generateResponse(createResultString(ids, snplist), outputFormat, compress);
 		} catch (Exception e) {
 			return generateErrorMessage(e.toString());
@@ -85,7 +85,7 @@ public class Variation extends AbstractInfraredRest {
 				List<String> consequenceTypes = StringUtils.toList(uriInfo.getQueryParameters().get("consequencetype").get(0), ",");
 				snplist = snpDbManager.getAllFilteredByConsequenceType(ids, consequenceTypes);
 			}else {
-				snplist = snpDbManager.getByName(ids);
+				snplist = snpDbManager.getByNames(ids);
 			}
 			return generateResponse(createResultString(ids, snplist), outputFormat, compress);
 		} catch (Exception e) {
