@@ -159,6 +159,10 @@ public abstract class AbstractInfraredRest {
 		MediaType mediaType = MediaType.valueOf("text/plain");
 		if(outputFormat != null && outputFormat.equals("json")) {
 			mediaType =  MediaType.valueOf("application/json");
+			Gson gson = new Gson();
+			System.out.println(entity);
+			entity = gson.toJson(entity);
+			System.out.println(entity);
 		}
 		if(outputFormat != null && outputFormat.equals("xml")) {
 			mediaType =  MediaType.valueOf("text/xml");

@@ -51,7 +51,7 @@ public class Genomic extends AbstractInfraredRest{
 	@GET
 	@Path("/region/{region}/gene")
 	public Response getGenesByRegion(@PathParam("region") String regionString) {
-		try {	
+		try {
 			List<Region> regions = Region.parseRegion(regionString);
 			GeneDBManager geneDbManager = new GeneDBManager(infraredDBConnector);
 			FeatureList<Gene> genes = new FeatureList<Gene>();
