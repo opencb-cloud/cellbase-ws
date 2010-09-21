@@ -2,7 +2,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.bioinfo</groupId>
-	<artifactId>infrared-ws</artifactId>
+	<artifactId>infrared-ws-server</artifactId>
 	<version>0.1.0</version>
 	<packaging>war</packaging>
 	<dependencies>
@@ -10,6 +10,11 @@
 			<groupId>org.bioinfo</groupId>
 			<artifactId>infrared-lib</artifactId>
 			<version>1.1.0-beta</version>
+		</dependency>
+		<dependency>
+			<groupId>org.bioinfo</groupId>
+			<artifactId>infrared-core</artifactId>
+			<version>0.1.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.bioinfo</groupId>
@@ -25,6 +30,11 @@
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
 			<version>1.4</version>
+		</dependency>
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-lgpl</artifactId>
+			<version>0.9.5</version>
 		</dependency>
 		<dependency>
 			<groupId>javax.servlet</groupId>
@@ -45,7 +55,7 @@
 	</dependencies>
 	<build>
 		<sourceDirectory>src</sourceDirectory>
-		<finalName>infrared-ws</finalName>
+		<finalName>infrared-ws-server</finalName>
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>

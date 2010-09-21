@@ -12,29 +12,10 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import org.bioinfo.commons.utils.ListUtils;
 import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.infrared.common.feature.FeatureList;
-import org.bioinfo.infrared.core.Gene;
-import org.bioinfo.infrared.core.Position;
 import org.bioinfo.infrared.core.dbsql.GeneDBManager;
-import org.bioinfo.infrared.regulatory.ConservedRegion;
-import org.bioinfo.infrared.regulatory.JasparTfbs;
-import org.bioinfo.infrared.regulatory.MiRnaGene;
-import org.bioinfo.infrared.regulatory.MiRnaTarget;
-import org.bioinfo.infrared.regulatory.OregannoTfbs;
-import org.bioinfo.infrared.regulatory.Triplex;
-import org.bioinfo.infrared.regulatory.dbsql.ConservedRegionDBManager;
-import org.bioinfo.infrared.regulatory.dbsql.JasparTfbsDBManager;
-import org.bioinfo.infrared.regulatory.dbsql.MiRnaGeneDBManager;
-import org.bioinfo.infrared.regulatory.dbsql.MiRnaTargetDBManager;
-import org.bioinfo.infrared.regulatory.dbsql.OregannoTfbsDBManager;
-import org.bioinfo.infrared.regulatory.dbsql.TriplexDBManager;
-import org.bioinfo.infrared.variation.SNP;
-import org.bioinfo.infrared.variation.SpliceSite;
-import org.bioinfo.infrared.variation.TranscriptConsequenceType;
-import org.bioinfo.infrared.variation.dbsql.SNPDBManager;
-import org.bioinfo.infrared.variation.dbsql.SpliceSiteDBManager;
+import org.bioinfo.infrared.core.feature.Gene;
 import org.bioinfo.infrared.ws.rest.exception.VersionException;
 
 
@@ -47,11 +28,11 @@ public class Genomic extends AbstractInfraredRest{
 		connect();
 	}
 
-
+	/*
 	@GET
 	@Path("/region/{region}/gene")
 	public Response getGenesByRegion(@PathParam("region") String regionString) {
-		try {	
+		try {
 			List<Region> regions = Region.parseRegion(regionString);
 			GeneDBManager geneDbManager = new GeneDBManager(infraredDBConnector);
 			FeatureList<Gene> genes = new FeatureList<Gene>();
@@ -75,8 +56,17 @@ public class Genomic extends AbstractInfraredRest{
 				}
 				genes = genesByBiotype;
 			}
-			return generateResponse(ListUtils.toString(genes, separator), outputFormat, compress);
+//			Gson gson = new Gson();
+//			StringBuilder sb = new StringBuilder();
+//			Gene[] g = new Gene[genes.size()];
+//			for(int i=0; i<genes.size(); i++) {
+//				System.err.println(genes.get(i).toString());
+//				g[i] = genes.get(i);
+//				sb.append(gson.tgenes.get(i))
+//			}
+			return generateResponse2(genes, outputFormat, compress);
 		} catch (Exception e) {
+			e.printStackTrace();
 			return generateErrorMessage(e.toString());
 		}
 	}
@@ -329,7 +319,7 @@ public class Genomic extends AbstractInfraredRest{
 		}
 	}
 	
-
+*/
 	@Override
 	protected boolean isValidSpecies(String species) {
 		return true;

@@ -1,6 +1,5 @@
 package org.bioinfo.infrared.ws.rest;
 
-import javax.ws.rs.core.UriInfo;
 
 
 public class IdConverter extends AbstractInfraredRest {

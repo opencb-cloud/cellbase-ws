@@ -39,7 +39,7 @@ public class Variation extends AbstractInfraredRest {
 		init(version, species, uriInfo);
 		connect();
 	}
-		
+/*		
 	public Response getTest(String longText) {
 		try {
 			System.err.println("Length: "+longText.length()+", text: "+longText);
@@ -202,5 +202,13 @@ public class Variation extends AbstractInfraredRest {
 			}
 		}
 		return result.toString().trim();
+	}
+	
+	*/
+
+	@Override
+	protected boolean isValidSpecies(String species) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }

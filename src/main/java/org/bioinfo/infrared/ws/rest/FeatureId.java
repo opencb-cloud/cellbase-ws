@@ -14,17 +14,23 @@ import javax.ws.rs.core.UriInfo;
 import org.bioinfo.commons.utils.ListUtils;
 import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.infrared.common.feature.FeatureList;
-import org.bioinfo.infrared.core.DBName;
-import org.bioinfo.infrared.core.Gene;
-import org.bioinfo.infrared.core.XRef;
 import org.bioinfo.infrared.core.dbsql.GeneDBManager;
 import org.bioinfo.infrared.core.dbsql.XRefDBManager;
+import org.bioinfo.infrared.core.feature.DBName;
+import org.bioinfo.infrared.core.feature.Gene;
+import org.bioinfo.infrared.core.feature.XRef;
 
 
 @Path("/{version}/{species}/feature")
 @Produces("text/plain")
 public class FeatureId extends AbstractInfraredRest{
 
+	@Override
+	protected boolean isValidSpecies(String species) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+/*
 	// Returns all possible DB Names
 	@GET
 	@Path("/dbnames")
@@ -237,5 +243,5 @@ public class FeatureId extends AbstractInfraredRest{
 		protected boolean isValidSpecies(String species) {
 			return true;
 		}
-
+*/
 	}
