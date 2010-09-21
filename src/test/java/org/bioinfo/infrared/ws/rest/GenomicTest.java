@@ -2,8 +2,6 @@ package org.bioinfo.infrared.ws.rest;
 
 import static org.junit.Assert.fail;
 
-import javax.ws.rs.core.MediaType;
-
 import org.junit.Test;
 
 import com.sun.jersey.api.client.Client;

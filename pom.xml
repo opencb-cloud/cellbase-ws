@@ -13,6 +13,11 @@
 		</dependency>
 		<dependency>
 			<groupId>org.bioinfo</groupId>
+			<artifactId>infrared-core</artifactId>
+			<version>0.1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.bioinfo</groupId>
 			<artifactId>bioinfo-commons</artifactId>
 			<version>0.10.0</version>
 		</dependency>
@@ -25,6 +30,11 @@
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
 			<version>1.4</version>
+		</dependency>
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-lgpl</artifactId>
+			<version>0.9.5</version>
 		</dependency>
 		<dependency>
 			<groupId>javax.servlet</groupId>

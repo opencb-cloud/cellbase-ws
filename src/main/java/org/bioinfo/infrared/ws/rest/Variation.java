@@ -7,7 +7,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
@@ -40,7 +39,7 @@ public class Variation extends AbstractInfraredRest {
 		init(version, species, uriInfo);
 		connect();
 	}
-		
+/*		
 	public Response getTest(String longText) {
 		try {
 			System.err.println("Length: "+longText.length()+", text: "+longText);
@@ -203,5 +202,13 @@ public class Variation extends AbstractInfraredRest {
 			}
 		}
 		return result.toString().trim();
+	}
+	
+	*/
+
+	@Override
+	protected boolean isValidSpecies(String species) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }
