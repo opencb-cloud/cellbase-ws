@@ -3,8 +3,8 @@ package org.bioinfo.infrared.ws.server.rest;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -22,7 +22,6 @@ import org.bioinfo.infrared.core.common.FeatureList;
 import org.bioinfo.infrared.core.feature.Exon;
 import org.bioinfo.infrared.core.feature.Gene;
 import org.bioinfo.infrared.core.feature.Transcript;
-import org.bioinfo.infrared.core.feature.XRef;
 import org.bioinfo.infrared.core.variation.SNP;
 import org.bioinfo.infrared.core.variation.TranscriptConsequenceType;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
@@ -228,6 +227,27 @@ public abstract class AbstractInfraredRest {
 					entity = gson.toJson(features, listType);
 					System.err.println("done!");
 					System.err.println(entity);
+					
+					
+//					Type listType2 = new TypeToken<LinkedList<Gene>>() {}.getType();
+//					FeatureList<Gene> genes = gson.fromJson(entity, listType2);
+					System.err.println("Deserialization:");
+					FeatureList<Gene> genes = new FeatureList<Gene>();
+					List<Gene> geneList = gson.fromJson(entity, listType);
+					genes.addAll((Collection<? extends Gene>)geneList);
+					
+//					List<Gene> genes = gson.fromJson(entity, listType);
+					System.err.println("FeatureList<genes>.size(): "+genes.size());
+					System.err.println("geneList.size(): "+geneList.size());
+					System.err.println("FeatureList<genes>.get(0): "+genes.get(0).toString());
+					System.err.println("geneList.get(0): "+geneList.get(0).toString());
+					genes.get(0).setChromosome("pepe");
+					System.err.println("FeatureList<genes>.get(0): "+genes.get(0).toString());
+					System.err.println("geneList.get(0): "+geneList.get(0).toString());
+//					System.err.println("genes: "+genes.toString());
+					System.err.println("done!");
+					
+					
 				}else {
 					System.err.println("AbstractInfraredRest: TypeToken from Gson equals null");
 				}
