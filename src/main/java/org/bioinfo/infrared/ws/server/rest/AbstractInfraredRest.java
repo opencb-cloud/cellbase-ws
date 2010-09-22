@@ -216,6 +216,7 @@ public abstract class AbstractInfraredRest {
 				System.err.println("FeatureList Object Class: "+features.get(0).getClass());
 				if(features.get(0) instanceof Gene) {
 					listType = new TypeToken<FeatureList<Gene>>() {}.getType();
+					System.out.println("entro");
 				}else if(features.get(0) instanceof Transcript) {
 					listType = new TypeToken<FeatureList<Transcript>>() {}.getType();
 				}else if(features.get(0) instanceof Exon) {
@@ -224,10 +225,10 @@ public abstract class AbstractInfraredRest {
 					listType = new TypeToken<FeatureList<SNP>>() {}.getType();
 				}
 				if(listType != null) {
-					System.err.println("Creating JSON object...");
+					System.out.println("Creating JSON object...");
 					entity = gson.toJson(features, listType);
-					System.err.println("done!");
-					System.err.println(entity);
+					System.out.println("done!");
+					System.out.println(entity);
 				}else {
 					System.err.println("AbstractInfraredRest: TypeToken from Gson equals null");
 				}
