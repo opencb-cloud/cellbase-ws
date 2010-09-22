@@ -1,4 +1,4 @@
-package org.bioinfo.infrared.ws.rest;
+package org.bioinfo.infrared.ws.server.rest;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -12,11 +12,31 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import org.bioinfo.commons.utils.ListUtils;
 import org.bioinfo.commons.utils.StringUtils;
-import org.bioinfo.infrared.common.feature.FeatureList;
-import org.bioinfo.infrared.core.dbsql.GeneDBManager;
+import org.bioinfo.infrared.core.GeneDBManager;
+import org.bioinfo.infrared.core.common.FeatureList;
 import org.bioinfo.infrared.core.feature.Gene;
-import org.bioinfo.infrared.ws.rest.exception.VersionException;
+import org.bioinfo.infrared.core.feature.Position;
+import org.bioinfo.infrared.core.feature.Region;
+import org.bioinfo.infrared.core.regulatory.ConservedRegion;
+import org.bioinfo.infrared.core.regulatory.JasparTfbs;
+import org.bioinfo.infrared.core.regulatory.MiRnaGene;
+import org.bioinfo.infrared.core.regulatory.MiRnaTarget;
+import org.bioinfo.infrared.core.regulatory.OregannoTfbs;
+import org.bioinfo.infrared.core.regulatory.Triplex;
+import org.bioinfo.infrared.core.variation.SNP;
+import org.bioinfo.infrared.core.variation.SpliceSite;
+import org.bioinfo.infrared.regulatory.ConservedRegionDBManager;
+import org.bioinfo.infrared.regulatory.JasparTfbsDBManager;
+import org.bioinfo.infrared.regulatory.MiRnaGeneDBManager;
+import org.bioinfo.infrared.regulatory.MiRnaTargetDBManager;
+import org.bioinfo.infrared.regulatory.OregannoTfbsDBManager;
+import org.bioinfo.infrared.regulatory.TriplexDBManager;
+import org.bioinfo.infrared.variation.SNPDBManager;
+import org.bioinfo.infrared.variation.SpliceSiteDBManager;
+import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
+
 
 
 @Path("/{version}/{species}/genomic")
@@ -28,7 +48,7 @@ public class Genomic extends AbstractInfraredRest{
 		connect();
 	}
 
-	/*
+	
 	@GET
 	@Path("/region/{region}/gene")
 	public Response getGenesByRegion(@PathParam("region") String regionString) {
@@ -319,76 +339,10 @@ public class Genomic extends AbstractInfraredRest{
 		}
 	}
 	
-*/
+
 	@Override
 	protected boolean isValidSpecies(String species) {
 		return true;
 	}
 
-	static class Region {
-		private String chromosome;
-		private int start;
-		private int end;
-
-		//		public Region() {
-		////			parseRegion(region);
-		//		}
-
-		public Region(String chromosome, int start, int end) {
-			this.chromosome = chromosome;
-			this.start = start;
-			this.end = end;
-		}
-
-		public static List<Region> parseRegion(String regionsString) {
-			List<Region> regions = new ArrayList<Region>();
-			String[] regionsItems = regionsString.split(",");
-			for(String regionString: regionsItems) {
-				if(regionString.indexOf(':') != -1) {
-					String[] fields = regionString.split("[:-]", -1);
-					if(fields.length == 3) {
-						regions.add(new Region(fields[0], Integer.parseInt(fields[1]), Integer.parseInt(fields[2])));
-						//						chromosome = fields[0];
-						//						start = Integer.parseInt(fields[1]);
-						//						end = Integer.parseInt(fields[2]);
-					}
-				}else {
-					regions.add(new Region(regionString, 0, 0));
-					//					chromosome = regionsString;
-					//					start = 0;
-					//					end = 0;
-				}
-			}
-			return regions;
-		}
-
-		@Override
-		public String toString() {
-			return chromosome+":"+start+"-"+end; 
-		}
-
-		public String getChromosome() {
-			return chromosome;
-		}
-
-		public void setChromosome(String chromosome) {
-			this.chromosome = chromosome;
-		}
-
-		public int getStart() {
-			return start;
-		}
-
-		public void setStart(int start) {
-			this.start = start;
-		}
-
-		public int getEnd() {
-			return end;
-		}
-
-		public void setEnd(int end) {
-			this.end = end;
-		}
-	}
 }

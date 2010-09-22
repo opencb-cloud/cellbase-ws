@@ -1,4 +1,4 @@
-package org.bioinfo.infrared.ws.rest.exception;
+package org.bioinfo.infrared.ws.server.rest.exception;
 
 public class VersionException extends Exception {
 

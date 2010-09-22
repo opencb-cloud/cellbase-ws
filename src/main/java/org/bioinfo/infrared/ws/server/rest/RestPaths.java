@@ -1,4 +1,4 @@
-package org.bioinfo.infrared.ws.rest;
+package org.bioinfo.infrared.ws.server.rest;
 
 
 

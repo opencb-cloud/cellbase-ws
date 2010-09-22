@@ -1,4 +1,4 @@
-package org.bioinfo.infrared.ws.rest;
+package org.bioinfo.infrared.ws.server.rest;
 
 import java.io.IOException;
 import java.util.List;
@@ -13,14 +13,14 @@ import javax.ws.rs.core.UriInfo;
 
 import org.bioinfo.commons.utils.ListUtils;
 import org.bioinfo.commons.utils.StringUtils;
-import org.bioinfo.infrared.common.feature.FeatureList;
-import org.bioinfo.infrared.variation.Omega;
-import org.bioinfo.infrared.variation.SNP;
-import org.bioinfo.infrared.variation.VariationFrequency;
-import org.bioinfo.infrared.variation.dbsql.OmegaDBManager;
-import org.bioinfo.infrared.variation.dbsql.SNPDBManager;
-import org.bioinfo.infrared.variation.dbsql.VariationFrequencyDBManager;
-import org.bioinfo.infrared.ws.rest.exception.VersionException;
+import org.bioinfo.infrared.core.common.FeatureList;
+import org.bioinfo.infrared.core.variation.Omega;
+import org.bioinfo.infrared.core.variation.SNP;
+import org.bioinfo.infrared.core.variation.VariationFrequency;
+import org.bioinfo.infrared.variation.OmegaDBManager;
+import org.bioinfo.infrared.variation.SNPDBManager;
+import org.bioinfo.infrared.variation.VariationFrequencyDBManager;
+import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
 
 
 
@@ -39,7 +39,7 @@ public class Variation extends AbstractInfraredRest {
 		init(version, species, uriInfo);
 		connect();
 	}
-/*		
+	
 	public Response getTest(String longText) {
 		try {
 			System.err.println("Length: "+longText.length()+", text: "+longText);
@@ -204,11 +204,4 @@ public class Variation extends AbstractInfraredRest {
 		return result.toString().trim();
 	}
 	
-	*/
-
-	@Override
-	protected boolean isValidSpecies(String species) {
-		// TODO Auto-generated method stub
-		return false;
-	}
 }

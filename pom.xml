@@ -9,12 +9,7 @@
 		<dependency>
 			<groupId>org.bioinfo</groupId>
 			<artifactId>infrared-lib</artifactId>
-			<version>1.1.0-beta</version>
-		</dependency>
-		<dependency>
-			<groupId>org.bioinfo</groupId>
-			<artifactId>infrared-core</artifactId>
-			<version>0.1.0</version>
+			<version>1.2.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.bioinfo</groupId>
@@ -31,11 +26,13 @@
 			<artifactId>gson</artifactId>
 			<version>1.4</version>
 		</dependency>
+		<!-- 
 		<dependency>
 			<groupId>org.codehaus.jackson</groupId>
 			<artifactId>jackson-lgpl</artifactId>
 			<version>0.9.5</version>
 		</dependency>
+		 -->
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>servlet-api</artifactId>

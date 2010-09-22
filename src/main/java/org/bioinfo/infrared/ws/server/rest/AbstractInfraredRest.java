@@ -1,4 +1,4 @@
-package org.bioinfo.infrared.ws.rest;
+package org.bioinfo.infrared.ws.server.rest;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -16,7 +16,7 @@ import javax.ws.rs.core.UriInfo;
 import org.bioinfo.commons.Config;
 import org.bioinfo.commons.utils.ListUtils;
 import org.bioinfo.commons.utils.StringUtils;
-import org.bioinfo.infrared.common.dbsql.DBConnector;
+import org.bioinfo.infrared.common.DBConnector;
 import org.bioinfo.infrared.core.common.Feature;
 import org.bioinfo.infrared.core.common.FeatureList;
 import org.bioinfo.infrared.core.feature.Exon;
@@ -25,7 +25,7 @@ import org.bioinfo.infrared.core.feature.Transcript;
 import org.bioinfo.infrared.core.feature.XRef;
 import org.bioinfo.infrared.core.variation.SNP;
 import org.bioinfo.infrared.core.variation.TranscriptConsequenceType;
-import org.bioinfo.infrared.ws.rest.exception.VersionException;
+import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -45,7 +45,7 @@ public abstract class AbstractInfraredRest {
 	protected String outputFormat;
 	protected boolean compress;
 
-
+	private Gson gson = new Gson();
 	//	public AbstractInfraredRest(String species, UriInfo uriInfo) {
 	//		this.species = species;
 	//		this.uriInfo = uriInfo;
@@ -185,7 +185,7 @@ public abstract class AbstractInfraredRest {
 		}
 	}
 
-	protected <E extends Feature> Response generateResponse2(FeatureList<Gene> features, String outputFormat, boolean compress) throws IOException {
+	protected <E extends Feature> Response generateResponse2(FeatureList<E> features, String outputFormat, boolean compress) throws IOException {
 		MediaType mediaType = MediaType.valueOf("text/plain");
 		String entity = null;
 		if(outputFormat != null && outputFormat.equals("txt")) {
@@ -194,46 +194,44 @@ public abstract class AbstractInfraredRest {
 		}
 		if(outputFormat != null && outputFormat.equals("json")) {
 			mediaType =  MediaType.valueOf("application/json");
-			
-			
-			/**
-			 * 	Type listType = new TypeToken<List<String>>() {}.getType();
-				gson.toJson(myStrings, listType);
-
-			 */
-			
-			List<Gene> myStrings = new ArrayList<Gene>();
-			Type listType = new TypeToken<List<Gene>>() {}.getType();
-			
-			Gene g1 = new Gene("aaa", "1", 12, 56, "-1", "mieeerda");
-			FeatureList<Transcript> t = new FeatureList<Transcript>();
-			t.add(new Transcript("t1", "1", 1, 2, "1", "biotye"));
-			
-			g1.setTranscripts(t);
-			g1.setExons(new FeatureList<Exon>());
-			g1.setSnps(new FeatureList<SNP>());
-			g1.setXrefs(new HashMap<String, FeatureList<XRef>>());
+//			List<Gene> myStrings = new ArrayList<Gene>();
+//			Type listType = new TypeToken<List<Gene>>() {}.getType();
+//			Gene g1 = new Gene("aaa", "1", 12, 56, "-1", "mieeerda");
+//			FeatureList<Transcript> t = new FeatureList<Transcript>();
+//			t.add(new Transcript("t1", "1", 1, 2, "1", "biotye"));
+//			g1.setTranscripts(t);
+//			g1.setExons(new FeatureList<Exon>());
+//			g1.setSnps(new FeatureList<SNP>());
+//			g1.setXrefs(new HashMap<String, FeatureList<XRef>>());
 //			g1.setRosettaDBConnector(new DBConnector());
-			
-			myStrings.add(g1);
-			myStrings.add(new Gene("bbb", "1", 12, 56, "-1", "mieeerda"));
-			myStrings.add(new Gene("ccc", "1", 12, 56, "-1", "mieeerda"));
+//			myStrings.add(g1);
+//			myStrings.add(new Gene("bbb", "1", 12, 56, "-1", "mieeerda"));
+//			myStrings.add(new Gene("ccc", "1", 12, 56, "-1", "mieeerda"));
 //			myStrings.add((Gene)features.get(0));
 //			myStrings.add((Gene)features.get(1));
 //			myStrings.add((Gene)features.get(2));
-			System.err.println("1: "+List.class);
-//			Type listType = new TypeToken<Gene[]>() {}.getType();
-			System.err.println("2: "+ArrayList.class);
-			Gson gson = new Gson();
-			System.err.println("3");
-			entity = gson.toJson(myStrings, listType);
-//			entity = gson.toJson(features);
-//			entity = gson.toJson(new Gene("aaa", "1", 12, 56, "-1", "mieeerda"));
-			System.err.println("4");
-			
-			System.err.println(entity);
-//			entity = new Gson().toJson(new Gene("aaa", "1", 12, 56, "-1", "mieeerda"));
-//			entity = new Gson().toJson(features, listType);
+
+			Type listType = null;
+			if(features != null && features.size() > 0) {
+				System.err.println("FeatureList Object Class: "+features.get(0).getClass());
+				if(features.get(0) instanceof Gene) {
+					listType = new TypeToken<FeatureList<Gene>>() {}.getType();
+				}else if(features.get(0) instanceof Transcript) {
+					listType = new TypeToken<FeatureList<Transcript>>() {}.getType();
+				}else if(features.get(0) instanceof Exon) {
+					listType = new TypeToken<FeatureList<Exon>>() {}.getType();
+				}else if(features.get(0) instanceof SNP) {
+					listType = new TypeToken<FeatureList<SNP>>() {}.getType();
+				}
+				if(listType != null) {
+					System.err.println("Creating JSON object...");
+					entity = gson.toJson(features, listType);
+					System.err.println("done!");
+					System.err.println(entity);
+				}else {
+					System.err.println("AbstractInfraredRest: TypeToken from Gson equals null");
+				}
+			}
 		}
 		if(outputFormat != null && outputFormat.equals("xml")) {
 			mediaType =  MediaType.valueOf("text/xml");
