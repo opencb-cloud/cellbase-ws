@@ -3,8 +3,8 @@ package org.bioinfo.infrared.ws.server.rest;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -212,6 +212,25 @@ public abstract class AbstractInfraredRest {
 					entity = gson.toJson(features, listType);
 					System.err.println("done!");
 					System.err.println(entity);
+					String zipEntity = Arrays.toString(StringUtils.gzipToBytes(entity)).replace(" " , "");
+					System.err.println("zipEntryBytes: "+StringUtils.gzipToBytes(entity));
+					System.err.println("zipEntry: "+zipEntity);
+					System.out.println("entity.length(): "+entity.length());
+					System.out.println("zipEntity.length(): "+zipEntity.length());
+					
+//					StringUtils.sha1(entity);
+					
+					
+					String[] arr = zipEntity.replace("[", "").replace("]", "").split(",");
+					byte[] bytes = new byte[arr.length];
+					for(int i=0; i<arr.length; i++) {
+						bytes[i] = Byte.valueOf(arr[i]);
+					}
+					System.out.println("unzippedEntityBytes: "+Arrays.toString(bytes).replace(" " , ""));
+					String unzippedEntity = StringUtils.gunzipFromBytes(bytes);
+					System.out.println("unzippedEntity: "+unzippedEntity);
+					System.out.println("unzippedEntity.length(): "+unzippedEntity.length());
+					System.out.println("bytes.length: "+Arrays.toString(bytes).replace(" " , "").length());
 					
 					
 //					Type listType2 = new TypeToken<LinkedList<Gene>>() {}.getType();
