@@ -3,8 +3,8 @@ package org.bioinfo.infrared.ws.server.rest;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -22,7 +22,6 @@ import org.bioinfo.infrared.core.common.FeatureList;
 import org.bioinfo.infrared.core.feature.Exon;
 import org.bioinfo.infrared.core.feature.Gene;
 import org.bioinfo.infrared.core.feature.Transcript;
-import org.bioinfo.infrared.core.feature.XRef;
 import org.bioinfo.infrared.core.variation.SNP;
 import org.bioinfo.infrared.core.variation.TranscriptConsequenceType;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
@@ -194,22 +193,6 @@ public abstract class AbstractInfraredRest {
 		}
 		if(outputFormat != null && outputFormat.equals("json")) {
 			mediaType =  MediaType.valueOf("application/json");
-//			List<Gene> myStrings = new ArrayList<Gene>();
-//			Type listType = new TypeToken<List<Gene>>() {}.getType();
-//			Gene g1 = new Gene("aaa", "1", 12, 56, "-1", "mieeerda");
-//			FeatureList<Transcript> t = new FeatureList<Transcript>();
-//			t.add(new Transcript("t1", "1", 1, 2, "1", "biotye"));
-//			g1.setTranscripts(t);
-//			g1.setExons(new FeatureList<Exon>());
-//			g1.setSnps(new FeatureList<SNP>());
-//			g1.setXrefs(new HashMap<String, FeatureList<XRef>>());
-//			g1.setRosettaDBConnector(new DBConnector());
-//			myStrings.add(g1);
-//			myStrings.add(new Gene("bbb", "1", 12, 56, "-1", "mieeerda"));
-//			myStrings.add(new Gene("ccc", "1", 12, 56, "-1", "mieeerda"));
-//			myStrings.add((Gene)features.get(0));
-//			myStrings.add((Gene)features.get(1));
-//			myStrings.add((Gene)features.get(2));
 
 			Type listType = null;
 			if(features != null && features.size() > 0) {
@@ -227,8 +210,29 @@ public abstract class AbstractInfraredRest {
 				if(listType != null) {
 					System.out.println("Creating JSON object...");
 					entity = gson.toJson(features, listType);
-					System.out.println("done!");
-					System.out.println(entity);
+					System.err.println("done!");
+					System.err.println(entity);
+					
+					
+//					Type listType2 = new TypeToken<LinkedList<Gene>>() {}.getType();
+//					FeatureList<Gene> genes = gson.fromJson(entity, listType2);
+					System.err.println("Deserialization:");
+					FeatureList<Gene> genes = new FeatureList<Gene>();
+					List<Gene> geneList = gson.fromJson(entity, listType);
+					genes.addAll((Collection<? extends Gene>)geneList);
+					
+//					List<Gene> genes = gson.fromJson(entity, listType);
+					System.err.println("FeatureList<genes>.size(): "+genes.size());
+					System.err.println("geneList.size(): "+geneList.size());
+					System.err.println("FeatureList<genes>.get(0): "+genes.get(0).toString());
+					System.err.println("geneList.get(0): "+geneList.get(0).toString());
+					genes.get(0).setChromosome("pepe");
+					System.err.println("FeatureList<genes>.get(0): "+genes.get(0).toString());
+					System.err.println("geneList.get(0): "+geneList.get(0).toString());
+//					System.err.println("genes: "+genes.toString());
+					System.err.println("done!");
+					
+					
 				}else {
 					System.err.println("AbstractInfraredRest: TypeToken from Gson equals null");
 				}
