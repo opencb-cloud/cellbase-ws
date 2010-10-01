@@ -14,6 +14,7 @@ import javax.ws.rs.core.UriInfo;
 import org.bioinfo.commons.utils.ListUtils;
 import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.infrared.core.common.FeatureList;
+import org.bioinfo.infrared.core.feature.Gene;
 import org.bioinfo.infrared.core.variation.Omega;
 import org.bioinfo.infrared.core.variation.SNP;
 import org.bioinfo.infrared.core.variation.VariationFrequency;
@@ -21,6 +22,8 @@ import org.bioinfo.infrared.variation.OmegaDBManager;
 import org.bioinfo.infrared.variation.SNPDBManager;
 import org.bioinfo.infrared.variation.VariationFrequencyDBManager;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
+
+import com.google.gson.reflect.TypeToken;
 
 
 
@@ -68,7 +71,9 @@ public class Variation extends AbstractInfraredRest {
 			List<String> ids = StringUtils.toList(snpIds, ",");
 			SNPDBManager snpDbManager = new SNPDBManager(infraredDBConnector);
 			FeatureList<SNP> snplist = snpDbManager.getByNames(ids);
-			return generateResponse(createResultString(ids, snplist), outputFormat, compress);
+			//return generateResponse(createResultString(ids, snplist), outputFormat, compress);
+			this.listType = new TypeToken<FeatureList<SNP>>() {}.getType();
+			return generateResponse2(snplist, outputFormat, compress);
 		} catch (Exception e) {
 			return generateErrorMessage(e.toString());
 		}
@@ -87,7 +92,9 @@ public class Variation extends AbstractInfraredRest {
 			}else {
 				snplist = snpDbManager.getByNames(ids);
 			}
-			return generateResponse(createResultString(ids, snplist), outputFormat, compress);
+			//return generateResponse(createResultString(ids, snplist), outputFormat, compress);
+			this.listType = new TypeToken<FeatureList<SNP>>() {}.getType();
+			return generateResponse2(snplist, outputFormat, compress);
 		} catch (Exception e) {
 			return generateErrorMessage(e.toString());
 		}
@@ -106,7 +113,9 @@ public class Variation extends AbstractInfraredRest {
 			}else {
 				snplist = variationFrequencyDbManager.getBySnpIds(ids);
 			}
-			return generateResponse(createResultString(ids, snplist), outputFormat, compress);
+			//return generateResponse(createResultString(ids, snplist), outputFormat, compress);
+			this.listType = new TypeToken<FeatureList<VariationFrequency>>() {}.getType();
+			return generateResponse2(snplist, outputFormat, compress);
 		} catch (Exception e) {
 			return generateErrorMessage(e.toString());
 		}
@@ -124,7 +133,9 @@ public class Variation extends AbstractInfraredRest {
 			}else{
 				omegas = omegaDbManager.getAllBySnpIds(snps);
 			}
-			return generateResponse(createResultString(snps, omegas), outputFormat, compress);
+//			return generateResponse(createResultString(snps, omegas), outputFormat, compress);
+			this.listType = new TypeToken<List<FeatureList<Omega>>>() {}.getType();
+			return generateResponse2(omegas, outputFormat, compress);
 		}catch (Exception e) {
 			return generateErrorMessage(e.toString());
 		}

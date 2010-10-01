@@ -1,6 +1,6 @@
 package org.bioinfo.infrared.ws.server.rest;
 
-import java.lang.reflect.Type;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,27 +20,33 @@ import org.bioinfo.infrared.core.common.FeatureList;
 import org.bioinfo.infrared.core.feature.DBName;
 import org.bioinfo.infrared.core.feature.Gene;
 import org.bioinfo.infrared.core.feature.XRef;
+import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
+
+import com.google.gson.reflect.TypeToken;
 
 
 @Path("/{version}/{species}/feature")
 @Produces("text/plain")
 public class FeatureId extends AbstractInfraredRest{
 
+	
+	public FeatureId(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo) throws VersionException, IOException {
+		init(version, species, uriInfo);
+		connect();
+	}
 	// Returns all possible DB Names
 	@GET
 	@Path("/dbnames")
-	public Response getAllDBNames(@PathParam("version") String version, @PathParam("species") String species, @PathParam("featureId") String idsString, @Context UriInfo ui) {
+	public Response getAllDBNames() {
 		try {
-			init(version, species, ui);
-			connect();
 
 			List<DBName> dbnames = new ArrayList<DBName>();
 			List<DBName> aux;
 			XRefDBManager xrefDbManager = new XRefDBManager(infraredDBConnector);
-			if (ui.getQueryParameters().get("type") != null) {
+			if (uriInfo.getQueryParameters().get("type") != null) {
 //				String dbTypeString = ui.getQueryParameters().get("type").get(0);
 //				List<String> types = StringUtils.toList(dbTypeString, ",");
-				List<String> types = StringUtils.toList(ui.getQueryParameters().get("type").get(0), ",");
+				List<String> types = StringUtils.toList(uriInfo.getQueryParameters().get("type").get(0), ",");
 				types = ListUtils.unique(types);
 				for(String type: types) {
 					aux = xrefDbManager.getAllDBNamesByType(type);
@@ -51,7 +57,9 @@ public class FeatureId extends AbstractInfraredRest{
 			}else {
 				dbnames.addAll(xrefDbManager.getAllDBNames());
 			}
-			return generateResponse(ListUtils.toString(dbnames, separator), outputFormat, compress);
+			//return generateResponse(ListUtils.toString(dbnames, separator), outputFormat, compress);
+			this.listType = new TypeToken<List<DBName>>() {}.getType();
+			return generateResponse(dbnames, outputFormat, compress);
 		} catch (Exception e) {
 			return generateErrorMessage(e.toString());
 		}
@@ -60,21 +68,21 @@ public class FeatureId extends AbstractInfraredRest{
 	
 	@GET
 	@Path("/{featureId}/xref")
-	public Response getAllIdentifiers(@PathParam("version") String version, @PathParam("species") String species, @PathParam("featureId") String idsString, @Context UriInfo ui) {
+	public Response getAllIdentifiers(@PathParam("featureId") String idsString) {
 		try {
-			init(version, species, ui);
-			connect();
 			
 			List<String> ids = StringUtils.toList(idsString, ",");
 			List<XRef> xrefs = new FeatureList<XRef>();
 			XRefDBManager xrefDbManager = new XRefDBManager(infraredDBConnector);
-			if(ui.getQueryParameters().get("dbname") != null) {
-				List<String> dbnames = StringUtils.toList(ui.getQueryParameters().get("dbname").get(0), ",");
+			if(uriInfo.getQueryParameters().get("dbname") != null) {
+				List<String> dbnames = StringUtils.toList(uriInfo.getQueryParameters().get("dbname").get(0), ",");
 				xrefs = xrefDbManager.getByDBName(ids, dbnames);
 			}else {
 				xrefs = xrefDbManager.getAllIdentifiersByIds(ids);
 			}
-			return generateResponse(ListUtils.toString(xrefs, separator), outputFormat, compress);
+			//return generateResponse(ListUtils.toString(xrefs, separator), outputFormat, compress);
+			this.listType = new TypeToken<List<XRef>>() {}.getType();
+			return generateResponse(xrefs, outputFormat, compress);
 		} catch (Exception e) {
 			return generateErrorMessage(e.toString());
 		}
@@ -82,21 +90,21 @@ public class FeatureId extends AbstractInfraredRest{
 
 	@GET
 	@Path("/{featureId}/fuctionalannotation")
-	public Response getAllFunctionalAnnotations(@PathParam("version") String version, @PathParam("species") String species, @PathParam("featureId") String idsString, @Context UriInfo ui) {
+	public Response getAllFunctionalAnnotations(@PathParam("featureId") String idsString) {
 		try {
-			init(version, species, ui);
-			connect();
 			
 			List<String> ids = StringUtils.toList(idsString, ",");
 			List<XRef> xrefs = new FeatureList<XRef>();
 			XRefDBManager xrefDbManager = new XRefDBManager(infraredDBConnector);
-			if(ui.getQueryParameters().get("dbname") != null) {
-				List<String> dbnames = StringUtils.toList(ui.getQueryParameters().get("dbname").get(0), ",");
+			if(uriInfo.getQueryParameters().get("dbname") != null) {
+				List<String> dbnames = StringUtils.toList(uriInfo.getQueryParameters().get("dbname").get(0), ",");
 				xrefs = xrefDbManager.getByDBName(ids, dbnames);
 			}else {
 				xrefs = xrefDbManager.getAllFunctionalAnnotByIds(ids);
 			}
-			return generateResponse(ListUtils.toString(xrefs, separator), outputFormat, compress);
+//			return generateResponse(ListUtils.toString(xrefs, separator), outputFormat, compress);
+			this.listType = new TypeToken<List<XRef>>() {}.getType();
+			return generateResponse(xrefs, outputFormat, compress);
 		} catch (Exception e) {
 			return generateErrorMessage(e.toString());
 		}
@@ -104,15 +112,15 @@ public class FeatureId extends AbstractInfraredRest{
 	
 	@GET
 	@Path("/{featureId}/snps") // Crear metodo que devuelva los snps que se encuentran en un featureId
-	public Response getxxx1(@PathParam("version") String version, @PathParam("species") String species, @PathParam("featureId") String idsString, @Context UriInfo ui) {
+	public Response getxxx1(@PathParam("featureId") String idsString) {
 		try {
-			init(version, species, ui);
-			connect();
-			
+				
 			List<String> ids = StringUtils.toList(idsString, ",");
 			GeneDBManager geneDbManager = new GeneDBManager(infraredDBConnector);
 			List<FeatureList<Gene>> genes = geneDbManager.getAllByExternalIds(ids);
-			return generateResponse(createResultString(ids, genes), outputFormat, compress);
+			//return generateResponse(createResultString(ids, genes), outputFormat, compress);
+			this.listType = new TypeToken<List<FeatureList<Gene>>>() {}.getType();
+			return generateResponse2(genes, outputFormat, compress);
 		} catch (Exception e) {
 			return generateErrorMessage(e.toString());
 		}
@@ -120,15 +128,15 @@ public class FeatureId extends AbstractInfraredRest{
 	
 	@GET
 	@Path("/{featureId}/info")
-	public Response getAllByExternalId(@PathParam("version") String version, @PathParam("species") String species, @PathParam("featureId") String idsString, @Context UriInfo ui) {
+	public Response getAllByExternalId( @PathParam("featureId") String idsString) {
 		try {
-			init(version, species, ui);
-			connect();
 			
 			List<String> ids = StringUtils.toList(idsString, ",");
 			GeneDBManager geneDbManager = new GeneDBManager(infraredDBConnector);
 			List<FeatureList<Gene>> genes = geneDbManager.getAllByExternalIds(ids);
-			return generateResponse(createResultString(ids, genes), outputFormat, compress);
+			//return generateResponse(createResultString(ids, genes), outputFormat, compress);
+			this.listType = new TypeToken<List<FeatureList<Gene>>>() {}.getType();
+			return generateResponse2(genes, outputFormat, compress);
 		} catch (Exception e) {
 			return generateErrorMessage(e.toString());
 		}
