@@ -1,5 +1,7 @@
 package org.bioinfo.infrared.ws.server.rest;
 
+import java.lang.reflect.Type;
+
 
 
 public class IdConverter extends AbstractInfraredRest {
@@ -14,5 +16,6 @@ public class IdConverter extends AbstractInfraredRest {
 	protected boolean isValidSpecies(String species) {
 		return false;
 	}
+
 
 }

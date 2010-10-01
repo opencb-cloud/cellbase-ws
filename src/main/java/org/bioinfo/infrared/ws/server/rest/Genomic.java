@@ -12,7 +12,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import org.bioinfo.commons.utils.ListUtils;
 import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.infrared.core.GeneDBManager;
 import org.bioinfo.infrared.core.common.FeatureList;
@@ -37,6 +36,8 @@ import org.bioinfo.infrared.variation.SNPDBManager;
 import org.bioinfo.infrared.variation.SpliceSiteDBManager;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
 
+import com.google.gson.reflect.TypeToken;
+
 
 
 @Path("/{version}/{species}/genomic")
@@ -51,18 +52,23 @@ public class Genomic extends AbstractInfraredRest{
 	
 	@GET
 	@Path("/region/{region}/gene")
-	public Response getGenesByRegion(@PathParam("region") String regionString) {
+	public  Response getGenesByRegion(@PathParam("region") String regionString) {
 		try {
 			List<Region> regions = Region.parseRegion(regionString);
 			GeneDBManager geneDbManager = new GeneDBManager(infraredDBConnector);
 			FeatureList<Gene> genes = new FeatureList<Gene>();
 			FeatureList<Gene> genesByBiotype = new FeatureList<Gene>();
+			
 			for(Region region: regions) {
+				
 				if(region != null && region.getChromosome() != null && !region.getChromosome().equals("")) {
 					if(region.getStart() == 0 && region.getEnd() == 0) {
+						System.out.println("entro 0: "+region.toString());
 						genes.addAll(geneDbManager.getAllByLocation(region.getChromosome(), 1, Integer.MAX_VALUE));
 					}else {
 						genes.addAll(geneDbManager.getAllByLocation(region.getChromosome(), region.getStart(), region.getEnd()));
+						System.out.println("entro no 0: "+region.toString());
+
 					}
 				}
 			}
@@ -76,14 +82,8 @@ public class Genomic extends AbstractInfraredRest{
 				}
 				genes = genesByBiotype;
 			}
-//			Gson gson = new Gson();
-//			StringBuilder sb = new StringBuilder();
-//			Gene[] g = new Gene[genes.size()];
-//			for(int i=0; i<genes.size(); i++) {
-//				System.err.println(genes.get(i).toString());
-//				g[i] = genes.get(i);
-//				sb.append(gson.tgenes.get(i))
-//			}
+			System.out.println("Antes: " +genes.size());
+			this.listType = new TypeToken<FeatureList<Gene>>() {}.getType();
 			return generateResponse2(genes, outputFormat, compress);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -120,6 +120,7 @@ public class Genomic extends AbstractInfraredRest{
 			List<Region> regions = Region.parseRegion(regionString);
 			SNPDBManager snpDbManager = new SNPDBManager(infraredDBConnector);
 			FeatureList<SNP> snps = new FeatureList<SNP>();
+//			List<SNP> snps = new ArrayList<SNP>();
 			FeatureList<SNP> snpsByConsequenceType = new FeatureList<SNP>();
 			for(Region region: regions) {
 				if(region != null && region.getChromosome() != null && !region.getChromosome().equals("")) {
@@ -134,7 +135,7 @@ public class Genomic extends AbstractInfraredRest{
 			if(uriInfo.getQueryParameters().get("consequencetype") != null) {
 				List<String> consequencetype = StringUtils.toList(uriInfo.getQueryParameters().get("consequencetype").get(0), ",");
 				for(SNP snp: snps) {
-					for(String consquenceType: snp.getConsequenceType()) {
+					for(String consquenceType: snp.getConsequenceTypeList()) {
 						if(consequencetype.contains(consquenceType)) {
 							snpsByConsequenceType.add(snp);
 						}
@@ -142,12 +143,13 @@ public class Genomic extends AbstractInfraredRest{
 				}
 				snps = snpsByConsequenceType;
 			}
-			return generateResponse(ListUtils.toString(snps, separator), outputFormat, compress);
+			this.listType = new TypeToken<FeatureList<SNP>>() {}.getType();
+			return generateResponse2(snps, outputFormat, compress);
+			//return generateResponse(ListUtils.toString(snps, separator), outputFormat, compress);
 		} catch (Exception e) {
 			return generateErrorMessage(e.toString());
 		}
 	}
-
 	@GET
 	@Path("/position/{position}/snp")
 	public Response getSnpByPosition(@PathParam("position") String positionString) {
@@ -164,7 +166,9 @@ public class Genomic extends AbstractInfraredRest{
 				}
 				snps.add(snp);
 			}
-			return generateResponse(createResultString(StringUtils.toList(positionString, ","), snps), outputFormat, compress);
+//			return generateResponse(createResultString(StringUtils.toList(positionString, ","), snps), outputFormat, compress);
+			this.listType = new TypeToken<List<FeatureList<SNP>>>() {}.getType();
+			return generateResponse2(snps, outputFormat, compress);
 		} catch (Exception e) {
 			return generateErrorMessage(e.toString());
 		}
@@ -200,7 +204,10 @@ public class Genomic extends AbstractInfraredRest{
 				}
 				spliceSites.add(spliceSite);
 			}
-			return generateResponse(createResultString(StringUtils.toList(positionString, ","), spliceSites), outputFormat, compress);
+			//return generateResponse(createResultString(StringUtils.toList(positionString, ","), spliceSites), outputFormat, compress);
+			this.listType = new TypeToken<List<FeatureList<SpliceSite>>>() {}.getType();
+			return generateResponse2(spliceSites, outputFormat, compress);
+
 		} catch (Exception e) {
 			return generateErrorMessage(e.toString());
 		}
@@ -222,7 +229,9 @@ public class Genomic extends AbstractInfraredRest{
 				}
 				conservedRegions.add(conservedRegion);
 			}
-			return generateResponse(createResultString(StringUtils.toList(positionString, ","), conservedRegions), outputFormat, compress);
+//			return generateResponse(createResultString(StringUtils.toList(positionString, ","), conservedRegions), outputFormat, compress);
+			this.listType = new TypeToken<List<FeatureList<ConservedRegion>>>() {}.getType();
+			return generateResponse2(conservedRegions, outputFormat, compress);
 		} catch (Exception e) {
 			return generateErrorMessage(e.toString());
 		}
@@ -246,7 +255,8 @@ public class Genomic extends AbstractInfraredRest{
 						}
 						tfbs.add(jasparTfbs);
 					}
-					return generateResponse(createResultString(StringUtils.toList(positionString, ","), tfbs), outputFormat, compress);
+					this.listType = new TypeToken<List<FeatureList<JasparTfbs>>>() {}.getType();
+					return generateResponse2(tfbs, outputFormat, compress);
 				}else {
 					if(uriInfo.getQueryParameters().get("filter").get(0).equals("oreganno")) {
 						OregannoTfbsDBManager oregannoTfbsDBManager = new OregannoTfbsDBManager(infraredDBConnector);
@@ -260,7 +270,10 @@ public class Genomic extends AbstractInfraredRest{
 							}
 							tfbs.add(oregannoTfbs);
 						}
-						return generateResponse(createResultString(StringUtils.toList(positionString, ","), tfbs), outputFormat, compress);
+//						return generateResponse(createResultString(StringUtils.toList(positionString, ","), tfbs), outputFormat, compress);
+						this.listType = new TypeToken<List<FeatureList<OregannoTfbs>>>() {}.getType();
+						return generateResponse2(tfbs, outputFormat, compress);
+
 					}else {
 						return generateResponse("No valid filter provided, please select filter: jaspar or oreganno, eg:  ?filter=jaspar", outputFormat, compress);
 					}
@@ -289,7 +302,8 @@ public class Genomic extends AbstractInfraredRest{
 				}
 				miRnasGene.add(miRnaGene);
 			}
-			return generateResponse(createResultString(StringUtils.toList(positionString, ","), miRnasGene), outputFormat, compress);
+			this.listType = new TypeToken<List<FeatureList<MiRnaGene>>>() {}.getType();
+			return generateResponse2(miRnasGene, outputFormat, compress);
 		} catch (Exception e) {
 			return generateErrorMessage(e.toString());
 		}
@@ -311,7 +325,9 @@ public class Genomic extends AbstractInfraredRest{
 				}
 				miRnasTarget.add(miRnaTarget);
 			}
-			return generateResponse(createResultString(StringUtils.toList(positionString, ","), miRnasTarget), outputFormat, compress);
+//			return generateResponse(createResultString(StringUtils.toList(positionString, ","), miRnasTarget), outputFormat, compress);
+			this.listType = new TypeToken<List<FeatureList<MiRnaTarget>>>() {}.getType();
+			return generateResponse2(miRnasTarget, outputFormat, compress);
 		} catch (Exception e) {
 			return generateErrorMessage(e.toString());
 		}
@@ -333,7 +349,10 @@ public class Genomic extends AbstractInfraredRest{
 				}
 				triplexList.add(triplex);
 			}
-			return generateResponse(createResultString(StringUtils.toList(positionString, ","), triplexList), outputFormat, compress);
+//			return generateResponse(createResultString(StringUtils.toList(positionString, ","), triplexList), outputFormat, compress);
+			this.listType = new TypeToken<List<FeatureList<Triplex>>>() {}.getType();
+			return generateResponse2(triplexList, outputFormat, compress);
+
 		} catch (Exception e) {
 			return generateErrorMessage(e.toString());
 		}

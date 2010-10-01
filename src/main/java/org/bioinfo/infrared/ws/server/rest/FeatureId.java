@@ -1,5 +1,6 @@
 package org.bioinfo.infrared.ws.server.rest;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 

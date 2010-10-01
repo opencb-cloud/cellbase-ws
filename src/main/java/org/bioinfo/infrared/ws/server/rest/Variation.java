@@ -196,12 +196,11 @@ public class Variation extends AbstractInfraredRest {
 		StringBuilder result = new StringBuilder();
 		for(int i=0; i<ids.size(); i++) {
 			if(features.get(i) != null) {
-				result.append(ids.get(i)).append("\t").append(features.get(i).getChromosome()+"\t"+features.get(i).getStart()+"\t"+features.get(i).getEnd()+"\t"+features.get(i).getStrand()+"\t"+features.get(i).getAllele()+"\t"+features.get(i).getConsequenceType()+"\t"+features.get(i).getSequence()).append(separator);
+				result.append(ids.get(i)).append("\t").append(features.get(i).getChromosome()+"\t"+features.get(i).getStart()+"\t"+features.get(i).getEnd()+"\t"+features.get(i).getStrand()+"\t"+features.get(i).getAllele()+"\t"+features.get(i).getConsequenceTypeList()+"\t"+features.get(i).getSequence()).append(separator);
 			}else {
 				result.append(ids.get(i)).append("\t").append("not found").append(separator);
 			}
 		}
 		return result.toString().trim();
 	}
-	
 }
