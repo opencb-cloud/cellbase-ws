@@ -1,4 +1,4 @@
-package org.bioinfo.infrared.ws.server.rest;
+package org.bioinfo.infrared.ws.server.rest.genomic;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -34,56 +34,67 @@ import org.bioinfo.infrared.regulatory.OregannoTfbsDBManager;
 import org.bioinfo.infrared.regulatory.TriplexDBManager;
 import org.bioinfo.infrared.variation.SNPDBManager;
 import org.bioinfo.infrared.variation.SpliceSiteDBManager;
+import org.bioinfo.infrared.ws.server.rest.AbstractRestWSServer;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
 
 import com.google.gson.reflect.TypeToken;
 
 
-
-@Path("/{version}/{species}/genomic")
+@Path("/{version}/{species}/genomic/region")
 @Produces("text/plain")
-public class Genomic extends AbstractInfraredRest{
+public class ChromosomeRegionServer extends AbstractRestWSServer{
 
-	public Genomic(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo) throws VersionException, IOException {
+	public ChromosomeRegionServer(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo) throws VersionException, IOException {
 		init(version, species, uriInfo);
-		connect();
+//		connect();
 	}
-
 	
 	@GET
-	@Path("/region/{region}/gene")
+	@Path("/help")
+	public String help() {
+		return "region help";
+	}
+	
+	@GET
+	@Path("/all")
+	public String all() {
+		return "1,2,3,4,5...";
+	}
+	
+	@GET
+	@Path("/{region}/gene")
 	public  Response getGenesByRegion(@PathParam("region") String regionString) {
 		try {
 			List<Region> regions = Region.parseRegion(regionString);
 			GeneDBManager geneDbManager = new GeneDBManager(infraredDBConnector);
 			FeatureList<Gene> genes = new FeatureList<Gene>();
 			FeatureList<Gene> genesByBiotype = new FeatureList<Gene>();
+
+			List<String> biotypes = null;
+			if(uriInfo.getQueryParameters().get("biotype") != null) {
+				biotypes = StringUtils.toList(uriInfo.getQueryParameters().get("biotype").get(0), ",");
+			}
 			
 			for(Region region: regions) {
-				
 				if(region != null && region.getChromosome() != null && !region.getChromosome().equals("")) {
 					if(region.getStart() == 0 && region.getEnd() == 0) {
-						System.out.println("entro 0: "+region.toString());
-						genes.addAll(geneDbManager.getAllByLocation(region.getChromosome(), 1, Integer.MAX_VALUE));
+						genes.addAll(geneDbManager.getAllByRegion(region.getChromosome(), 1, Integer.MAX_VALUE, biotypes));
 					}else {
-						genes.addAll(geneDbManager.getAllByLocation(region.getChromosome(), region.getStart(), region.getEnd()));
-						System.out.println("entro no 0: "+region.toString());
-
+						genes.addAll(geneDbManager.getAllByRegion(region.getChromosome(), region.getStart(), region.getEnd(), biotypes));
 					}
 				}
 			}
 			// if there is a biotype filter lets filter!
-			if(uriInfo.getQueryParameters().get("biotype") != null) {
-				List<String> biotypes = StringUtils.toList(uriInfo.getQueryParameters().get("biotype").get(0), ",");
-				for(Gene gene: genes) {
-					if(biotypes.contains(gene.getBiotype())) {
-						genesByBiotype.add(gene);
-					}
-				}
-				genes = genesByBiotype;
-			}
-			System.out.println("Antes: " +genes.size());
-			this.listType = new TypeToken<FeatureList<Gene>>() {}.getType();
+//			if(uriInfo.getQueryParameters().get("biotype") != null) {
+//				List<String> biotypes = StringUtils.toList(uriInfo.getQueryParameters().get("biotype").get(0), ",");
+//				for(Gene gene: genes) {
+//					if(biotypes.contains(gene.getBiotype())) {
+//						genesByBiotype.add(gene);
+//					}
+//				}
+//				genes = genesByBiotype;
+//			}
+			this.listType = new TypeToken<FeatureList<Gene>>(){}.getType();
 			return generateResponse2(genes, outputFormat, compress);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -135,7 +146,7 @@ public class Genomic extends AbstractInfraredRest{
 			if(uriInfo.getQueryParameters().get("consequencetype") != null) {
 				List<String> consequencetype = StringUtils.toList(uriInfo.getQueryParameters().get("consequencetype").get(0), ",");
 				for(SNP snp: snps) {
-					for(String consquenceType: snp.getConsequenceTypeList()) {
+					for(String consquenceType: snp.getConsequenceType()) {
 						if(consequencetype.contains(consquenceType)) {
 							snpsByConsequenceType.add(snp);
 						}

@@ -1,4 +1,4 @@
-package org.bioinfo.infrared.ws.server.rest;
+package org.bioinfo.infrared.ws.server.rest.variation;
 
 import java.io.IOException;
 import java.util.List;
@@ -14,22 +14,21 @@ import javax.ws.rs.core.UriInfo;
 import org.bioinfo.commons.utils.ListUtils;
 import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.infrared.core.common.FeatureList;
-import org.bioinfo.infrared.core.feature.Gene;
 import org.bioinfo.infrared.core.variation.Omega;
 import org.bioinfo.infrared.core.variation.SNP;
 import org.bioinfo.infrared.core.variation.VariationFrequency;
 import org.bioinfo.infrared.variation.OmegaDBManager;
 import org.bioinfo.infrared.variation.SNPDBManager;
 import org.bioinfo.infrared.variation.VariationFrequencyDBManager;
+import org.bioinfo.infrared.ws.server.rest.AbstractRestWSServer;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
 
 import com.google.gson.reflect.TypeToken;
 
 
-
 @Path("/{version}/{species}/variation")
 @Produces("text/plain")
-public class Variation extends AbstractInfraredRest {
+public class Variation extends AbstractRestWSServer {
 
 //	@PathParam("version") String version;
 //	@PathParam("species") String species;
@@ -203,15 +202,15 @@ public class Variation extends AbstractInfraredRest {
 		return false;
 	}
 
-	private String createVariationResultString(List<String> ids, FeatureList<SNP> features) {
-		StringBuilder result = new StringBuilder();
-		for(int i=0; i<ids.size(); i++) {
-			if(features.get(i) != null) {
-				result.append(ids.get(i)).append("\t").append(features.get(i).getChromosome()+"\t"+features.get(i).getStart()+"\t"+features.get(i).getEnd()+"\t"+features.get(i).getStrand()+"\t"+features.get(i).getAllele()+"\t"+features.get(i).getConsequenceTypeList()+"\t"+features.get(i).getSequence()).append(separator);
-			}else {
-				result.append(ids.get(i)).append("\t").append("not found").append(separator);
-			}
-		}
-		return result.toString().trim();
-	}
+//	private String createVariationResultString(List<String> ids, FeatureList<SNP> features) {
+//		StringBuilder result = new StringBuilder();
+//		for(int i=0; i<ids.size(); i++) {
+//			if(features.get(i) != null) {
+//				result.append(ids.get(i)).append("\t").append(features.get(i).getChromosome()+"\t"+features.get(i).getStart()+"\t"+features.get(i).getEnd()+"\t"+features.get(i).getStrand()+"\t"+features.get(i).getAllele()+"\t"+features.get(i).getConsequenceTypeList()+"\t"+features.get(i).getSequence()).append(separator);
+//			}else {
+//				result.append(ids.get(i)).append("\t").append("not found").append(separator);
+//			}
+//		}
+//		return result.toString().trim();
+//	}
 }

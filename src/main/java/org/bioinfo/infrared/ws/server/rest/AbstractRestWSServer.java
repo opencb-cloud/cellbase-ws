@@ -25,11 +25,12 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 
-public abstract class AbstractInfraredRest {
+public abstract class AbstractRestWSServer {
 
 	protected DBConnector infraredDBConnector;
 	protected Config config;
 
+	// application parameters
 	protected String version;
 	protected String species;
 	protected UriInfo uriInfo;
@@ -40,7 +41,7 @@ public abstract class AbstractInfraredRest {
 	protected boolean compress;
 	protected  Type listType;
 
-	//	public AbstractInfraredRest(String species, UriInfo uriInfo) {
+	//	public AbstractRestWSServer(String species, UriInfo uriInfo) {
 	//		this.species = species;
 	//		this.uriInfo = uriInfo;
 	//		parseCommonQueryParameters(uriInfo.getQueryParameters());
@@ -71,6 +72,9 @@ public abstract class AbstractInfraredRest {
 				throw new VersionException("Version '"+version+"' not valid");
 			}
 		}
+		
+		// connect to database
+		connect();
 	}
 
 	protected void parseCommonQueryParameters(MultivaluedMap<String, String> multivaluedMap) {
@@ -261,7 +265,7 @@ public abstract class AbstractInfraredRest {
 					System.out.println("zipEntity.length(): "+zipEntity.length());
 					
 				}else {
-					System.err.println("AbstractInfraredRest: TypeToken from Gson equals null");
+					System.err.println("AbstractRestWSServer: TypeToken from Gson equals null");
 				}
 			}
 		}
@@ -324,7 +328,7 @@ System.out.println("featres: " +features);
 					System.out.println("zipEntity.length(): "+zipEntity.length());
 					
 				}else {
-					System.err.println("AbstractInfraredRest: TypeToken from Gson equals null");
+					System.err.println("AbstractRestWSServer: TypeToken from Gson equals null");
 				}
 			}
 		}

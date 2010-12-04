@@ -1,4 +1,4 @@
-package org.bioinfo.infrared.ws.server.rest;
+package org.bioinfo.infrared.ws.server.rest.core;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -20,6 +20,7 @@ import org.bioinfo.infrared.core.common.FeatureList;
 import org.bioinfo.infrared.core.feature.DBName;
 import org.bioinfo.infrared.core.feature.Gene;
 import org.bioinfo.infrared.core.feature.XRef;
+import org.bioinfo.infrared.ws.server.rest.AbstractRestWSServer;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
 
 import com.google.gson.reflect.TypeToken;
@@ -27,7 +28,7 @@ import com.google.gson.reflect.TypeToken;
 
 @Path("/{version}/{species}/feature")
 @Produces("text/plain")
-public class FeatureId extends AbstractInfraredRest{
+public class FeatureId extends AbstractRestWSServer{
 
 	
 	public FeatureId(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo) throws VersionException, IOException {

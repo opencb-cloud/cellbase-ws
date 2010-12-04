@@ -339,7 +339,7 @@ public class RestPaths {
 //	@GET
 //	@Path("/getchromosomes")
 //	public Response getChromosomes(@PathParam("species") String species, @Context UriInfo ui) {
-//		return new Genomic(species, ui).getChromosomes2();
+//		return new ChromosomeRegionServer(species, ui).getChromosomes2();
 //	}
 //	
 	
