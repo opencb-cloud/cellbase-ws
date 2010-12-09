@@ -1,4 +1,4 @@
-package org.bioinfo.infrared.ws.server.rest;
+package org.bioinfo.infrared.ws.server.rest.genomic;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -24,14 +24,17 @@ import org.bioinfo.infrared.core.regulatory.MiRnaGene;
 import org.bioinfo.infrared.core.regulatory.MiRnaTarget;
 import org.bioinfo.infrared.core.regulatory.OregannoTfbs;
 import org.bioinfo.infrared.core.regulatory.Triplex;
+import org.bioinfo.infrared.core.variation.AnnotatedMutation;
 import org.bioinfo.infrared.core.variation.SNP;
 import org.bioinfo.infrared.core.variation.SpliceSite;
+import org.bioinfo.infrared.core.variation.TranscriptConsequenceType;
 import org.bioinfo.infrared.regulatory.ConservedRegionDBManager;
 import org.bioinfo.infrared.regulatory.JasparTfbsDBManager;
 import org.bioinfo.infrared.regulatory.MiRnaGeneDBManager;
 import org.bioinfo.infrared.regulatory.MiRnaTargetDBManager;
 import org.bioinfo.infrared.regulatory.OregannoTfbsDBManager;
 import org.bioinfo.infrared.regulatory.TriplexDBManager;
+import org.bioinfo.infrared.variation.AnnotatedMutationDBManager;
 import org.bioinfo.infrared.variation.SNPDBManager;
 import org.bioinfo.infrared.variation.SpliceSiteDBManager;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
@@ -39,51 +42,61 @@ import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
 import com.google.gson.reflect.TypeToken;
 
 
-
-@Path("/{version}/{species}/genomic")
+@Path("/{version}/{species}/genomic/region")
 @Produces("text/plain")
-public class Genomic extends AbstractInfraredRest{
+public class ChromosomeRegionServer extends GenomicWSServer{
 
-	public Genomic(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo) throws VersionException, IOException {
-		init(version, species, uriInfo);
-		connect();
+	public ChromosomeRegionServer(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo) throws VersionException, IOException {
+		super(version, species, uriInfo);
+//		connect();
 	}
-
 	
 	@GET
-	@Path("/region/{region}/gene")
+	@Path("/help")
+	public String help() {
+		return "region help";
+	}
+	
+	@GET
+	@Path("/all")
+	public String all() {
+		return "1,2,3,4,5...";
+	}
+	
+	@GET
+	@Path("/{region}/gene")
 	public  Response getGenesByRegion(@PathParam("region") String regionString) {
 		try {
-			List<Region> regions = Region.parseRegion(regionString);
+			List<Region> regions = Region.parseRegions(regionString);
 			GeneDBManager geneDbManager = new GeneDBManager(infraredDBConnector);
 			FeatureList<Gene> genes = new FeatureList<Gene>();
 			FeatureList<Gene> genesByBiotype = new FeatureList<Gene>();
+
+			List<String> biotypes = null;
+			if(uriInfo.getQueryParameters().get("biotype") != null) {
+				biotypes = StringUtils.toList(uriInfo.getQueryParameters().get("biotype").get(0), ",");
+			}
 			
 			for(Region region: regions) {
-				
 				if(region != null && region.getChromosome() != null && !region.getChromosome().equals("")) {
 					if(region.getStart() == 0 && region.getEnd() == 0) {
-						System.out.println("entro 0: "+region.toString());
-						genes.addAll(geneDbManager.getAllByLocation(region.getChromosome(), 1, Integer.MAX_VALUE));
+						genes.addAll(geneDbManager.getAllByRegion(region.getChromosome(), 1, Integer.MAX_VALUE, biotypes));
 					}else {
-						genes.addAll(geneDbManager.getAllByLocation(region.getChromosome(), region.getStart(), region.getEnd()));
-						System.out.println("entro no 0: "+region.toString());
-
+						genes.addAll(geneDbManager.getAllByRegion(region.getChromosome(), region.getStart(), region.getEnd(), biotypes));
 					}
 				}
 			}
 			// if there is a biotype filter lets filter!
-			if(uriInfo.getQueryParameters().get("biotype") != null) {
-				List<String> biotypes = StringUtils.toList(uriInfo.getQueryParameters().get("biotype").get(0), ",");
-				for(Gene gene: genes) {
-					if(biotypes.contains(gene.getBiotype())) {
-						genesByBiotype.add(gene);
-					}
-				}
-				genes = genesByBiotype;
-			}
-			System.out.println("Antes: " +genes.size());
-			this.listType = new TypeToken<FeatureList<Gene>>() {}.getType();
+//			if(uriInfo.getQueryParameters().get("biotype") != null) {
+//				List<String> biotypes = StringUtils.toList(uriInfo.getQueryParameters().get("biotype").get(0), ",");
+//				for(Gene gene: genes) {
+//					if(biotypes.contains(gene.getBiotype())) {
+//						genesByBiotype.add(gene);
+//					}
+//				}
+//				genes = genesByBiotype;
+//			}
+			this.listType = new TypeToken<FeatureList<Gene>>(){}.getType();
 			return generateResponse2(genes, outputFormat, compress);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -107,68 +120,89 @@ public class Genomic extends AbstractInfraredRest{
 	//					snps = geneDbManager.getAllByLocation(region.getChromosome(), region.getStart(), region.getEnd());
 	//				}
 	//			}
-	//			return generateResponse(ListUtils.toString(snps, separator), outputFormat, compress);
+	//			return generateResponse(ListUtils.toString(snps, querySeparator), outputFormat, compress);
 	//		} catch (Exception e) {
 	//			return generateErrorMessage(e.toString());
 	//		}
 	//	}
 
 	@GET
-	@Path("/region/{region}/snp")
+	@Path("/{region}/snp")
 	public Response getSnpsByRegion(@PathParam("region") String regionString) {
 		try {
-			List<Region> regions = Region.parseRegion(regionString);
+			List<Region> regions = Region.parseRegions(regionString);
 			SNPDBManager snpDbManager = new SNPDBManager(infraredDBConnector);
-			FeatureList<SNP> snps = new FeatureList<SNP>();
-//			List<SNP> snps = new ArrayList<SNP>();
-			FeatureList<SNP> snpsByConsequenceType = new FeatureList<SNP>();
-			for(Region region: regions) {
-				if(region != null && region.getChromosome() != null && !region.getChromosome().equals("")) {
-					if(region.getStart() == 0 && region.getEnd() == 0) {
-						snps.addAll(snpDbManager.getAllByRegion(region.getChromosome(), 1, Integer.MAX_VALUE));
-					}else {
-						snps.addAll(snpDbManager.getAllByRegion(region.getChromosome(), region.getStart(), region.getEnd()));
-					}
-				}
-			}
+			
+			List<FeatureList<SNP>> snpList = snpDbManager.getAllByRegions(regions);
 			// if there is a consequence type filter lets filter!
-			if(uriInfo.getQueryParameters().get("consequencetype") != null) {
-				List<String> consequencetype = StringUtils.toList(uriInfo.getQueryParameters().get("consequencetype").get(0), ",");
-				for(SNP snp: snps) {
-					for(String consquenceType: snp.getConsequenceTypeList()) {
-						if(consequencetype.contains(consquenceType)) {
-							snpsByConsequenceType.add(snp);
-						}
+			if(uriInfo.getQueryParameters().get("consequence_type") != null) {
+				List<FeatureList<SNP>> snpsByConsequenceType = new ArrayList<FeatureList<SNP>>(snpList.size());
+				FeatureList<SNP> featListByConsequenceType = null;
+				List<String> consequencetype = StringUtils.toList(uriInfo.getQueryParameters().get("consequence_type").get(0), ",");
+				for(FeatureList<SNP> featList: snpList) {
+					featListByConsequenceType = new FeatureList<SNP>();
+					for(SNP snp: featList){
+						for(TranscriptConsequenceType consquenceType: snp.getTranscriptConsequenceTypes()) {
+							if(consequencetype.contains(consquenceType.getConsequenceType())) {
+								featListByConsequenceType.add(snp);
+								break;
+							}
+						}						
+					}
+					if(featListByConsequenceType != null && featListByConsequenceType.size() > 0) {
+						snpsByConsequenceType.add(featListByConsequenceType);						
+					}else {
+						snpsByConsequenceType.add(null);
 					}
 				}
-				snps = snpsByConsequenceType;
+				snpList = snpsByConsequenceType;
 			}
+			
+			
+//			FeatureList<SNP> snps = new FeatureList<SNP>();
+////			List<SNP> snps = new ArrayList<SNP>();
+//			FeatureList<SNP> snpsByConsequenceType = new FeatureList<SNP>();
+//			for(Region region: regions) {
+//				if(region != null && region.getChromosome() != null && !region.getChromosome().equals("")) {
+//					if(region.getStart() == 0 && region.getEnd() == 0) {
+//						snps.addAll(snpDbManager.getAllByRegion(region.getChromosome(), 1, Integer.MAX_VALUE));
+//					}else {
+//						snps.addAll(snpDbManager.getAllByRegion(region.getChromosome(), region.getStart(), region.getEnd()));
+//					}
+//				}
+//			}
+//			// if there is a consequence type filter lets filter!
+//			if(uriInfo.getQueryParameters().get("consequence_type") != null) {
+//				List<String> consequencetype = StringUtils.toList(uriInfo.getQueryParameters().get("consequence_type").get(0), ",");
+//				for(SNP snp: snps) {
+//					for(String consquenceType: snp.getConsequenceType()) {
+//						if(consequencetype.contains(consquenceType)) {
+//							snpsByConsequenceType.add(snp);
+//						}
+//					}
+//				}
+//				snps = snpsByConsequenceType;
+//			}
+			
+			
 			this.listType = new TypeToken<FeatureList<SNP>>() {}.getType();
-			return generateResponse2(snps, outputFormat, compress);
-			//return generateResponse(ListUtils.toString(snps, separator), outputFormat, compress);
+			return generateResponse2(snpList, outputFormat, compress);
+			//return generateResponse(ListUtils.toString(snps, querySeparator), outputFormat, compress);
 		} catch (Exception e) {
 			return generateErrorMessage(e.toString());
 		}
 	}
+	
 	@GET
-	@Path("/position/{position}/snp")
-	public Response getSnpByPosition(@PathParam("position") String positionString) {
+	@Path("/{region}/mutation")
+	public Response getAnnotatedMutationsByRegion(@PathParam("region") String regionString) {
 		try {
-			List<Position> positions = Position.parsePosition(positionString);
-			SNPDBManager snpDbManager = new SNPDBManager(infraredDBConnector);
-			FeatureList<SNP> snp = new FeatureList<SNP>();
-			List<FeatureList<SNP>> snps = new ArrayList<FeatureList<SNP>>();
-			for(Position position: positions) {
-				if(position != null && position.getChromosome() != null && !position.getChromosome().equals("") && position.getPosition() != 0) {
-					snp = snpDbManager.getAllByPosition(position.getChromosome(), position.getPosition());
-				}else {
-					snp = null;
-				}
-				snps.add(snp);
-			}
-//			return generateResponse(createResultString(StringUtils.toList(positionString, ","), snps), outputFormat, compress);
-			this.listType = new TypeToken<List<FeatureList<SNP>>>() {}.getType();
-			return generateResponse2(snps, outputFormat, compress);
+			List<Region> regions = Region.parseRegions(regionString);
+			AnnotatedMutationDBManager snpDbManager = new AnnotatedMutationDBManager(infraredDBConnector);
+			List<FeatureList<AnnotatedMutation>> annotMutations = snpDbManager.getAllByRegions(regions);
+			this.listType = new TypeToken<List<FeatureList<AnnotatedMutation>>>() {}.getType();
+			return generateResponse2(annotMutations, outputFormat, compress);
+			//return generateResponse(ListUtils.toString(snps, querySeparator), outputFormat, compress);
 		} catch (Exception e) {
 			return generateErrorMessage(e.toString());
 		}
@@ -192,7 +226,7 @@ public class Genomic extends AbstractInfraredRest{
 	@Path("/position/{position}/splicesite")
 	public Response getSpliceSiteByPosition(@PathParam("position") String positionString) {
 		try {
-			List<Position> positions = Position.parsePosition(positionString);
+			List<Position> positions = Position.parsePositions(positionString);
 			SpliceSiteDBManager splicesiteDbManager = new SpliceSiteDBManager(infraredDBConnector);
 			FeatureList<SpliceSite> spliceSite = new FeatureList<SpliceSite>();
 			List<FeatureList<SpliceSite>> spliceSites = new ArrayList<FeatureList<SpliceSite>>();
@@ -217,7 +251,7 @@ public class Genomic extends AbstractInfraredRest{
 	@Path("/position/{position}/conservedregion")
 	public Response getConservedRegionByPosition(@PathParam("position") String positionString) {
 		try {
-			List<Position> positions = Position.parsePosition(positionString);
+			List<Position> positions = Position.parsePositions(positionString);
 			ConservedRegionDBManager conservedRegionDbManager = new ConservedRegionDBManager(infraredDBConnector);
 			FeatureList<ConservedRegion> conservedRegion = new FeatureList<ConservedRegion>();
 			List<FeatureList<ConservedRegion>> conservedRegions = new ArrayList<FeatureList<ConservedRegion>>();
@@ -241,7 +275,7 @@ public class Genomic extends AbstractInfraredRest{
 	@Path("/position/{position}/tfbs")
 	public Response getTfbsByPosition(@PathParam("position") String positionString) {
 		try {
-			List<Position> positions = Position.parsePosition(positionString);
+			List<Position> positions = Position.parsePositions(positionString);
 			if(uriInfo.getQueryParameters().get("filter") != null) {
 				if(uriInfo.getQueryParameters().get("filter").get(0).equals("jaspar")) {
 					JasparTfbsDBManager jasparTfbsDbManager = new JasparTfbsDBManager(infraredDBConnector);
@@ -290,7 +324,7 @@ public class Genomic extends AbstractInfraredRest{
 	@Path("/position/{position}/mirna_gene")
 	public Response getMiRnaGeneByPosition(@PathParam("position") String positionString) {
 		try {
-			List<Position> positions = Position.parsePosition(positionString);
+			List<Position> positions = Position.parsePositions(positionString);
 			MiRnaGeneDBManager miRnaGeneDbManager = new MiRnaGeneDBManager(infraredDBConnector);
 			FeatureList<MiRnaGene> miRnaGene = new FeatureList<MiRnaGene>();
 			List<FeatureList<MiRnaGene>> miRnasGene = new ArrayList<FeatureList<MiRnaGene>>();
@@ -313,7 +347,7 @@ public class Genomic extends AbstractInfraredRest{
 	@Path("/position/{position}/mirna_target")
 	public Response getMiRnaTargetByPosition(@PathParam("position") String positionString) {
 		try {
-			List<Position> positions = Position.parsePosition(positionString);
+			List<Position> positions = Position.parsePositions(positionString);
 			MiRnaTargetDBManager miRnaTargetDbManager = new MiRnaTargetDBManager(infraredDBConnector);
 			FeatureList<MiRnaTarget> miRnaTarget = new FeatureList<MiRnaTarget>();
 			List<FeatureList<MiRnaTarget>> miRnasTarget = new ArrayList<FeatureList<MiRnaTarget>>();
@@ -337,7 +371,7 @@ public class Genomic extends AbstractInfraredRest{
 	@Path("/position/{position}/triplex")
 	public Response getTriplexByPosition(@PathParam("position") String positionString) {
 		try {
-			List<Position> positions = Position.parsePosition(positionString);
+			List<Position> positions = Position.parsePositions(positionString);
 			TriplexDBManager triplexDBManager = new TriplexDBManager(infraredDBConnector);
 			FeatureList<Triplex> triplex = new FeatureList<Triplex>();
 			List<FeatureList<Triplex>> triplexList = new ArrayList<FeatureList<Triplex>>();
