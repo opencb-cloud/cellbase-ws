@@ -20,15 +20,16 @@ import org.bioinfo.infrared.core.variation.VariationFrequency;
 import org.bioinfo.infrared.variation.OmegaDBManager;
 import org.bioinfo.infrared.variation.SNPDBManager;
 import org.bioinfo.infrared.variation.VariationFrequencyDBManager;
-import org.bioinfo.infrared.ws.server.rest.AbstractRestWSServer;
+import org.bioinfo.infrared.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
 
 import com.google.gson.reflect.TypeToken;
 
 
+@Deprecated
 @Path("/{version}/{species}/variation")
 @Produces("text/plain")
-public class Variation extends AbstractRestWSServer {
+public class Variation extends GenericRestWSServer {
 
 //	@PathParam("version") String version;
 //	@PathParam("species") String species;
@@ -38,8 +39,9 @@ public class Variation extends AbstractRestWSServer {
 //		this.version = version;
 //		this.species = species;
 //		this.uriInfo = uriInfo;
-		init(version, species, uriInfo);
-		connect();
+		super(version, species, uriInfo);
+//		init(version, species, uriInfo);
+//		connect();
 	}
 	
 	public Response getTest(String longText) {
@@ -57,7 +59,7 @@ public class Variation extends AbstractRestWSServer {
 		try {
 			SNPDBManager snpDbManager = new SNPDBManager(infraredDBConnector);
 			List<String> ids = snpDbManager.getAllConsequenceTypes();
-			return generateResponse(ListUtils.toString(ids, separator), outputFormat, compress);
+			return generateResponse(ListUtils.toString(ids, querySeparator), outputFormat, compress);
 		} catch (Exception e) {
 			return generateErrorMessage(e.toString());
 		}
@@ -157,7 +159,7 @@ public class Variation extends AbstractRestWSServer {
 	//			}else {
 	//				snps = omegaDbManager.getAllByConsequenceType("NON_SYNONYMOUS_CODING");
 	//			}
-	//			return generateResponse(ListUtils.toString(snps, separator), outputFormat, compress);
+	//			return generateResponse(ListUtils.toString(snps, querySeparator), outputFormat, compress);
 	//		} catch (Exception e) {
 	//			return generateErrorMessage(e.toString());
 	//		}
@@ -170,9 +172,9 @@ public class Variation extends AbstractRestWSServer {
 	//			
 	//			if(uriInfo.getQueryParameters().get("consequencetype") != null) {
 	//				FeatureList<SNP> snps = snpDbManager.getAllByConsequenceType(uriInfo.getQueryParameters().get("consequencetype").get(0));
-	//				return generateResponse(ListUtils.toString(snps, separator), outputFormat, compress);
+	//				return generateResponse(ListUtils.toString(snps, querySeparator), outputFormat, compress);
 	//			}else {
-	//				return generateResponse(ListUtils.toString(snpDbManager.getAllConsequenceTypes(), separator), outputFormat, compress);
+	//				return generateResponse(ListUtils.toString(snpDbManager.getAllConsequenceTypes(), querySeparator), outputFormat, compress);
 	//			}
 	//		} catch (Exception e) {
 	//			return generateErrorMessage(e.toString());
@@ -185,9 +187,9 @@ public class Variation extends AbstractRestWSServer {
 	//			spliceSiteDbManager = new SpliceSiteDBManager(infraredDBConnector);
 	//			if(uriInfo.getQueryParameters().get("consequencetype") != null) {
 	//				FeatureList<SNP> snps = snpDbManager.getAllByConsequenceType(uriInfo.getQueryParameters().get("consequencetype").get(0));
-	//				return generateResponse(ListUtils.toString(snps, separator), outputFormat, compress);
+	//				return generateResponse(ListUtils.toString(snps, querySeparator), outputFormat, compress);
 	//			}else {
-	//				return generateResponse(ListUtils.toString(snpDbManager.getAllConsequenceTypes(), separator), outputFormat, compress);
+	//				return generateResponse(ListUtils.toString(snpDbManager.getAllConsequenceTypes(), querySeparator), outputFormat, compress);
 	//			}
 	//		} catch (Exception e) {
 	//			return generateErrorMessage(e.toString());
@@ -206,9 +208,9 @@ public class Variation extends AbstractRestWSServer {
 //		StringBuilder result = new StringBuilder();
 //		for(int i=0; i<ids.size(); i++) {
 //			if(features.get(i) != null) {
-//				result.append(ids.get(i)).append("\t").append(features.get(i).getChromosome()+"\t"+features.get(i).getStart()+"\t"+features.get(i).getEnd()+"\t"+features.get(i).getStrand()+"\t"+features.get(i).getAllele()+"\t"+features.get(i).getConsequenceTypeList()+"\t"+features.get(i).getSequence()).append(separator);
+//				result.append(ids.get(i)).append("\t").append(features.get(i).getChromosome()+"\t"+features.get(i).getStart()+"\t"+features.get(i).getEnd()+"\t"+features.get(i).getStrand()+"\t"+features.get(i).getAllele()+"\t"+features.get(i).getConsequenceTypeList()+"\t"+features.get(i).getSequence()).append(querySeparator);
 //			}else {
-//				result.append(ids.get(i)).append("\t").append("not found").append(separator);
+//				result.append(ids.get(i)).append("\t").append("not found").append(querySeparator);
 //			}
 //		}
 //		return result.toString().trim();
