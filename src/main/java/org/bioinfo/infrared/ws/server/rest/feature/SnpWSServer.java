@@ -21,14 +21,13 @@ import org.bioinfo.infrared.variation.AnnotatedSnpDBManager;
 import org.bioinfo.infrared.variation.OmegaDBManager;
 import org.bioinfo.infrared.variation.SNPDBManager;
 import org.bioinfo.infrared.variation.VariationFrequencyDBManager;
-import org.bioinfo.infrared.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
 
 import com.google.gson.reflect.TypeToken;
 
 @Path("/{version}/{species}/feature/snp")
 @Produces("text/plain")
-public class SnpWSServer extends GenericRestWSServer {
+public class SnpWSServer extends FeatureWSServer implements IFeature {
 	
 	public SnpWSServer(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo) throws VersionException, IOException {
 		super(version, species, uriInfo);
@@ -273,6 +272,25 @@ public class SnpWSServer extends GenericRestWSServer {
 			return true;
 		}
 		return false;
+	}
+
+	@Override
+	public String stats() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean isValidSpecies() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@GET
+	@Path("/{snpId}/sequence")
+	@Override
+	public String sequence(@PathParam("snpId") String feature) {
+		return null;
 	}
 
 //	private String createVariationResultString(List<String> ids, FeatureList<SNP> features) {

@@ -18,7 +18,6 @@ import org.bioinfo.infrared.core.variation.AnnotatedMutation;
 import org.bioinfo.infrared.core.variation.SNP;
 import org.bioinfo.infrared.variation.AnnotatedMutationDBManager;
 import org.bioinfo.infrared.variation.SNPDBManager;
-import org.bioinfo.infrared.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
 
 import com.google.gson.reflect.TypeToken;
@@ -26,7 +25,7 @@ import com.google.gson.reflect.TypeToken;
 
 @Path("/{version}/{species}/genomic/position")
 @Produces("text/plain")
-public class PositionWSServer extends GenericRestWSServer {
+public class PositionWSServer extends GenomicWSServer {
 
 	public PositionWSServer(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo) throws VersionException, IOException {
 		super(version, species, uriInfo);

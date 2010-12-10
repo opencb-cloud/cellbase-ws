@@ -42,9 +42,9 @@ import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
 import com.google.gson.reflect.TypeToken;
 
 
-@Path("/{version}/{species}/genomic/region")
+@Path("/{version}/{species}/genomic/chregion")
 @Produces("text/plain")
-public class ChromosomeRegionServer extends GenomicWSServer{
+public class ChromosomeRegionServer extends GenomicWSServer {
 
 	public ChromosomeRegionServer(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo) throws VersionException, IOException {
 		super(version, species, uriInfo);

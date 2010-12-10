@@ -28,7 +28,7 @@ import com.google.gson.reflect.TypeToken;
 
 @Path("/{version}/{species}/feature")
 @Produces("text/plain")
-public class FeatureWSServer extends GenericRestWSServer{
+public class FeatureWSServer extends GenericRestWSServer {
 
 
 	public FeatureWSServer(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo) throws VersionException, IOException {
