@@ -30,6 +30,7 @@ public class GenomicWSServer extends GenericRestWSServer {
 	}
 
 
+	@Override
 	@GET
 	@Path("/help")
 	public String help() {
@@ -37,9 +38,8 @@ public class GenomicWSServer extends GenericRestWSServer {
 	}
 
 	@Override
-	protected boolean isValidSpecies(String species) {
-		// TODO Auto-generated method stub
-		return false;
+	public boolean isValidSpecies() {
+		return true;
 	}
 
 }

@@ -2,12 +2,10 @@ package org.bioinfo.infrared.ws.server.rest;
 
 public interface IWSServer {
 
-	
-	public String stats();
+	public boolean isValidSpecies();
 	
 	public String help();
 	
-	public boolean isValidSpecies();
-	
+	public String stats();
 	
 }

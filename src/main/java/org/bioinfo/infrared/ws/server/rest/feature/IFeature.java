@@ -4,7 +4,7 @@ import org.bioinfo.infrared.ws.server.rest.IWSServer;
 
 public interface IFeature extends IWSServer{
 
-	public String sequence(String feature);
+	public String sequence(String featureId);
 	
 	
 }
