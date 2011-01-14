@@ -132,7 +132,7 @@ public class ChromosomeRegionServer extends GenomicWSServer{
 		try {
 			List<Region> regions = Region.parseRegions(regionString);
 			SNPDBManager snpDbManager = new SNPDBManager(infraredDBConnector);
-			
+		
 			List<FeatureList<SNP>> snpList = snpDbManager.getAllByRegions(regions);
 			// if there is a consequence type filter lets filter!
 			if(uriInfo.getQueryParameters().get("consequence_type") != null) {
