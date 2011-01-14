@@ -1,4 +1,4 @@
-package org.bioinfo.infrared.ws.server.rest.pathway;
+package org.bioinfo.infrared.ws.server.rest.functgen;
 
 import java.io.IOException;
 

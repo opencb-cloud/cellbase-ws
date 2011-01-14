@@ -12,16 +12,6 @@
 			<version>1.2.0</version>
 		</dependency>
 		<dependency>
-			<groupId>org.bioinfo</groupId>
-			<artifactId>bioinfo-commons</artifactId>
-			<version>0.10.0</version>
-		</dependency>
-		<dependency>
-			<groupId>com.sun.jersey</groupId>
-			<artifactId>jersey-client</artifactId>
-			<version>1.4</version>
-		</dependency>
-		<dependency>
 			<groupId>com.sun.jersey</groupId>
 			<artifactId>jersey-server</artifactId>
 			<version>1.4</version>
@@ -30,6 +20,12 @@
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
 			<version>1.6</version>
+		</dependency>
+		<dependency>
+			<groupId>com.sun.jersey</groupId>
+			<artifactId>jersey-client</artifactId>
+			<version>1.4</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>javax.servlet</groupId>
@@ -46,7 +42,7 @@
 	</dependencies>
 	<build>
 		<sourceDirectory>src</sourceDirectory>
-		<finalName>infrared-ws-server</finalName>
+		<finalName>infrared-ws</finalName>
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
