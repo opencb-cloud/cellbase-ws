@@ -15,9 +15,12 @@ import javax.ws.rs.core.UriInfo;
 
 import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.infrared.core.GeneDBManager;
+import org.bioinfo.infrared.core.KaryotypeDBManager;
 import org.bioinfo.infrared.core.common.FeatureList;
+import org.bioinfo.infrared.core.feature.Cytoband;
 import org.bioinfo.infrared.core.feature.Gene;
 import org.bioinfo.infrared.core.feature.Position;
+import org.bioinfo.infrared.core.feature.Region;
 import org.bioinfo.infrared.core.regulatory.ConservedRegion;
 import org.bioinfo.infrared.core.regulatory.JasparTfbs;
 import org.bioinfo.infrared.core.regulatory.MiRnaGene;
@@ -83,6 +86,20 @@ public class PositionWSServer extends GenomicWSServer {
 			return generateErrorMessage(StringUtils.getStackTrace(e));
 		}
 	}
+	
+	@GET
+	@Path("/{position}/cytoband")
+	public Response getCytobandByPosition(@PathParam("position") String positionString) {
+		try {
+			List<Position> positions = Position.parsePositions(positionString);
+			KaryotypeDBManager karyotypeDbManager = new KaryotypeDBManager(infraredDBConnector);
+			List<FeatureList<Cytoband>> CytobandList = karyotypeDbManager.getCytobandByPosition(positions);
+			return generateResponseFromListFeatureList(CytobandList, new TypeToken<List<FeatureList<Cytoband>>>() {}.getType());
+		} catch (Exception e) {
+			return generateErrorMessage(StringUtils.getStackTrace(e));
+		}
+	}
+	
 	
 	@GET
 	@Path("/{position}/annotated_mutation")

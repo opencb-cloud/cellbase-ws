@@ -35,6 +35,7 @@ public class CytobandWSServer extends GenericRestWSServer{
 	
 	@GET
 	@Path("/{chromosomeIds}/chr")
+	@Deprecated // /{version}/{species}/genomic/chregion/{region}/cytoband
 	public Response getChromosomeIds(@PathParam("chromosomeIds") String chrIds) {
 		try {
 			KaryotypeDBManager karyotypeDbManager = new KaryotypeDBManager(infraredDBConnector);
@@ -51,6 +52,7 @@ public class CytobandWSServer extends GenericRestWSServer{
 	
 	@GET
 	@Path("/{region}/region")
+	@Deprecated // /{version}/{species}/genomic/chregion/{region}/cytoband
 	public Response getCytobandByRegion(@PathParam("region") String region) {
 		try {
 			List<Region> regions = Region.parseRegions(region);
