@@ -64,6 +64,7 @@ public class GenericRestWSServer implements IWSServer {
 	}
 
 	public GenericRestWSServer(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo) throws VersionException, IOException {
+	
 		if(version != null && species != null) {
 			init(version, species, uriInfo);
 		}
@@ -108,10 +109,12 @@ public class GenericRestWSServer implements IWSServer {
 		this.species = species;
 		this.uriInfo = uriInfo;
 
+		
 		// load properties file
 		ResourceBundle databaseConfig = ResourceBundle.getBundle("org.bioinfo.infrared.ws.application");
 		config = new Config(databaseConfig);
 
+		
 		gsonBuilder = new GsonBuilder();
 		logger = new Logger();
 		logger.setLevel(Logger.DEBUG_LEVEL);
@@ -121,6 +124,7 @@ public class GenericRestWSServer implements IWSServer {
 
 		// checking all parameters are OK
 		if(isValidSpecies() && checkVersion(version) && uriInfo != null) {
+
 			// connect to database
 			connect();
 		}
