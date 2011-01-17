@@ -16,6 +16,7 @@ import org.bioinfo.infrared.core.KaryotypeDBManager;
 import org.bioinfo.infrared.core.common.FeatureList;
 import org.bioinfo.infrared.core.feature.Cytoband;
 import org.bioinfo.infrared.core.feature.Region;
+import org.bioinfo.infrared.core.variation.AnnotatedMutation;
 import org.bioinfo.infrared.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
 
