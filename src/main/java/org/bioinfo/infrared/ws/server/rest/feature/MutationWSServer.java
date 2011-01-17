@@ -6,9 +6,9 @@ import javax.ws.rs.core.UriInfo;
 
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
 
-public class TranscriptWSServer extends FeatureWSServer implements IFeature {
+public class MutationWSServer extends FeatureWSServer implements IFeature {
 
-	public TranscriptWSServer(String version, String species, UriInfo uriInfo) throws VersionException, IOException {
+	public MutationWSServer(String version, String species, UriInfo uriInfo) throws VersionException, IOException {
 		super(version, species, uriInfo);
 	}
 

@@ -34,7 +34,7 @@ public class CytobandWSServer extends GenericRestWSServer{
 	}
 	
 	@Override
-	protected boolean isValidSpecies(String species) {
+	public boolean isValidSpecies() {
 		return false;
 	}
 

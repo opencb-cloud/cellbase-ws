@@ -1,4 +1,4 @@
-package org.bioinfo.infrared.ws.server.rest.functannot;
+package org.bioinfo.infrared.ws.server.rest.functgen.annotation;
 
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;

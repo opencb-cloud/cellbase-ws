@@ -21,25 +21,24 @@ import org.bioinfo.infrared.variation.AnnotatedSnpDBManager;
 import org.bioinfo.infrared.variation.OmegaDBManager;
 import org.bioinfo.infrared.variation.SNPDBManager;
 import org.bioinfo.infrared.variation.VariationFrequencyDBManager;
-import org.bioinfo.infrared.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
 
 import com.google.gson.reflect.TypeToken;
 
 @Path("/{version}/{species}/feature/snp")
 @Produces("text/plain")
-public class SnpWSServer extends GenericRestWSServer {
-	
+public class SnpWSServer extends FeatureWSServer implements IFeature {
+
 	public SnpWSServer(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo) throws VersionException, IOException {
 		super(version, species, uriInfo);
 	}
-	
+
 	@GET
 	@Path("/{snpId}")
 	public Response getByIds(@PathParam("snpId") String snpIds) {
 		return getSNPListByIds(snpIds);
 	}
-	
+
 	@GET
 	@Path("/list")
 	public Response getListIds() {
@@ -52,12 +51,12 @@ public class SnpWSServer extends GenericRestWSServer {
 			}else {
 				snplist = snpDbManager.getAllNames();
 			}
-			return generateResponseList2(snplist);
+			return generateResponseFromList(snplist);
 		} catch (Exception e) {
 			return generateErrorMessage(e.toString());
 		}
 	}
-	
+
 	@GET
 	@Path("/{snpId}/info")
 	public Response getSNPListByIds(@PathParam("snpId") String snpIds) {
@@ -65,9 +64,9 @@ public class SnpWSServer extends GenericRestWSServer {
 			List<String> ids = StringUtils.toList(snpIds, ",");
 			SNPDBManager snpDbManager = new SNPDBManager(infraredDBConnector);
 			FeatureList<SNP> snplist = snpDbManager.getByNames(ids);
-			//return generateResponse(createResultString(ids, snplist), outputFormat, compress);
-			this.listType = new TypeToken<FeatureList<SNP>>() {}.getType();
-			return generateResponse2(snplist, outputFormat, compress);
+//			return generateResponse(createResultString(ids, snplist), outputFormat, compress);
+//			this.listType = new TypeToken<FeatureList<SNP>>() {}.getType();
+			return generateResponseFromFeatureList(snplist, new TypeToken<FeatureList<SNP>>() {}.getType());
 		} catch (Exception e) {
 			return generateErrorMessage(e.toString());
 		}
@@ -86,14 +85,14 @@ public class SnpWSServer extends GenericRestWSServer {
 			}else {
 				snplist = snpDbManager.getByNames(ids);
 			}
-			//return generateResponse(createResultString(ids, snplist), outputFormat, compress);
-			this.listType = new TypeToken<FeatureList<SNP>>() {}.getType();
-			return generateResponse2(snplist, outputFormat, compress);
+//			return generateResponse(createResultString(ids, snplist), outputFormat, compress);
+//			this.listType = new TypeToken<FeatureList<SNP>>() {}.getType();
+			return generateResponseFromFeatureList(snplist, new TypeToken<FeatureList<SNP>>() {}.getType());
 		} catch (Exception e) {
 			return generateErrorMessage(e.toString());
 		}
 	}
-	
+
 	@GET
 	@Path("/{snpId}/annotated")
 	public Response getAnnotatedSNPListByIds(@PathParam("snpId") String snpIds) {
@@ -101,8 +100,8 @@ public class SnpWSServer extends GenericRestWSServer {
 			List<String> ids = StringUtils.toList(snpIds, ",");
 			AnnotatedSnpDBManager annotatedSnpDBManager = new AnnotatedSnpDBManager(infraredDBConnector);
 			List<FeatureList<AnnotatedSNP>> snplist = annotatedSnpDBManager.getAllByIds(ids);
-			this.listType = new TypeToken<List<FeatureList<AnnotatedSNP>>>() {}.getType();
-			return generateResponse2(snplist, outputFormat, compress);
+			//			this.listType = new TypeToken<List<FeatureList<AnnotatedSNP>>>() {}.getType();
+			return generateResponseFromListFeatureList(snplist, new TypeToken<List<FeatureList<AnnotatedSNP>>>() {}.getType());
 		} catch (Exception e) {
 			return generateErrorMessage(e.toString());
 		}
@@ -121,14 +120,14 @@ public class SnpWSServer extends GenericRestWSServer {
 			}else {
 				snplist = variationFrequencyDbManager.getBySnpIds(ids);
 			}
-			//return generateResponse(createResultString(ids, snplist), outputFormat, compress);
-			this.listType = new TypeToken<FeatureList<VariationFrequency>>() {}.getType();
-			return generateResponse2(snplist, outputFormat, compress);
+			//			return generateResponse(createResultString(ids, snplist), outputFormat, compress);
+			//			this.listType = new TypeToken<FeatureList<VariationFrequency>>() {}.getType();
+			return generateResponseFromFeatureList(snplist, new TypeToken<FeatureList<VariationFrequency>>() {}.getType());
 		} catch (Exception e) {
 			return generateErrorMessage(e.toString());
 		}
 	}
-	
+
 	@GET
 	@Path("/{snpId}/allele_frequency")
 	public Response getAlleleFrequencies(@PathParam("snpId") String snpIds) {
@@ -142,14 +141,14 @@ public class SnpWSServer extends GenericRestWSServer {
 			}else {
 				snplist = variationFrequencyDbManager.getBySnpIds(ids);
 			}
-			//return generateResponse(createResultString(ids, snplist), outputFormat, compress);
-			this.listType = new TypeToken<FeatureList<VariationFrequency>>() {}.getType();
-			return generateResponse2(snplist, outputFormat, compress);
+			//			return generateResponse(createResultString(ids, snplist), outputFormat, compress);
+			//			this.listType = new TypeToken<FeatureList<VariationFrequency>>() {}.getType();
+			return generateResponseFromFeatureList(snplist, new TypeToken<FeatureList<VariationFrequency>>() {}.getType());
 		} catch (Exception e) {
 			return generateErrorMessage(e.toString());
 		}
 	}
-	
+
 	@GET
 	@Path("/{snpId}/genotype_frequency")
 	public Response getGenotypeFrequencies(@PathParam("snpId") String snpIds) {
@@ -163,14 +162,14 @@ public class SnpWSServer extends GenericRestWSServer {
 			}else {
 				snplist = variationFrequencyDbManager.getBySnpIds(ids);
 			}
-			//return generateResponse(createResultString(ids, snplist), outputFormat, compress);
-			this.listType = new TypeToken<FeatureList<VariationFrequency>>() {}.getType();
-			return generateResponse2(snplist, outputFormat, compress);
+			//			return generateResponse(createResultString(ids, snplist), outputFormat, compress);
+			//			this.listType = new TypeToken<FeatureList<VariationFrequency>>() {}.getType();
+			return generateResponseFromFeatureList(snplist, new TypeToken<FeatureList<VariationFrequency>>() {}.getType());
 		} catch (Exception e) {
 			return generateErrorMessage(e.toString());
 		}
 	}
-	
+
 
 	@GET
 	@Path("/{snpId}/functional")
@@ -184,14 +183,14 @@ public class SnpWSServer extends GenericRestWSServer {
 			}else{
 				omegas = omegaDbManager.getAllBySnpIds(snps);
 			}
-//			return generateResponse(createResultString(snps, omegas), outputFormat, compress);
-			this.listType = new TypeToken<List<FeatureList<Omega>>>() {}.getType();
-			return generateResponse2(omegas, outputFormat, compress);
+			//			return generateResponse(createResultString(snps, omegas), outputFormat, compress);
+			//			this.listType = new TypeToken<List<FeatureList<Omega>>>() {}.getType();
+			return generateResponseFromListFeatureList(omegas, new TypeToken<List<FeatureList<Omega>>>() {}.getType());
 		}catch (Exception e) {
 			return generateErrorMessage(e.toString());
 		}
 	}
-	
+
 	@Deprecated
 	@GET
 	@Path("/{snpId}/omegas")
@@ -205,9 +204,9 @@ public class SnpWSServer extends GenericRestWSServer {
 			}else{
 				omegas = omegaDbManager.getAllBySnpIds(snps);
 			}
-//			return generateResponse(createResultString(snps, omegas), outputFormat, compress);
-			this.listType = new TypeToken<List<FeatureList<Omega>>>() {}.getType();
-			return generateResponse2(omegas, outputFormat, compress);
+			//			return generateResponse(createResultString(snps, omegas), outputFormat, compress);
+			//			this.listType = new TypeToken<List<FeatureList<Omega>>>() {}.getType();
+			return generateResponseFromListFeatureList(omegas, new TypeToken<List<FeatureList<Omega>>>() {}.getType());
 		}catch (Exception e) {
 			return generateErrorMessage(e.toString());
 		}
@@ -268,23 +267,37 @@ public class SnpWSServer extends GenericRestWSServer {
 	//	}
 
 	@Override
-	protected boolean isValidSpecies(String species) {
+	public boolean isValidSpecies() {
 		if("hsa".equalsIgnoreCase(species) || "mmu".equalsIgnoreCase(species) || "rno".equalsIgnoreCase(species)) {
 			return true;
 		}
 		return false;
 	}
 
-//	private String createVariationResultString(List<String> ids, FeatureList<SNP> features) {
-//		StringBuilder result = new StringBuilder();
-//		for(int i=0; i<ids.size(); i++) {
-//			if(features.get(i) != null) {
-//				result.append(ids.get(i)).append("\t").append(features.get(i).getChromosome()+"\t"+features.get(i).getStart()+"\t"+features.get(i).getEnd()+"\t"+features.get(i).getStrand()+"\t"+features.get(i).getAllele()+"\t"+features.get(i).getConsequenceTypeList()+"\t"+features.get(i).getSequence()).append(querySeparator);
-//			}else {
-//				result.append(ids.get(i)).append("\t").append("not found").append(querySeparator);
-//			}
-//		}
-//		return result.toString().trim();
-//	}
-	
+	@Override
+	public String stats() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@GET
+	@Path("/{snpId}/sequence")
+	@Override
+	public String sequence(@PathParam("snpId") String feature) {
+		return null;
+	}
+
+	//	private String createVariationResultString(List<String> ids, FeatureList<SNP> features) {
+	//		StringBuilder result = new StringBuilder();
+	//		for(int i=0; i<ids.size(); i++) {
+	//			if(features.get(i) != null) {
+	//				result.append(ids.get(i)).append("\t").append(features.get(i).getChromosome()+"\t"+features.get(i).getStart()+"\t"+features.get(i).getEnd()+"\t"+features.get(i).getStrand()+"\t"+features.get(i).getAllele()+"\t"+features.get(i).getConsequenceTypeList()+"\t"+features.get(i).getSequence()).append(querySeparator);
+	//			}else {
+	//				result.append(ids.get(i)).append("\t").append("not found").append(querySeparator);
+	//			}
+	//		}
+	//		return result.toString().trim();
+	//	}
+
 }

@@ -18,6 +18,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.bioinfo.commons.Config;
+import org.bioinfo.commons.log.Logger;
 import org.bioinfo.commons.utils.ListUtils;
 import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.infrared.common.DBConnector;
@@ -32,7 +33,7 @@ import com.google.gson.GsonBuilder;
 
 @Path("/{version}")
 @Produces("text/plain")
-public class GenericRestWSServer {
+public class GenericRestWSServer implements IWSServer {
 
 	protected DBConnector infraredDBConnector;
 	protected Config config;
@@ -52,6 +53,9 @@ public class GenericRestWSServer {
 	
 	protected Type listType;
 
+	protected GsonBuilder gsonBuilder;
+	protected Logger logger;
+	
 	private static final String NEW_LINE = "newline";
 	private static final String TAB = "tab";
 		
@@ -64,14 +68,33 @@ public class GenericRestWSServer {
 			init(version, species, uriInfo);
 		}
 	}
+	
+	/* (non-Javadoc)
+	 * @see org.bioinfo.infrared.ws.server.rest.IWSServer#stats()
+	 */
+	@Override
+	public String stats() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
-	protected boolean isValidSpecies(String species) {
+	/* (non-Javadoc)
+	 * @see org.bioinfo.infrared.ws.server.rest.IWSServer#isValidSpecies()
+	 */
+	@Override
+	public boolean isValidSpecies() {
 		return true;
 	}
 
 	@GET
-	@Path("/species")
+	@Path("/help")
 	public String help() {
+		return "help";
+	}
+	
+	@GET
+	@Path("/species")
+	public String getSpecies() {
 		StringBuilder stringBuilder = new StringBuilder();
 		stringBuilder.append("#short").append("\t").append("common").append("\t").append("scientific").append("\n");
 		stringBuilder.append("hsa").append("\t").append("human").append("\t").append("Homo sapiens").append("\n");
@@ -89,11 +112,15 @@ public class GenericRestWSServer {
 		ResourceBundle databaseConfig = ResourceBundle.getBundle("org.bioinfo.infrared.ws.application");
 		config = new Config(databaseConfig);
 
+		gsonBuilder = new GsonBuilder();
+		logger = new Logger();
+		logger.setLevel(Logger.DEBUG_LEVEL);
+		
 		// this code MUST be run before the checking 
 		parseCommonQueryParameters(uriInfo.getQueryParameters());
 
 		// checking all parameters are OK
-		if(isValidSpecies(species) && checkVersion(version) && uriInfo != null) {
+		if(isValidSpecies() && checkVersion(version) && uriInfo != null) {
 			// connect to database
 			connect();
 		}
@@ -155,6 +182,7 @@ public class GenericRestWSServer {
 	}
 
 	private void connect() throws IOException {
+		logger.debug("in connect");
 		infraredDBConnector = new DBConnector(species, config.getProperty("INFRARED.HOST"), config.getProperty("INFRARED.PORT", "3306"), config.getProperty("INFRARED."+species.toUpperCase()+".DATABASE"), config.getProperty("INFRARED.USER"), config.getProperty("INFRARED.PASSWORD"));
 	}
 
@@ -204,31 +232,6 @@ public class GenericRestWSServer {
 		return "output format '"+outputFormat+"' not valid";
 	}
 
-	protected String createResultStringByTranscriptConsequenceType(List<String> ids, List<List<TranscriptConsequenceType>> features) {
-		if(outputFormat.equals("txt")) {
-			StringBuilder result = new StringBuilder();
-			for(int i=0; i<ids.size(); i++) {
-				if(features.get(i) != null && features.get(i).size() > 0) {
-					for(TranscriptConsequenceType feature: features.get(i)) {
-						if(feature != null) {
-							result.append(ids.get(i)).append(":\t").append(feature.toString()).append(querySeparator);
-						}else {
-							result.append(ids.get(i)).append(":\t").append("not found").append(querySeparator);
-						}
-					}
-				}else {
-					result.append(ids.get(i)).append(":\t").append("not found").append(querySeparator);
-				}
-			}
-			return result.toString().trim();
-		}else {
-			if(outputFormat.equals("json")) {
-				return new Gson().toJson(features);
-			}
-		}
-		return "output format '"+outputFormat+"' not valid";
-	}
-
 	protected Response generateResponse(String entity, String outputFormat, boolean compress) throws IOException {
 		MediaType mediaType = MediaType.valueOf("text/plain");
 		if(outputFormat != null && outputFormat.equals("json")) {
@@ -248,6 +251,7 @@ public class GenericRestWSServer {
 			return Response.ok(entity, mediaType).build();
 		}
 	}
+	
 	protected <E extends Object> Response generateResponse(List<E> entityList, String outputFormat, boolean compress) throws IOException {
 		MediaType mediaType = MediaType.valueOf("text/plain");
 		String entity = "";
@@ -270,25 +274,8 @@ public class GenericRestWSServer {
 			return Response.ok(entity, mediaType).build();
 		}
 	}
-	//	protected Response generateResponse(List<E> entityList, String outputFormat, boolean compress) throws IOException {
-	//		MediaType mediaType = MediaType.valueOf("text/plain");
-	//		if(outputFormat != null && outputFormat.equals("json")) {
-	//			mediaType =  MediaType.valueOf("application/json");
-	//			Gson gson = new Gson();
-	//			entity = gson.toJson(entity);
-	//		}
-	//		if(outputFormat != null && outputFormat.equals("xml")) {
-	//			mediaType =  MediaType.valueOf("text/xml");
-	//		}
-	//		if(compress) {
-	//			mediaType =  MediaType.valueOf("application/zip");
-	//			return Response.ok(StringUtils.zipToBytes(entity), mediaType).build();
-	//		}else {
-	//			return Response.ok(entity, mediaType).build();
-	//		}
-	//	}
 
-	protected <E> Response generateResponseList2(List<E> features) throws IOException {
+	protected <E extends Feature> Response generateResponseFromFeatureList(FeatureList<E> features, Type listType) {
 		MediaType mediaType = MediaType.valueOf("text/plain");
 		String entity = "";
 		String zipEntity = "";
@@ -297,7 +284,6 @@ public class GenericRestWSServer {
 		if(outputFormat != null && outputFormat.equals("txt")) {
 			mediaType = MediaType.valueOf("text/plain");
 			entity = ListUtils.toString(features, querySeparator);
-			
 		}
 		if(outputFormat != null && outputFormat.equals("json")) {
 			mediaType =  MediaType.valueOf("application/json");
@@ -309,8 +295,12 @@ public class GenericRestWSServer {
 					entity = gson.toJson(features, listType);
 					System.err.println("done!");
 					System.err.println("Entity json: "+entity);
+					try {
 					zipEntity = Arrays.toString(StringUtils.gzipToBytes(entity)).replace(" " , "");
 					System.err.println("zipEntryBytes: "+StringUtils.gzipToBytes(entity));
+					}catch(IOException e) {
+						
+					}
 					System.err.println("zipEntry: "+zipEntity);
 					System.out.println("entity.length(): "+entity.length());
 					System.out.println("zipEntity.length(): "+zipEntity.length());
@@ -333,74 +323,12 @@ public class GenericRestWSServer {
 			return Response.ok(entity, mediaType).build();
 		}
 	}
-
-	protected <E extends Feature> Response generateResponse2(FeatureList<E> features, String outputFormat, boolean compress) throws IOException {
-		MediaType mediaType = MediaType.valueOf("text/plain");
-		String entity = "";
-		String zipEntity = "";
-		Gson gson = new GsonBuilder().serializeNulls().create();
-		//Gson gson = new Gson();
-		if(outputFormat != null && outputFormat.equals("txt")) {
-			mediaType = MediaType.valueOf("text/plain");
-			entity = ListUtils.toString(features, querySeparator);
-		}
-		if(outputFormat != null && outputFormat.equals("json")) {
-			mediaType =  MediaType.valueOf("application/json");
-			if(features != null && features.size() > 0 /*&& features.get(0) != null*/) {
-
-				//System.err.println("FeatureList Object Class: "+features.get(0).getClass());
-				//				if(features.get(0) instanceof Gene) {
-				//					listType = new TypeToken<FeatureList<Gene>>() {}.getType();
-				//					
-				//				}else if(features.get(0) instanceof Transcript) {
-				//					listType = new TypeToken<FeatureList<Transcript>>() {}.getType();
-				//				}else if(features.get(0) instanceof Exon) {
-				//					listType = new TypeToken<FeatureList<Exon>>() {}.getType();
-				//				}else if(features.get(0) instanceof SNP) {
-				//					listType = new TypeToken<FeatureList<SNP>>() {}.getType();
-				//				}else if(features.get(0) instanceof SpliceSite) {
-				//					listType = new TypeToken<FeatureList<SpliceSite>>() {}.getType();
-				//				}else if(features.get(0) instanceof ConservedRegion) {
-				//					listType = new TypeToken<FeatureList<ConservedRegion>>() {}.getType();
-				//				}else if(features.get(0) instanceof OregannoTfbs) {
-				//					listType = new TypeToken<FeatureList<OregannoTfbs>>() {}.getType();
-				//				}else if(features.get(0) instanceof JasparTfbs) {
-				//					listType = new TypeToken<FeatureList<JasparTfbs>>() {}.getType();
-				//				}
-				//				else
-				//					System.out.println("errrrrrrrrrrrrrrororr");
-				if(listType != null && features != null ) {
-					System.out.println("Entro3");
-					System.out.println("Creating JSON object...");
-					entity = gson.toJson(features, listType);
-					System.err.println("done!");
-					System.err.println("Entity json: "+entity);
-					zipEntity = Arrays.toString(StringUtils.gzipToBytes(entity)).replace(" " , "");
-					System.err.println("zipEntryBytes: "+StringUtils.gzipToBytes(entity));
-					System.err.println("zipEntry: "+zipEntity);
-					System.out.println("entity.length(): "+entity.length());
-					System.out.println("zipEntity.length(): "+zipEntity.length());
-
-				}else {
-					System.err.println("GenericRestWSServer: TypeToken from Gson equals null");
-				}
-			}
-		}
-
-		if(outputFormat != null && outputFormat.equals("xml")) {
-			mediaType =  MediaType.valueOf("text/xml");
-		}
-		if(compress) {
-			mediaType =  MediaType.valueOf("application/zip");
-			//			return Response.ok(StringUtils.zipToBytes(entity), mediaType).build();
-			return Response.ok(zipEntity, mediaType).build();
-		}else {
-			System.out.println("No zipEntity: "+zipEntity);
-			return Response.ok(entity, mediaType).build();
-		}
+	
+	protected <E> Response generateResponseFromListList(List<List<E>> features, Type listType) throws IOException {
+		return null;
 	}
-
-	protected <E extends Feature> Response generateResponse2(List<FeatureList<E>> features, String outputFormat, boolean compress) throws IOException {
+	
+	protected <E extends Feature> Response generateResponseFromListFeatureList(List<FeatureList<E>> features, Type listType) throws IOException {
 		MediaType mediaType = MediaType.valueOf("text/plain");
 		String entity = null;
 		String zipEntity = "";
@@ -429,23 +357,6 @@ public class GenericRestWSServer {
 			System.out.println("features: " +features);
 			if(features != null && features.size() > 0 /*&& features.get(0) != null && features.get(0).get(0) != null*/) {
 				System.err.println("FeatureList Object Class: "+features.get(0).getClass());
-				//				if(features.get(0).get(0) instanceof Gene) {
-				//					listType = new TypeToken<List<FeatureList<Gene>>>() {}.getType();
-				//				}else if(features.get(0).get(0) instanceof Transcript) {
-				//					listType = new TypeToken<List<FeatureList<Transcript>>>() {}.getType();
-				//				}else if(features.get(0).get(0) instanceof Exon) {
-				//					listType = new TypeToken<List<FeatureList<Exon>>>() {}.getType();
-				//				}else if(features.get(0).get(0) instanceof SNP) {
-				//					listType = new TypeToken<List<FeatureList<SNP>>>() {}.getType();
-				//				}else if(features.get(0).get(0) instanceof SpliceSite) {
-				//					listType = new TypeToken<List<FeatureList<SpliceSite>>>() {}.getType();
-				//				}else if(features.get(0).get(0) instanceof ConservedRegion) {
-				//					listType = new TypeToken<List<FeatureList<ConservedRegion>>>() {}.getType();
-				//				}else if(features.get(0).get(0) instanceof OregannoTfbs) {
-				//					listType = new TypeToken<List<FeatureList<OregannoTfbs>>>() {}.getType();
-				//				}else if(features.get(0).get(0) instanceof JasparTfbs) {
-				//					listType = new TypeToken<List<FeatureList<JasparTfbs>>>() {}.getType();
-				//				}
 				if(listType != null) {
 					System.out.println("Creating JSON object...");
 					entity = gson.toJson(features, listType);
@@ -474,8 +385,142 @@ public class GenericRestWSServer {
 			return Response.ok(entity, mediaType).build();
 		}
 	}
+	
+	@Deprecated
+	protected String createResultStringByTranscriptConsequenceType(List<String> ids, List<List<TranscriptConsequenceType>> features) {
+		if(outputFormat.equals("txt")) {
+			StringBuilder result = new StringBuilder();
+			for(int i=0; i<ids.size(); i++) {
+				if(features.get(i) != null && features.get(i).size() > 0) {
+					for(TranscriptConsequenceType feature: features.get(i)) {
+						if(feature != null) {
+							result.append(ids.get(i)).append(":\t").append(feature.toString()).append(querySeparator);
+						}else {
+							result.append(ids.get(i)).append(":\t").append("not found").append(querySeparator);
+						}
+					}
+				}else {
+					result.append(ids.get(i)).append(":\t").append("not found").append(querySeparator);
+				}
+			}
+			return result.toString().trim();
+		}else {
+			if(outputFormat.equals("json")) {
+				return new Gson().toJson(features);
+			}
+		}
+		return "output format '"+outputFormat+"' not valid";
+	}
+
+	@Deprecated
+	protected <E> Response generateResponseFromList(List<E> features) throws IOException {//, Type listType
+		MediaType mediaType = MediaType.valueOf("text/plain");
+		String entity = "";
+		String zipEntity = "";
+		Gson gson = new GsonBuilder().serializeNulls().create();
+		//Gson gson = new Gson();
+		if(outputFormat != null && outputFormat.equals("txt")) {
+			mediaType = MediaType.valueOf("text/plain");
+			entity = ListUtils.toString(features, querySeparator);
+			
+		}
+		if(outputFormat != null && outputFormat.equals("json")) {
+			mediaType =  MediaType.valueOf("application/json");
+			if(features != null && features.size() > 0 /*&& features.get(0) != null*/) {
+
+				if(listType != null && features != null ) {
+					System.out.println("Entro3");
+					System.out.println("Creating JSON object...");
+					entity = gson.toJson(features);//, listType
+					System.err.println("done!");
+					System.err.println("Entity json: "+entity);
+					zipEntity = Arrays.toString(StringUtils.gzipToBytes(entity)).replace(" " , "");
+					System.err.println("zipEntryBytes: "+StringUtils.gzipToBytes(entity));
+					System.err.println("zipEntry: "+zipEntity);
+					System.out.println("entity.length(): "+entity.length());
+					System.out.println("zipEntity.length(): "+zipEntity.length());
+
+				}else {
+					System.err.println("GenericRestWSServer: TypeToken from Gson equals null");
+				}
+			}
+		}
+
+		if(outputFormat != null && outputFormat.equals("xml")) {
+			mediaType =  MediaType.valueOf("text/xml");
+		}
+		if(compress) {
+			mediaType =  MediaType.valueOf("application/zip");
+			//			return Response.ok(StringUtils.zipToBytes(entity), mediaType).build();
+			return Response.ok(zipEntity, mediaType).build();
+		}else {
+			System.out.println("No zipEntity: "+zipEntity);
+			return Response.ok(entity, mediaType).build();
+		}
+	}
+	
+	@Deprecated
+	protected <E extends Feature> Response generateResponseFromListFeatureList(List<FeatureList<E>> features) throws IOException {
+		MediaType mediaType = MediaType.valueOf("text/plain");
+		String entity = null;
+		String zipEntity = "";
+		//Gson gson = new GsonBuilder().serializeNulls().create();
+		Gson gson = new Gson();
+
+		if(outputFormat != null && outputFormat.equals("txt")) {
+			mediaType = MediaType.valueOf("text/plain");
+			// cada ID en una line, cada valor en la misma linea separado por '//'
+			//			entity = ListUtils.toString(features, querySeparator);
+
+			StringBuilder result= new StringBuilder();
+			for(FeatureList<E> featureList: features) {
+				if(featureList != null) {
+					result.append(ListUtils.toString(featureList, resultSeparator));
+				}else {
+					result.append("null");					
+				}
+				result.append(querySeparator);
+			}
+			entity = result.toString().trim();
+
+		}
+		if(outputFormat != null && outputFormat.equals("json")) {
+			mediaType =  MediaType.valueOf("application/json");
+			System.out.println("features: " +features);
+			if(features != null && features.size() > 0 /*&& features.get(0) != null && features.get(0).get(0) != null*/) {
+				System.err.println("FeatureList Object Class: "+features.get(0).getClass());
+				if(listType != null) {
+					System.out.println("Creating JSON object...");
+					entity = gson.toJson(features, listType);
+					System.err.println("done!");
+					System.err.println("Entity json: "+entity);
+					zipEntity = Arrays.toString(StringUtils.gzipToBytes(entity)).replace(" " , "");
+					System.err.println("zipEntryBytes: "+StringUtils.gzipToBytes(entity));
+					System.err.println("zipEntry: "+zipEntity);
+					System.out.println("entity.length(): "+entity.length());
+					System.out.println("zipEntity.length(): "+zipEntity.length());
+
+				}else {
+					System.err.println("GenericRestWSServer: TypeToken from Gson equals null");
+				}
+			}
+		}
+		if(outputFormat != null && outputFormat.equals("xml")) {
+			mediaType =  MediaType.valueOf("text/xml");
+		}
+		if(compress) {
+			mediaType =  MediaType.valueOf("application/zip");
+			//			return Response.ok(StringUtils.zipToBytes(entity), mediaType).build();
+			return Response.ok(zipEntity, mediaType).build();
+		}else {
+			System.out.println("No zipEntity: "+zipEntity);
+			return Response.ok(entity, mediaType).build();
+		}
+	}
+	
 	protected Response generateErrorMessage(String errorMessage) {
 		return Response.ok("An error occurred: "+errorMessage, MediaType.valueOf("text/plain")).build();
 	}
 
+	
 }
