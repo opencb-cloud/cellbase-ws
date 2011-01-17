@@ -145,8 +145,8 @@ public class ChromosomeRegionServer extends GenomicWSServer {
 		try {
 			List<Region> regions = Region.parseRegions(region);
 			KaryotypeDBManager karyotypeDbManager = new KaryotypeDBManager(infraredDBConnector);
-			FeatureList<Cytoband> CytobandList = karyotypeDbManager.getCytobandByRegion(regions.get(0));
-			return generateResponseFromFeatureList(CytobandList, new TypeToken<List<FeatureList<AnnotatedMutation>>>() {}.getType());
+			List<FeatureList<Cytoband>> CytobandList = karyotypeDbManager.getCytobandByRegions(regions);
+			return generateResponseFromListFeatureList(CytobandList, new TypeToken<List<FeatureList<Cytoband>>>() {}.getType());
 		} catch (Exception e) {
 			return generateErrorMessage(e.toString());
 		}
