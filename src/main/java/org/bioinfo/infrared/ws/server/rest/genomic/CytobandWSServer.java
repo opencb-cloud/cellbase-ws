@@ -13,13 +13,8 @@ import javax.ws.rs.core.UriInfo;
 
 import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.infrared.core.KaryotypeDBManager;
-import org.bioinfo.infrared.core.common.Feature;
 import org.bioinfo.infrared.core.common.FeatureList;
-import org.bioinfo.infrared.core.feature.Chromosome;
 import org.bioinfo.infrared.core.feature.Cytoband;
-import org.bioinfo.infrared.core.variation.VariationFrequency;
-import org.bioinfo.infrared.variation.SNPDBManager;
-import org.bioinfo.infrared.variation.VariationFrequencyDBManager;
 import org.bioinfo.infrared.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
 
@@ -34,9 +29,6 @@ public class CytobandWSServer extends GenericRestWSServer{
 	public CytobandWSServer(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo) throws VersionException, IOException {
 		super(version, species, uriInfo);
 	}
-	
-
-	
 	
 	
 	@GET
