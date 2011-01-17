@@ -15,6 +15,7 @@ import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.infrared.core.KaryotypeDBManager;
 import org.bioinfo.infrared.core.common.FeatureList;
 import org.bioinfo.infrared.core.feature.Cytoband;
+import org.bioinfo.infrared.core.feature.Region;
 import org.bioinfo.infrared.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
 
@@ -43,6 +44,24 @@ public class CytobandWSServer extends GenericRestWSServer{
 			return generateErrorMessage(e.toString());
 		}
 	}
+	
+	
+	
+	
+	@GET
+	@Path("/{region}/region")
+	public Response getCytobandByRegion(@PathParam("region") String region) {
+		try {
+			List<Region> regions = Region.parseRegions(region);
+			
+			KaryotypeDBManager karyotypeDbManager = new KaryotypeDBManager(infraredDBConnector);
+			FeatureList<Cytoband> CytobandList = karyotypeDbManager.getCytobandByRegion(regions.get(0));
+			return generateResponseFromFeatureList(CytobandList, new TypeToken<List<FeatureList<AnnotatedMutation>>>() {}.getType());
+		} catch (Exception e) {
+			return generateErrorMessage(e.toString());
+		}
+	}
+	
 	
 	
 	@GET

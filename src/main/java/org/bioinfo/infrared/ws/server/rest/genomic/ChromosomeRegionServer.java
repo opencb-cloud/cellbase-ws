@@ -14,7 +14,9 @@ import javax.ws.rs.core.UriInfo;
 
 import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.infrared.core.GeneDBManager;
+import org.bioinfo.infrared.core.KaryotypeDBManager;
 import org.bioinfo.infrared.core.common.FeatureList;
+import org.bioinfo.infrared.core.feature.Cytoband;
 import org.bioinfo.infrared.core.feature.Gene;
 import org.bioinfo.infrared.core.feature.Region;
 import org.bioinfo.infrared.core.variation.AnnotatedMutation;
@@ -132,6 +134,19 @@ public class ChromosomeRegionServer extends GenomicWSServer {
 			AnnotatedMutationDBManager snpDbManager = new AnnotatedMutationDBManager(infraredDBConnector);
 			List<FeatureList<AnnotatedMutation>> annotMutations = snpDbManager.getAllByRegions(regions);
 			return generateResponseFromListFeatureList(annotMutations, new TypeToken<List<FeatureList<AnnotatedMutation>>>() {}.getType());
+		} catch (Exception e) {
+			return generateErrorMessage(e.toString());
+		}
+	}
+	
+	@GET
+	@Path("/{region}/cytoband")
+	public Response getCytobandByRegion(@PathParam("region") String region) {
+		try {
+			List<Region> regions = Region.parseRegions(region);
+			KaryotypeDBManager karyotypeDbManager = new KaryotypeDBManager(infraredDBConnector);
+			FeatureList<Cytoband> CytobandList = karyotypeDbManager.getCytobandByRegion(regions.get(0));
+			return generateResponseFromFeatureList(CytobandList, new TypeToken<List<FeatureList<AnnotatedMutation>>>() {}.getType());
 		} catch (Exception e) {
 			return generateErrorMessage(e.toString());
 		}
