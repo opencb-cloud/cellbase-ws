@@ -283,36 +283,46 @@ public class GenericRestWSServer implements IWSServer {
 		MediaType mediaType = MediaType.valueOf("text/plain");
 		String entity = "";
 		String zipEntity = "";
+		
 		Gson gson = new GsonBuilder().serializeNulls().create();
-		//Gson gson = new Gson();
+
 		if(outputFormat != null && outputFormat.equals("txt")) {
 			mediaType = MediaType.valueOf("text/plain");
 			entity = ListUtils.toString(features, querySeparator);
 		}
-		if(outputFormat != null && outputFormat.equals("json")) {
+		
+		System.err.println("outputFormatn: "+outputFormat);
+		
+		if(outputFormat != null && (outputFormat.equals("json")||outputFormat.equals("jsonp"))) {
 			mediaType =  MediaType.valueOf("application/json");
 			if(features != null && features.size() > 0 /*&& features.get(0) != null*/) {
 
 				if(listType != null && features != null ) {
-					System.out.println("Entro3");
-					System.out.println("Creating JSON object...");
+					System.out.println("Creating JSON object........");
 					entity = gson.toJson(features, listType);
-					System.err.println("done!");
-					System.err.println("Entity json: "+entity);
+					System.err.print("done!");
+				//	System.err.println("Entity json: "+entity);
 					try {
-					zipEntity = Arrays.toString(StringUtils.gzipToBytes(entity)).replace(" " , "");
-					System.err.println("zipEntryBytes: "+StringUtils.gzipToBytes(entity));
+							zipEntity = Arrays.toString(StringUtils.gzipToBytes(entity)).replace(" " , "");
+							//System.err.println("zipEntryBytes: "+StringUtils.gzipToBytes(entity));
 					}catch(IOException e) {
 						
 					}
-					System.err.println("zipEntry: "+zipEntity);
-					System.out.println("entity.length(): "+entity.length());
-					System.out.println("zipEntity.length(): "+zipEntity.length());
+				//	System.err.println("[GenericRestWSServer] zipEntry: "+zipEntity);
+					System.out.println("[GenericRestWSServer] entity.length(): "+entity.length());
+					System.out.println("[GenericRestWSServer] zipEntity.length(): "+zipEntity.length());
 
 				}else {
-					System.err.println("GenericRestWSServer: TypeToken from Gson equals null");
+					System.err.println("[GenericRestWSServer] GenericRestWSServer: TypeToken from Gson equals null");
 				}
 			}
+		}
+		
+		if(outputFormat != null && (outputFormat.equals("jsonp"))) {
+			mediaType =  MediaType.valueOf("text/javascript");
+			System.out.println("Creating JSONP object........");
+			zipEntity = "var callBack = " + zipEntity;
+			System.err.print("done!");
 		}
 
 		if(outputFormat != null && outputFormat.equals("xml")) {
@@ -320,10 +330,9 @@ public class GenericRestWSServer implements IWSServer {
 		}
 		if(compress) {
 			mediaType =  MediaType.valueOf("application/zip");
-			//			return Response.ok(StringUtils.zipToBytes(entity), mediaType).build();
 			return Response.ok(zipEntity, mediaType).build();
 		}else {
-			System.out.println("No zipEntity: "+zipEntity);
+			System.out.println("No zipEntity: "+ zipEntity);
 			return Response.ok(entity, mediaType).build();
 		}
 	}

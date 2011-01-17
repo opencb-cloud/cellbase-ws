@@ -20,7 +20,6 @@ import org.bioinfo.infrared.core.common.FeatureList;
 import org.bioinfo.infrared.core.feature.Cytoband;
 import org.bioinfo.infrared.core.feature.Gene;
 import org.bioinfo.infrared.core.feature.Position;
-import org.bioinfo.infrared.core.feature.Region;
 import org.bioinfo.infrared.core.regulatory.ConservedRegion;
 import org.bioinfo.infrared.core.regulatory.JasparTfbs;
 import org.bioinfo.infrared.core.regulatory.MiRnaGene;
