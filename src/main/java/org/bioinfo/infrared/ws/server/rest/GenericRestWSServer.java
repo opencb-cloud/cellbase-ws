@@ -69,7 +69,7 @@ public class GenericRestWSServer implements IWSServer {
 			init(version, species, uriInfo);
 		}
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.bioinfo.infrared.ws.server.rest.IWSServer#stats()
 	 */
@@ -298,9 +298,9 @@ public class GenericRestWSServer implements IWSServer {
 			if(features != null && features.size() > 0 /*&& features.get(0) != null*/) {
 
 				if(listType != null && features != null ) {
-					System.out.println("Creating JSON object........");
+					System.out.print("   Creating JSON object........");
 					entity = gson.toJson(features, listType);
-					System.err.print("done!");
+					System.err.println("done!");
 				//	System.err.println("Entity json: "+entity);
 					try {
 							zipEntity = Arrays.toString(StringUtils.gzipToBytes(entity)).replace(" " , "");
@@ -320,8 +320,11 @@ public class GenericRestWSServer implements IWSServer {
 		
 		if(outputFormat != null && (outputFormat.equals("jsonp"))) {
 			mediaType =  MediaType.valueOf("text/javascript");
+			
+			String jsonpQueryParam = (uriInfo.getQueryParameters().get("callback") != null) ? uriInfo.getQueryParameters().get("callback").get(0) : "callback";
+			
 			System.out.println("Creating JSONP object........");
-			zipEntity = "var callBack = " + zipEntity;
+			entity = "var " + jsonpQueryParam+ " = " + entity;
 			System.err.print("done!");
 		}
 
@@ -365,27 +368,38 @@ public class GenericRestWSServer implements IWSServer {
 			entity = result.toString().trim();
 
 		}
-		if(outputFormat != null && outputFormat.equals("json")) {
+		
+		if(outputFormat != null && (outputFormat.equals("json")||outputFormat.equals("jsonp"))) {
 			mediaType =  MediaType.valueOf("application/json");
-			System.out.println("features: " +features);
 			if(features != null && features.size() > 0 /*&& features.get(0) != null && features.get(0).get(0) != null*/) {
 				System.err.println("FeatureList Object Class: "+features.get(0).getClass());
 				if(listType != null) {
-					System.out.println("Creating JSON object...");
+					System.out.print("Creating JSON object...");
 					entity = gson.toJson(features, listType);
 					System.err.println("done!");
-					System.err.println("Entity json: "+entity);
+					//System.err.println("Entity json: "+entity);
 					zipEntity = Arrays.toString(StringUtils.gzipToBytes(entity)).replace(" " , "");
-					System.err.println("zipEntryBytes: "+StringUtils.gzipToBytes(entity));
-					System.err.println("zipEntry: "+zipEntity);
-					System.out.println("entity.length(): "+entity.length());
-					System.out.println("zipEntity.length(): "+zipEntity.length());
+					//System.err.println("zipEntryBytes: "+StringUtils.gzipToBytes(entity));
+					//System.err.println("zipEntry: "+zipEntity);
+					System.out.println("[GenericRestWSServer] entity.length(): "+entity.length());
+					System.out.println("[GenericRestWSServer] zipEntity.length(): "+zipEntity.length());
 
 				}else {
 					System.err.println("GenericRestWSServer: TypeToken from Gson equals null");
 				}
 			}
 		}
+		
+		if(outputFormat != null && (outputFormat.equals("jsonp"))) {
+			mediaType =  MediaType.valueOf("text/javascript");
+			System.out.println("[GenericRestWSServer] Creating JSONP object........");
+			String jsonpQueryParam = (uriInfo.getQueryParameters().get("callback") != null) ? uriInfo.getQueryParameters().get("callback").get(0) : "callback";
+			
+			entity = "var " + jsonpQueryParam+ " = " + entity;
+			System.err.print("done!");
+		}
+		
+		
 		if(outputFormat != null && outputFormat.equals("xml")) {
 			mediaType =  MediaType.valueOf("text/xml");
 		}
