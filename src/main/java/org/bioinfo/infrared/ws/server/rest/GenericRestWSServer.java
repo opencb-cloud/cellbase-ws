@@ -295,6 +295,7 @@ public class GenericRestWSServer implements IWSServer {
 		
 		if(outputFormat != null && (outputFormat.equals("json")||outputFormat.equals("jsonp"))) {
 			mediaType =  MediaType.valueOf("application/json");
+			
 			if(features != null && features.size() > 0 /*&& features.get(0) != null*/) {
 
 				if(listType != null && features != null ) {
@@ -320,12 +321,8 @@ public class GenericRestWSServer implements IWSServer {
 		
 		if(outputFormat != null && (outputFormat.equals("jsonp"))) {
 			mediaType =  MediaType.valueOf("text/javascript");
+			entity = getJsonpFromEntity(entity);
 			
-			String jsonpQueryParam = (uriInfo.getQueryParameters().get("callback") != null) ? uriInfo.getQueryParameters().get("callback").get(0) : "callback";
-			
-			System.out.println("Creating JSONP object........");
-			entity = "var " + jsonpQueryParam+ " = " + entity;
-			System.err.print("done!");
 		}
 
 		if(outputFormat != null && outputFormat.equals("xml")) {
@@ -340,6 +337,16 @@ public class GenericRestWSServer implements IWSServer {
 		}
 	}
 	
+	
+	private String getJsonpFromEntity(String entity)
+	{
+		String jsonpQueryParam = (uriInfo.getQueryParameters().get("callbackParam") != null) ? uriInfo.getQueryParameters().get("callbackParam").get(0) : "callbackParam";
+		System.out.println("Creating JSONP object........");
+		entity = "var " + jsonpQueryParam+ " = (" + entity +")";
+		System.err.print("done!");
+		return entity;
+		
+	}
 	protected <E> Response generateResponseFromListList(List<List<E>> features, Type listType) throws IOException {
 		return null;
 	}
@@ -392,11 +399,7 @@ public class GenericRestWSServer implements IWSServer {
 		
 		if(outputFormat != null && (outputFormat.equals("jsonp"))) {
 			mediaType =  MediaType.valueOf("text/javascript");
-			System.out.println("[GenericRestWSServer] Creating JSONP object........");
-			String jsonpQueryParam = (uriInfo.getQueryParameters().get("callback") != null) ? uriInfo.getQueryParameters().get("callback").get(0) : "callback";
-			
-			entity = "var " + jsonpQueryParam+ " = " + entity;
-			System.err.print("done!");
+			entity = getJsonpFromEntity(entity);
 		}
 		
 		
