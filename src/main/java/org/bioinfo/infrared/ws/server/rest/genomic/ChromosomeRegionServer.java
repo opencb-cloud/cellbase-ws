@@ -187,7 +187,7 @@ public class ChromosomeRegionServer extends GenomicWSServer {
 //				genes = genesByBiotype;
 //			}
 //			this.listType = new TypeToken<FeatureList<Gene>>(){}.getType();
-			return generateResponseFromListFeatureList(genes, new TypeToken<FeatureList<Gene>>(){}.getType());
+			return generateResponseFromListFeatureList(genes, new TypeToken<List<FeatureList<Gene>>>(){}.getType());
 		} catch (Exception e) {
 			e.printStackTrace();
 			return generateErrorMessage(e.toString());
