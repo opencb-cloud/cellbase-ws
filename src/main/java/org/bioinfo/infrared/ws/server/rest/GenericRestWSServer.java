@@ -46,6 +46,8 @@ public class GenericRestWSServer implements IWSServer {
 	// common parameters
 	protected String resultSeparator;
 	protected String querySeparator;
+	protected String outputRowNames;
+	protected String outputHeader;
 	protected String outputFormat;
 	protected boolean compress;
 	protected String user;
@@ -124,7 +126,6 @@ public class GenericRestWSServer implements IWSServer {
 
 		// checking all parameters are OK
 		if(isValidSpecies() && checkVersion(version) && uriInfo != null) {
-
 			// connect to database
 			connect();
 		}
@@ -163,7 +164,9 @@ public class GenericRestWSServer implements IWSServer {
 			querySeparator = "\n";
 		}
 		
-		outputFormat = (multivaluedMap.get("output") != null) ? multivaluedMap.get("output").get(0) : "txt";
+		outputRowNames = (multivaluedMap.get("outputrownames") != null) ? multivaluedMap.get("outputrownames").get(0) : "false";
+		outputHeader = (multivaluedMap.get("outputheader") != null) ? multivaluedMap.get("outputheader").get(0) : "false";
+		outputFormat = (multivaluedMap.get("outputformat") != null) ? multivaluedMap.get("outputformat").get(0) : "txt";
 		compress = (multivaluedMap.get("compress") != null) ? Boolean.parseBoolean(multivaluedMap.get("compress").get(0)) : false;
 		user = (multivaluedMap.get("user") != null) ? multivaluedMap.get("user").get(0) : "anonymous";
 		password = (multivaluedMap.get("password") != null) ? multivaluedMap.get("password").get(0) : "";
@@ -234,49 +237,6 @@ public class GenericRestWSServer implements IWSServer {
 			return result.toString().trim();
 		}
 		return "output format '"+outputFormat+"' not valid";
-	}
-
-	protected Response generateResponse(String entity, String outputFormat, boolean compress) throws IOException {
-		MediaType mediaType = MediaType.valueOf("text/plain");
-		if(outputFormat != null && outputFormat.equals("json")) {
-			mediaType =  MediaType.valueOf("application/json");
-			Gson gson = new Gson();
-			System.out.println("Entro: "+entity);
-			entity = gson.toJson(entity);
-			System.out.println(entity);
-		}
-		if(outputFormat != null && outputFormat.equals("xml")) {
-			mediaType =  MediaType.valueOf("text/xml");
-		}
-		if(compress) {
-			mediaType =  MediaType.valueOf("application/zip");
-			return Response.ok(StringUtils.zipToBytes(entity), mediaType).build();
-		}else {
-			return Response.ok(entity, mediaType).build();
-		}
-	}
-	
-	protected <E extends Object> Response generateResponse(List<E> entityList, String outputFormat, boolean compress) throws IOException {
-		MediaType mediaType = MediaType.valueOf("text/plain");
-		String entity = "";
-		String zipEntity = "";
-		if(outputFormat != null && outputFormat.equals("json")) {
-			mediaType =  MediaType.valueOf("application/json");
-			Gson gson = new Gson();
-			System.out.println("Entro: "+entityList);
-			entity = gson.toJson(entityList, this.listType);
-			System.out.println(entity);
-			zipEntity = Arrays.toString(StringUtils.gzipToBytes(entity)).replace(" " , "");
-		}
-		if(outputFormat != null && outputFormat.equals("xml")) {
-			mediaType =  MediaType.valueOf("text/xml");
-		}
-		if(compress) {
-			mediaType =  MediaType.valueOf("application/zip");
-			return Response.ok(zipEntity, mediaType).build();
-		}else {
-			return Response.ok(entity, mediaType).build();
-		}
 	}
 
 	protected <E extends Feature> Response generateResponseFromFeatureList(FeatureList<E> features, Type listType) {
@@ -412,6 +372,51 @@ public class GenericRestWSServer implements IWSServer {
 			return Response.ok(zipEntity, mediaType).build();
 		}else {
 			System.out.println("No zipEntity: "+zipEntity);
+			return Response.ok(entity, mediaType).build();
+		}
+	}
+	
+	@Deprecated
+	protected Response generateResponse(String entity, String outputFormat, boolean compress) throws IOException {
+		MediaType mediaType = MediaType.valueOf("text/plain");
+		if(outputFormat != null && outputFormat.equals("json")) {
+			mediaType =  MediaType.valueOf("application/json");
+			Gson gson = new Gson();
+			System.out.println("Entro: "+entity);
+			entity = gson.toJson(entity);
+			System.out.println(entity);
+		}
+		if(outputFormat != null && outputFormat.equals("xml")) {
+			mediaType =  MediaType.valueOf("text/xml");
+		}
+		if(compress) {
+			mediaType =  MediaType.valueOf("application/zip");
+			return Response.ok(StringUtils.zipToBytes(entity), mediaType).build();
+		}else {
+			return Response.ok(entity, mediaType).build();
+		}
+	}
+	
+	@Deprecated
+	protected <E extends Object> Response generateResponse(List<E> entityList, String outputFormat, boolean compress) throws IOException {
+		MediaType mediaType = MediaType.valueOf("text/plain");
+		String entity = "";
+		String zipEntity = "";
+		if(outputFormat != null && outputFormat.equals("json")) {
+			mediaType =  MediaType.valueOf("application/json");
+			Gson gson = new Gson();
+			System.out.println("Entro: "+entityList);
+			entity = gson.toJson(entityList, this.listType);
+			System.out.println(entity);
+			zipEntity = Arrays.toString(StringUtils.gzipToBytes(entity)).replace(" " , "");
+		}
+		if(outputFormat != null && outputFormat.equals("xml")) {
+			mediaType =  MediaType.valueOf("text/xml");
+		}
+		if(compress) {
+			mediaType =  MediaType.valueOf("application/zip");
+			return Response.ok(zipEntity, mediaType).build();
+		}else {
 			return Response.ok(entity, mediaType).build();
 		}
 	}
