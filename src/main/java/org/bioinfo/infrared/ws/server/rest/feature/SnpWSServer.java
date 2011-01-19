@@ -64,7 +64,7 @@ public class SnpWSServer extends FeatureWSServer implements IFeature {
 			List<String> ids = StringUtils.toList(snpIds, ",");
 			SNPDBManager snpDbManager = new SNPDBManager(infraredDBConnector);
 			FeatureList<SNP> snplist = snpDbManager.getByNames(ids);
-//			return generateResponse(createResultString(ids, snplist), outputFormat, compress);
+//			return generateResponse(createResultString(ids, snplist), outputFormat, outputCompress);
 //			this.listType = new TypeToken<FeatureList<SNP>>() {}.getType();
 			return generateResponseFromFeatureList(snplist, new TypeToken<FeatureList<SNP>>() {}.getType());
 		} catch (Exception e) {
@@ -85,7 +85,7 @@ public class SnpWSServer extends FeatureWSServer implements IFeature {
 			}else {
 				snplist = snpDbManager.getByNames(ids);
 			}
-//			return generateResponse(createResultString(ids, snplist), outputFormat, compress);
+//			return generateResponse(createResultString(ids, snplist), outputFormat, outputCompress);
 //			this.listType = new TypeToken<FeatureList<SNP>>() {}.getType();
 			return generateResponseFromFeatureList(snplist, new TypeToken<FeatureList<SNP>>() {}.getType());
 		} catch (Exception e) {
@@ -120,7 +120,7 @@ public class SnpWSServer extends FeatureWSServer implements IFeature {
 			}else {
 				snplist = variationFrequencyDbManager.getBySnpIds(ids);
 			}
-			//			return generateResponse(createResultString(ids, snplist), outputFormat, compress);
+			//			return generateResponse(createResultString(ids, snplist), outputFormat, outputCompress);
 			//			this.listType = new TypeToken<FeatureList<VariationFrequency>>() {}.getType();
 			return generateResponseFromFeatureList(snplist, new TypeToken<FeatureList<VariationFrequency>>() {}.getType());
 		} catch (Exception e) {
@@ -141,7 +141,7 @@ public class SnpWSServer extends FeatureWSServer implements IFeature {
 			}else {
 				snplist = variationFrequencyDbManager.getBySnpIds(ids);
 			}
-			//			return generateResponse(createResultString(ids, snplist), outputFormat, compress);
+			//			return generateResponse(createResultString(ids, snplist), outputFormat, outputCompress);
 			//			this.listType = new TypeToken<FeatureList<VariationFrequency>>() {}.getType();
 			return generateResponseFromFeatureList(snplist, new TypeToken<FeatureList<VariationFrequency>>() {}.getType());
 		} catch (Exception e) {
@@ -162,7 +162,7 @@ public class SnpWSServer extends FeatureWSServer implements IFeature {
 			}else {
 				snplist = variationFrequencyDbManager.getBySnpIds(ids);
 			}
-			//			return generateResponse(createResultString(ids, snplist), outputFormat, compress);
+			//			return generateResponse(createResultString(ids, snplist), outputFormat, outputCompress);
 			//			this.listType = new TypeToken<FeatureList<VariationFrequency>>() {}.getType();
 			return generateResponseFromFeatureList(snplist, new TypeToken<FeatureList<VariationFrequency>>() {}.getType());
 		} catch (Exception e) {
@@ -183,7 +183,7 @@ public class SnpWSServer extends FeatureWSServer implements IFeature {
 			}else{
 				omegas = omegaDbManager.getAllBySnpIds(snps);
 			}
-			//			return generateResponse(createResultString(snps, omegas), outputFormat, compress);
+			//			return generateResponse(createResultString(snps, omegas), outputFormat, outputCompress);
 			//			this.listType = new TypeToken<List<FeatureList<Omega>>>() {}.getType();
 			return generateResponseFromListFeatureList(omegas, new TypeToken<List<FeatureList<Omega>>>() {}.getType());
 		}catch (Exception e) {
@@ -204,7 +204,7 @@ public class SnpWSServer extends FeatureWSServer implements IFeature {
 			}else{
 				omegas = omegaDbManager.getAllBySnpIds(snps);
 			}
-			//			return generateResponse(createResultString(snps, omegas), outputFormat, compress);
+			//			return generateResponse(createResultString(snps, omegas), outputFormat, outputCompress);
 			//			this.listType = new TypeToken<List<FeatureList<Omega>>>() {}.getType();
 			return generateResponseFromListFeatureList(omegas, new TypeToken<List<FeatureList<Omega>>>() {}.getType());
 		}catch (Exception e) {
@@ -229,7 +229,7 @@ public class SnpWSServer extends FeatureWSServer implements IFeature {
 	//			}else {
 	//				snps = omegaDbManager.getAllByConsequenceType("NON_SYNONYMOUS_CODING");
 	//			}
-	//			return generateResponse(ListUtils.toString(snps, querySeparator), outputFormat, compress);
+	//			return generateResponse(ListUtils.toString(snps, querySeparator), outputFormat, outputCompress);
 	//		} catch (Exception e) {
 	//			return generateErrorMessage(e.toString());
 	//		}
@@ -242,9 +242,9 @@ public class SnpWSServer extends FeatureWSServer implements IFeature {
 	//			
 	//			if(uriInfo.getQueryParameters().get("consequencetype") != null) {
 	//				FeatureList<SNP> snps = snpDbManager.getAllByConsequenceType(uriInfo.getQueryParameters().get("consequencetype").get(0));
-	//				return generateResponse(ListUtils.toString(snps, querySeparator), outputFormat, compress);
+	//				return generateResponse(ListUtils.toString(snps, querySeparator), outputFormat, outputCompress);
 	//			}else {
-	//				return generateResponse(ListUtils.toString(snpDbManager.getAllConsequenceTypes(), querySeparator), outputFormat, compress);
+	//				return generateResponse(ListUtils.toString(snpDbManager.getAllConsequenceTypes(), querySeparator), outputFormat, outputCompress);
 	//			}
 	//		} catch (Exception e) {
 	//			return generateErrorMessage(e.toString());
@@ -257,9 +257,9 @@ public class SnpWSServer extends FeatureWSServer implements IFeature {
 	//			spliceSiteDbManager = new SpliceSiteDBManager(infraredDBConnector);
 	//			if(uriInfo.getQueryParameters().get("consequencetype") != null) {
 	//				FeatureList<SNP> snps = snpDbManager.getAllByConsequenceType(uriInfo.getQueryParameters().get("consequencetype").get(0));
-	//				return generateResponse(ListUtils.toString(snps, querySeparator), outputFormat, compress);
+	//				return generateResponse(ListUtils.toString(snps, querySeparator), outputFormat, outputCompress);
 	//			}else {
-	//				return generateResponse(ListUtils.toString(snpDbManager.getAllConsequenceTypes(), querySeparator), outputFormat, compress);
+	//				return generateResponse(ListUtils.toString(snpDbManager.getAllConsequenceTypes(), querySeparator), outputFormat, outputCompress);
 	//			}
 	//		} catch (Exception e) {
 	//			return generateErrorMessage(e.toString());

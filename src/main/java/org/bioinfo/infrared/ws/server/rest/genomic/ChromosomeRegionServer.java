@@ -120,7 +120,7 @@ public class ChromosomeRegionServer extends GenomicWSServer {
 //			}
 //			this.listType = new TypeToken<FeatureList<SNP>>() {}.getType();
 			return generateResponseFromListFeatureList(snpList, new TypeToken<List<FeatureList<SNP>>>() {}.getType());
-			//return generateResponse(ListUtils.toString(snps, querySeparator), outputFormat, compress);
+			//return generateResponse(ListUtils.toString(snps, querySeparator), outputFormat, outputCompress);
 		} catch (Exception e) {
 			return generateErrorMessage(e.toString());
 		}
@@ -210,7 +210,7 @@ public class ChromosomeRegionServer extends GenomicWSServer {
 	//					snps = geneDbManager.getAllByLocation(region.getChromosome(), region.getStart(), region.getEnd());
 	//				}
 	//			}
-	//			return generateResponse(ListUtils.toString(snps, querySeparator), outputFormat, compress);
+	//			return generateResponse(ListUtils.toString(snps, querySeparator), outputFormat, outputCompress);
 	//		} catch (Exception e) {
 	//			return generateErrorMessage(e.toString());
 	//		}

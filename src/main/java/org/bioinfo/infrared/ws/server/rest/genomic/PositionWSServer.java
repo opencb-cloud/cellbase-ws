@@ -181,10 +181,10 @@ public class PositionWSServer extends GenomicWSServer {
 					}
 					return generateResponseFromListFeatureList(tfbs, new TypeToken<List<FeatureList<OregannoTfbs>>>() {}.getType());
 				}else {
-					return generateResponse("No valid filter provided, please select filter: jaspar or oreganno, eg:  ?filter=jaspar", outputFormat, compress);
+					return generateResponse("No valid filter provided, please select filter: jaspar or oreganno, eg:  ?filter=jaspar", outputFormat, outputCompress);
 				}
 			}else {
-				return generateResponse("No filter provided, please add filter: jaspar or oreganno, eg:  ?filter=jaspar", outputFormat, compress);	
+				return generateResponse("No filter provided, please add filter: jaspar or oreganno, eg:  ?filter=jaspar", outputFormat, outputCompress);	
 			}
 		} catch (Exception e) {
 			return generateErrorMessage(e.toString());
