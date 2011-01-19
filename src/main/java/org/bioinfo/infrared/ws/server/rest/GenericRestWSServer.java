@@ -281,11 +281,12 @@ public class GenericRestWSServer implements IWSServer {
 		MediaType mediaType = MediaType.valueOf("text/plain");
 		String response = new String();
 		Gson gson = new GsonBuilder().serializeNulls().create();
+
 		if (outputFormat != null)
 		{
 				if(outputFormat.equals("txt")||outputFormat.equals("jsontext")) {
 					mediaType = MediaType.valueOf("text/plain");
-					response = ListUtils.toString(features, querySeparator);
+					response = ListUtils.toString(features, resultSeparator);
 				}
 				
 				if((outputFormat.equals("json")||outputFormat.equals("jsonp"))) {
@@ -293,9 +294,8 @@ public class GenericRestWSServer implements IWSServer {
 					
 					if(features != null && features.size() > 0) {
 						if(listType != null) {
-							logger.info("   Creating JSON object........");
+							logger.info("   Creating JSON object");
 							response = gson.toJson(features, listType);
-							logger.info("done!");
 						}else 
 						{
 							logger.error("[GenericRestWSServer] GenericRestWSServer: TypeToken from Gson equals null");
@@ -305,13 +305,13 @@ public class GenericRestWSServer implements IWSServer {
 				
 				if(outputFormat.equals("jsonp")) {
 					mediaType =  MediaType.valueOf("text/javascript");
-					response = getJsonpFromEntity(response);
+					response = convertToJson(response);
 				}
 				
 
 				if(outputFormat.equals("jsontext")) {
 					mediaType =  MediaType.valueOf("text/javascript");
-					response = getJsontextFromEntity(response);
+					response = convertToJsonText(response);
 				}
 				
 		
@@ -346,6 +346,7 @@ public class GenericRestWSServer implements IWSServer {
 		String response = new String();
 		Gson gson = new GsonBuilder().serializeNulls().create();
 		
+		
 		if(outputFormat != null)
 		{
 				if(outputFormat.equals("txt")||outputFormat.equals("jsontext")) {
@@ -370,9 +371,8 @@ public class GenericRestWSServer implements IWSServer {
 					if(features != null && features.size() > 0) {
 
 						if(listType != null) {
-							logger.info("Creating JSON object...");
+							logger.info("Creating JSON object");
 							response = gson.toJson(features, listType);
-							logger.info("done!");
 							
 						}else {
 							System.err.println("GenericRestWSServer: TypeToken from Gson equals null");
@@ -382,12 +382,12 @@ public class GenericRestWSServer implements IWSServer {
 				
 				if(outputFormat.equals("jsonp")) {
 					mediaType =  MediaType.valueOf("text/javascript");
-					response = getJsonpFromEntity(response);
+					response = convertToJson(response);
 				}
 				
 				if(outputFormat.equals("jsontext")) {
 					mediaType =  MediaType.valueOf("text/javascript");
-					response = getJsontextFromEntity(response);
+					response = convertToJsonText(response);
 				}
 				
 				if(outputFormat.equals("xml")) {
@@ -409,23 +409,19 @@ public class GenericRestWSServer implements IWSServer {
 		}
 	}
 	
-	private String getJsontextFromEntity(String entity)
+	private String convertToJsonText(String response)
 	{
 		String jsonpQueryParam = (uriInfo.getQueryParameters().get("callbackParam") != null) ? uriInfo.getQueryParameters().get("callbackParam").get(0) : "callbackParam";
-		System.out.println("Creating JSONtext object........");
-		entity = "function get" + jsonpQueryParam+ "(){ return '"+resultSeparator + entity +"';}";
-		System.err.print(resultSeparator);
-		return entity.replaceAll(resultSeparator, "\n");
+		response = "var " + jsonpQueryParam+ " = \"" + response +"\"";
+		return response;
 		
 	}
 	
-	private String getJsonpFromEntity(String entity)
+	private String convertToJson(String response)
 	{
-		String jsonpQueryParam = (uriInfo.getQueryParameters().get("callbackParam") != null) ? uriInfo.getQueryParameters().get("callbackParam").get(0) : "callbackParam";
-		System.out.println("Creating JSONP object........");
-		entity = "var " + jsonpQueryParam+ " = (" + entity +")";
-		System.err.print("done!");
-		return entity;
+		String jsonpQueryParam = (uriInfo.getQueryParameters().get("callbackParam") != null) ? uriInfo.getQueryParameters().get("callbackParam").get(0) : "callbackParam";	
+		response = "var " + jsonpQueryParam+ " = (" + response +")";
+		return response;
 	}
 	
 	
