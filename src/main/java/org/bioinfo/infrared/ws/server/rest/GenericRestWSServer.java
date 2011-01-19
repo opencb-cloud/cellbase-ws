@@ -258,14 +258,12 @@ public class GenericRestWSServer implements IWSServer {
 	
 	protected <E extends Object> Response generateResponse(List<E> entityList, String outputFormat, boolean compress) throws IOException {
 		MediaType mediaType = MediaType.valueOf("text/plain");
-		String entity = "";
-		String zipEntity = "";
+		String entity = new String();
+		String zipEntity = new String();
 		if(outputFormat != null && outputFormat.equals("json")) {
 			mediaType =  MediaType.valueOf("application/json");
 			Gson gson = new Gson();
-			System.out.println("Entro: "+entityList);
 			entity = gson.toJson(entityList, this.listType);
-			System.out.println(entity);
 			zipEntity = Arrays.toString(StringUtils.gzipToBytes(entity)).replace(" " , "");
 		}
 		if(outputFormat != null && outputFormat.equals("xml")) {
@@ -279,64 +277,147 @@ public class GenericRestWSServer implements IWSServer {
 		}
 	}
 
-	protected <E extends Feature> Response generateResponseFromFeatureList(FeatureList<E> features, Type listType) {
+	protected <E extends Feature> Response generateResponseFromFeatureList(FeatureList<E> features, Type listType) throws IOException {
 		MediaType mediaType = MediaType.valueOf("text/plain");
-		String entity = "";
-		String zipEntity = "";
-		
+		String response = new String();
 		Gson gson = new GsonBuilder().serializeNulls().create();
-
-		if(outputFormat != null && outputFormat.equals("txt")) {
-			mediaType = MediaType.valueOf("text/plain");
-			entity = ListUtils.toString(features, querySeparator);
-		}
-		
-		System.err.println("outputFormatn: "+outputFormat);
-		
-		if(outputFormat != null && (outputFormat.equals("json")||outputFormat.equals("jsonp"))) {
-			mediaType =  MediaType.valueOf("application/json");
-			
-			if(features != null && features.size() > 0 /*&& features.get(0) != null*/) {
-
-				if(listType != null && features != null ) {
-					System.out.print("   Creating JSON object........");
-					entity = gson.toJson(features, listType);
-					System.err.println("done!");
-				//	System.err.println("Entity json: "+entity);
-					try {
-							zipEntity = Arrays.toString(StringUtils.gzipToBytes(entity)).replace(" " , "");
-							//System.err.println("zipEntryBytes: "+StringUtils.gzipToBytes(entity));
-					}catch(IOException e) {
-						
-					}
-				//	System.err.println("[GenericRestWSServer] zipEntry: "+zipEntity);
-					System.out.println("[GenericRestWSServer] entity.length(): "+entity.length());
-					System.out.println("[GenericRestWSServer] zipEntity.length(): "+zipEntity.length());
-
-				}else {
-					System.err.println("[GenericRestWSServer] GenericRestWSServer: TypeToken from Gson equals null");
+		if (outputFormat != null)
+		{
+				if(outputFormat.equals("txt")||outputFormat.equals("jsontext")) {
+					mediaType = MediaType.valueOf("text/plain");
+					response = ListUtils.toString(features, querySeparator);
 				}
-			}
+				
+				if((outputFormat.equals("json")||outputFormat.equals("jsonp"))) {
+					mediaType =  MediaType.valueOf("application/json");
+					
+					if(features != null && features.size() > 0) {
+						if(listType != null) {
+							logger.info("   Creating JSON object........");
+							response = gson.toJson(features, listType);
+							logger.info("done!");
+						}else 
+						{
+							logger.error("[GenericRestWSServer] GenericRestWSServer: TypeToken from Gson equals null");
+						}
+					}
+				}
+				
+				if(outputFormat.equals("jsonp")) {
+					mediaType =  MediaType.valueOf("text/javascript");
+					response = getJsonpFromEntity(response);
+				}
+				
+
+				if(outputFormat.equals("jsontext")) {
+					mediaType =  MediaType.valueOf("text/javascript");
+					response = getJsontextFromEntity(response);
+				}
+				
+		
+				if(outputFormat.equals("xml")) {
+					mediaType =  MediaType.valueOf("text/xml");
+				}
 		}
 		
-		if(outputFormat != null && (outputFormat.equals("jsonp"))) {
-			mediaType =  MediaType.valueOf("text/javascript");
-			entity = getJsonpFromEntity(entity);
-			
-		}
-
-		if(outputFormat != null && outputFormat.equals("xml")) {
-			mediaType =  MediaType.valueOf("text/xml");
-		}
 		if(compress) {
-			mediaType =  MediaType.valueOf("application/zip");
-			return Response.ok(zipEntity, mediaType).build();
-		}else {
-			System.out.println("No zipEntity: "+ zipEntity);
-			return Response.ok(entity, mediaType).build();
+				mediaType =  MediaType.valueOf("application/zip");
+				String zippedResponse = Arrays.toString(StringUtils.gzipToBytes(response)).replace(" " , "");
+			
+				logger.info("[GenericRestWSServer] entity.length(): "+response.length());
+				logger.info("[GenericRestWSServer] zipEntity.length(): "+zippedResponse.length());
+			
+				return Response.ok(zippedResponse, mediaType).build();
+		}
+		else 
+		{
+			return Response.ok(response, mediaType).build();
 		}
 	}
 	
+	
+
+	protected <E> Response generateResponseFromListList(List<List<E>> features, Type listType) throws IOException {
+		return null;
+	}
+	
+	protected <E extends Feature> Response generateResponseFromListFeatureList(List<FeatureList<E>> features, Type listType) throws IOException {
+		MediaType mediaType = MediaType.valueOf("text/plain");
+		String response = new String();
+		Gson gson = new GsonBuilder().serializeNulls().create();
+		
+		if(outputFormat != null)
+		{
+				if(outputFormat.equals("txt")||outputFormat.equals("jsontext")) {
+					mediaType = MediaType.valueOf("text/plain");
+					// cada ID en una line, cada valor en la misma linea separado por '//'
+					//			entity = ListUtils.toString(features, querySeparator);
+		
+					StringBuilder result= new StringBuilder();
+					for(FeatureList<E> featureList: features) {
+						if(featureList != null) {
+							result.append(ListUtils.toString(featureList, resultSeparator));
+						}else {
+							result.append("null");					
+						}
+						result.append(querySeparator);
+					}
+					response = result.toString().trim();
+				}
+				
+				if(outputFormat.equals("json")||outputFormat.equals("jsonp")) {
+					mediaType =  MediaType.valueOf("application/json");
+					if(features != null && features.size() > 0) {
+
+						if(listType != null) {
+							logger.info("Creating JSON object...");
+							response = gson.toJson(features, listType);
+							logger.info("done!");
+							
+						}else {
+							System.err.println("GenericRestWSServer: TypeToken from Gson equals null");
+						}
+					}
+				}
+				
+				if(outputFormat.equals("jsonp")) {
+					mediaType =  MediaType.valueOf("text/javascript");
+					response = getJsonpFromEntity(response);
+				}
+				
+				if(outputFormat.equals("jsontext")) {
+					mediaType =  MediaType.valueOf("text/javascript");
+					response = getJsontextFromEntity(response);
+				}
+				
+				if(outputFormat.equals("xml")) {
+					mediaType =  MediaType.valueOf("text/xml");
+				}
+		}
+		if(compress) {
+			mediaType =  MediaType.valueOf("application/zip");
+			String zippedResponse = Arrays.toString(StringUtils.gzipToBytes(response)).replace(" " , "");
+			
+			logger.info("[GenericRestWSServer] entity.length(): "+response.length());
+			logger.info("[GenericRestWSServer] zipEntity.length(): "+zippedResponse.length());
+			
+			return Response.ok(zippedResponse, mediaType).build();
+		}
+		else 
+		{
+			return Response.ok(response, mediaType).build();
+		}
+	}
+	
+	private String getJsontextFromEntity(String entity)
+	{
+		String jsonpQueryParam = (uriInfo.getQueryParameters().get("callbackParam") != null) ? uriInfo.getQueryParameters().get("callbackParam").get(0) : "callbackParam";
+		System.out.println("Creating JSONtext object........");
+		entity = "function get" + jsonpQueryParam+ "(){ return '"+resultSeparator + entity +"';}";
+		System.err.print(resultSeparator);
+		return entity.replaceAll(resultSeparator, "\n");
+		
+	}
 	
 	private String getJsonpFromEntity(String entity)
 	{
@@ -345,76 +426,9 @@ public class GenericRestWSServer implements IWSServer {
 		entity = "var " + jsonpQueryParam+ " = (" + entity +")";
 		System.err.print("done!");
 		return entity;
-		
-	}
-	protected <E> Response generateResponseFromListList(List<List<E>> features, Type listType) throws IOException {
-		return null;
 	}
 	
-	protected <E extends Feature> Response generateResponseFromListFeatureList(List<FeatureList<E>> features, Type listType) throws IOException {
-		MediaType mediaType = MediaType.valueOf("text/plain");
-		String entity = null;
-		String zipEntity = "";
-		//Gson gson = new GsonBuilder().serializeNulls().create();
-		Gson gson = new Gson();
-
-		if(outputFormat != null && outputFormat.equals("txt")) {
-			mediaType = MediaType.valueOf("text/plain");
-			// cada ID en una line, cada valor en la misma linea separado por '//'
-			//			entity = ListUtils.toString(features, querySeparator);
-
-			StringBuilder result= new StringBuilder();
-			for(FeatureList<E> featureList: features) {
-				if(featureList != null) {
-					result.append(ListUtils.toString(featureList, resultSeparator));
-				}else {
-					result.append("null");					
-				}
-				result.append(querySeparator);
-			}
-			entity = result.toString().trim();
-
-		}
-		
-		if(outputFormat != null && (outputFormat.equals("json")||outputFormat.equals("jsonp"))) {
-			mediaType =  MediaType.valueOf("application/json");
-			if(features != null && features.size() > 0 /*&& features.get(0) != null && features.get(0).get(0) != null*/) {
-				System.err.println("FeatureList Object Class: "+features.get(0).getClass());
-				if(listType != null) {
-					System.out.print("Creating JSON object...");
-					entity = gson.toJson(features, listType);
-					System.err.println("done!");
-					//System.err.println("Entity json: "+entity);
-					zipEntity = Arrays.toString(StringUtils.gzipToBytes(entity)).replace(" " , "");
-					//System.err.println("zipEntryBytes: "+StringUtils.gzipToBytes(entity));
-					//System.err.println("zipEntry: "+zipEntity);
-					System.out.println("[GenericRestWSServer] entity.length(): "+entity.length());
-					System.out.println("[GenericRestWSServer] zipEntity.length(): "+zipEntity.length());
-
-				}else {
-					System.err.println("GenericRestWSServer: TypeToken from Gson equals null");
-				}
-			}
-		}
-		
-		if(outputFormat != null && (outputFormat.equals("jsonp"))) {
-			mediaType =  MediaType.valueOf("text/javascript");
-			entity = getJsonpFromEntity(entity);
-		}
-		
-		
-		if(outputFormat != null && outputFormat.equals("xml")) {
-			mediaType =  MediaType.valueOf("text/xml");
-		}
-		if(compress) {
-			mediaType =  MediaType.valueOf("application/zip");
-			//			return Response.ok(StringUtils.zipToBytes(entity), mediaType).build();
-			return Response.ok(zipEntity, mediaType).build();
-		}else {
-			System.out.println("No zipEntity: "+zipEntity);
-			return Response.ok(entity, mediaType).build();
-		}
-	}
+	
 	
 	@Deprecated
 	protected String createResultStringByTranscriptConsequenceType(List<String> ids, List<List<TranscriptConsequenceType>> features) {
@@ -481,7 +495,6 @@ public class GenericRestWSServer implements IWSServer {
 		}
 		if(compress) {
 			mediaType =  MediaType.valueOf("application/zip");
-			//			return Response.ok(StringUtils.zipToBytes(entity), mediaType).build();
 			return Response.ok(zipEntity, mediaType).build();
 		}else {
 			System.out.println("No zipEntity: "+zipEntity);
