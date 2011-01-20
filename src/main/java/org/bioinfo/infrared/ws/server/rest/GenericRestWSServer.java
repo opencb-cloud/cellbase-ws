@@ -47,10 +47,10 @@ public class GenericRestWSServer implements IWSServer {
 	protected String resultSeparator;
 	protected String querySeparator;
 
-	// output format file type: null, xml, txt, excel
+	// output format file type: null or txt or text, xml, excel
 	protected String fileFormat;
 
-	// output content format: text, json, jsonp, xml, das
+	// output content format: txt or text, json, jsonp, xml, das
 	protected String outputFormat;
 
 	// in file output produces a zip file, in text outputs generates a gzipped output
@@ -177,10 +177,11 @@ public class GenericRestWSServer implements IWSServer {
 			querySeparator = "\n";
 		}
 
+		fileFormat = (multivaluedMap.get("fileformat") != null) ? multivaluedMap.get("fileformat").get(0) : "";
 		outputRowNames = (multivaluedMap.get("outputrownames") != null) ? multivaluedMap.get("outputrownames").get(0) : "false";
 		outputHeader = (multivaluedMap.get("outputheader") != null) ? multivaluedMap.get("outputheader").get(0) : "false";
 		outputFormat = (multivaluedMap.get("outputformat") != null) ? multivaluedMap.get("outputformat").get(0) : "txt";
-		outputCompress = (multivaluedMap.get("outputCompress") != null) ? multivaluedMap.get("outputCompress").get(0) : "false";
+		outputCompress = (multivaluedMap.get("outputcompress") != null) ? multivaluedMap.get("outputcompress").get(0) : "false";
 		user = (multivaluedMap.get("user") != null) ? multivaluedMap.get("user").get(0) : "anonymous";
 		password = (multivaluedMap.get("password") != null) ? multivaluedMap.get("password").get(0) : "";
 	}
@@ -211,7 +212,200 @@ public class GenericRestWSServer implements IWSServer {
 			infraredDBConnector.disconnect();
 		}
 	}
+	
 
+	protected <E> Response generateResponseFromListList(List<List<E>> features, Type listType) throws IOException {
+		return null;
+	}
+
+	protected <E extends Feature> Response generateResponseFromFeatureList(String queryString, FeatureList<E> features, Type listType) throws IOException {
+		String response = "";
+		if (outputFormat != null) {
+			if(outputFormat.equalsIgnoreCase("txt") || outputFormat.equalsIgnoreCase("text") || outputFormat.equalsIgnoreCase("jsontext")) {
+				response = createStringResultFromFeatureList(queryString, features);
+
+				if(outputFormat.equalsIgnoreCase("jsontext")) {
+					mediaType =  MediaType.valueOf("text/javascript");
+					response = convertToJsonText(response);
+				}else {
+					mediaType = MediaType.valueOf("text/plain");
+				}
+			}
+
+			if((outputFormat.equalsIgnoreCase("json") || outputFormat.equalsIgnoreCase("jsonp"))) {
+				mediaType =  MediaType.valueOf("application/json");
+				if(features != null && features.size() > 0) {
+					if(listType != null) {
+						logger.debug("\tCreating JSON object");
+						response = gson.toJson(features, listType);
+					}else {
+						logger.error("[GenericRestWSServer] GenericRestWSServer: TypeToken from Gson equals null");
+					}
+				}
+
+				if(outputFormat.equals("jsonp")) {
+					mediaType =  MediaType.valueOf("text/javascript");
+					response = convertToJson(response);
+				}
+			}
+
+			if(outputFormat.equalsIgnoreCase("xml") ) {
+				mediaType =  MediaType.valueOf("text/xml");
+				response = ListUtils.toString(features, resultSeparator);
+			}
+
+			if(outputFormat.equalsIgnoreCase("das") ) {
+				mediaType =  MediaType.valueOf("text/xml");
+				response = ListUtils.toString(features, resultSeparator);
+			}
+		}
+//		if(outputCompress != null && outputCompress.equalsIgnoreCase("true")) {
+//			response = Arrays.toString(StringUtils.gzipToBytes(response)).replace(" " , "");
+//		}
+
+		return createResponse(response);
+	}
+
+	protected <E extends Feature> Response generateResponseFromListFeatureList(String queryString, List<FeatureList<E>> features, Type listType) throws IOException {
+		String response = "";
+		if (outputFormat != null) {
+			if(outputFormat.equalsIgnoreCase("txt") || outputFormat.equalsIgnoreCase("text") || outputFormat.equalsIgnoreCase("jsontext")) {
+				response = createStringResultFromListFeatureList(queryString, features);
+				if(outputFormat.equalsIgnoreCase("jsontext")) {
+					mediaType =  MediaType.valueOf("text/javascript");
+					response = convertToJsonText(response);
+				}else {
+					mediaType = MediaType.valueOf("text/plain");
+				}
+			}
+
+			if((outputFormat.equalsIgnoreCase("json") || outputFormat.equalsIgnoreCase("jsonp"))) {
+				mediaType =  MediaType.valueOf("application/json");
+				if(features != null && features.size() > 0) {
+					if(listType != null) {
+						logger.debug("\tCreating JSON object");
+						response = gson.toJson(features, listType);
+					}else {
+						logger.error("[GenericRestWSServer] GenericRestWSServer: TypeToken from Gson equals null");
+					}
+				}
+
+				if(outputFormat.equals("jsonp")) {
+					mediaType =  MediaType.valueOf("text/javascript");
+					response = convertToJson(response);
+				}
+			}
+
+			if(outputFormat.equalsIgnoreCase("xml") ) {
+				mediaType =  MediaType.valueOf("text/xml");
+				response = ListUtils.toString(features, resultSeparator);
+			}
+
+			if(outputFormat.equalsIgnoreCase("das") ) {
+				mediaType =  MediaType.valueOf("text/xml");
+				response = ListUtils.toString(features, resultSeparator);
+			}
+		}
+//		if(outputCompress != null && outputCompress.equalsIgnoreCase("true")) {
+//			response = Arrays.toString(StringUtils.gzipToBytes(response)).replace(" " , "");
+//		}
+
+		return createResponse(response);
+	}
+
+	private Response createResponse(String response) throws IOException {
+		if(fileFormat == null || fileFormat.equalsIgnoreCase("") || fileFormat.equalsIgnoreCase("txt")  || fileFormat.equalsIgnoreCase("text")) {
+			mediaType = MediaType.valueOf("text/plain");
+
+			if(outputCompress != null && outputCompress.equalsIgnoreCase("true")) {
+				response = Arrays.toString(StringUtils.gzipToBytes(response)).replace(" " , "");
+			}
+		}else {
+			if(outputCompress != null && outputCompress.equalsIgnoreCase("true")) {
+				mediaType =  MediaType.valueOf("application/zip");	
+			}else {
+				if(fileFormat.equalsIgnoreCase("xml")) {
+					mediaType =  MediaType.valueOf("application/xml");	
+				}
+
+				if(fileFormat.equalsIgnoreCase("excel")) {
+					mediaType =  MediaType.valueOf("application/vnd.ms-excel");
+				}
+			}
+		}
+		return Response.ok(response, mediaType).build();
+	}
+
+	private <E extends Feature> String createStringResultFromFeatureList(String queryString, FeatureList<E> features) throws IOException {
+		if(outputRowNames != null && outputRowNames.equalsIgnoreCase("true")) {
+			StringBuilder stringBuilder = new StringBuilder();
+			String[] ids = queryString.split(",");
+			if(ids.length != features.size()) {
+				throw new IOException("IDs length and features size do not match");
+			}
+			for(int i=0; i<features.size(); i++) {
+				if(features.get(i) != null) {
+					stringBuilder.append(ids[i]).append("\t").append(features.get(i).toString()).append(querySeparator);
+				}else {
+					stringBuilder.append(ids[i]).append("\t").append("not found").append(querySeparator);
+				}
+			}
+			return stringBuilder.toString().trim();
+		}else {
+			return ListUtils.toString(features, querySeparator);
+		}
+	}
+
+	private <E extends Feature> String createStringResultFromListFeatureList(String queryString, List<FeatureList<E>> features) throws IOException {
+		StringBuilder stringBuilder = new StringBuilder();
+		String[] ids = queryString.split(",");
+		if(ids == null || features == null || ids.length != features.size()) {
+			throw new IOException("IDs length and features size do not match");
+		}
+
+		if(outputRowNames != null && outputRowNames.equalsIgnoreCase("true")) {
+			for(int i=0; i<features.size(); i++) {
+				if(features.get(i) != null) {
+					stringBuilder.append(ids[i]).append("\t").append(ListUtils.toString(features.get(i), resultSeparator)).append(querySeparator);
+				}else {
+					stringBuilder.append(ids[i]).append(querySeparator);
+				}
+			}
+			return stringBuilder.toString().trim();
+		}else {
+			for(int i=0; i<features.size(); i++) {
+				if(features.get(i) != null) {
+					stringBuilder.append(ListUtils.toString(features.get(i), resultSeparator)).append(querySeparator);
+				}else {
+					stringBuilder.append("not found").append(querySeparator);
+				}
+			}
+			return stringBuilder.toString().trim();
+		}
+	}
+
+
+	protected Response generateErrorResponse(String errorMessage) {
+		return Response.ok("An error occurred: "+errorMessage, MediaType.valueOf("text/plain")).build();
+	}
+
+
+	private String convertToJsonText(String response) {
+		String jsonpQueryParam = (uriInfo.getQueryParameters().get("callbackParam") != null) ? uriInfo.getQueryParameters().get("callbackParam").get(0) : "callbackParam";
+		response = "var " + jsonpQueryParam+ " = \"" + response +"\"";
+		return response;
+	}
+
+	private String convertToJson(String response) {
+		String jsonpQueryParam = (uriInfo.getQueryParameters().get("callbackParam") != null) ? uriInfo.getQueryParameters().get("callbackParam").get(0) : "callbackParam";	
+		response = "var " + jsonpQueryParam+ " = (" + response +")";
+		return response;
+	}
+
+	
+	
+	
+	@Deprecated
 	protected <E extends Feature> String createResultString(List<String> ids, FeatureList<E> features) {
 		if(outputFormat.equals("txt")) {
 			StringBuilder result = new StringBuilder();
@@ -231,6 +425,7 @@ public class GenericRestWSServer implements IWSServer {
 		return "output format '"+outputFormat+"' not valid";
 	}
 
+	@Deprecated
 	protected <E extends Feature> String createResultString(List<String> ids, List<FeatureList<E>> features) {
 		if(outputFormat.equals("txt")) {
 			StringBuilder result = new StringBuilder();
@@ -310,9 +505,76 @@ public class GenericRestWSServer implements IWSServer {
 			return Response.ok(response, mediaType).build();
 		}
 	}
+	
+	@Deprecated
+	protected Response generateResponse(String entity, String outputFormat, boolean compress) throws IOException {
+		MediaType mediaType = MediaType.valueOf("text/plain");
+		if(outputFormat != null && outputFormat.equals("json")) {
+			mediaType =  MediaType.valueOf("application/json");
+			Gson gson = new Gson();
+			System.out.println("Entro: "+entity);
+			entity = gson.toJson(entity);
+			System.out.println(entity);
+		}
+		if(outputFormat != null && outputFormat.equals("xml")) {
+			mediaType =  MediaType.valueOf("text/xml");
+		}
+		if(compress) {
+			mediaType =  MediaType.valueOf("application/zip");
+			return Response.ok(StringUtils.zipToBytes(entity), mediaType).build();
+		}else {
+			return Response.ok(entity, mediaType).build();
+		}
+	}
 
-	protected <E> Response generateResponseFromListList(List<List<E>> features, Type listType) throws IOException {
-		return null;
+	@Deprecated
+	protected <E extends Object> Response generateResponse(List<E> entityList, String outputFormat, boolean compress) throws IOException {
+		MediaType mediaType = MediaType.valueOf("text/plain");
+		String entity = "";
+		String zipEntity = "";
+		if(outputFormat != null && outputFormat.equals("json")) {
+			mediaType =  MediaType.valueOf("application/json");
+			Gson gson = new Gson();
+			System.out.println("Entro: "+entityList);
+			entity = gson.toJson(entityList, this.listType);
+			System.out.println(entity);
+			zipEntity = Arrays.toString(StringUtils.gzipToBytes(entity)).replace(" " , "");
+		}
+		if(outputFormat != null && outputFormat.equals("xml")) {
+			mediaType =  MediaType.valueOf("text/xml");
+		}
+		if(compress) {
+			mediaType =  MediaType.valueOf("application/zip");
+			return Response.ok(zipEntity, mediaType).build();
+		}else {
+			return Response.ok(entity, mediaType).build();
+		}
+	}
+
+	@Deprecated
+	protected String createResultStringByTranscriptConsequenceType(List<String> ids, List<List<TranscriptConsequenceType>> features) {
+		if(outputFormat.equals("txt")) {
+			StringBuilder result = new StringBuilder();
+			for(int i=0; i<ids.size(); i++) {
+				if(features.get(i) != null && features.get(i).size() > 0) {
+					for(TranscriptConsequenceType feature: features.get(i)) {
+						if(feature != null) {
+							result.append(ids.get(i)).append(":\t").append(feature.toString()).append(querySeparator);
+						}else {
+							result.append(ids.get(i)).append(":\t").append("not found").append(querySeparator);
+						}
+					}
+				}else {
+					result.append(ids.get(i)).append(":\t").append("not found").append(querySeparator);
+				}
+			}
+			return result.toString().trim();
+		}else {
+			if(outputFormat.equals("json")) {
+				return new Gson().toJson(features);
+			}
+		}
+		return "output format '"+outputFormat+"' not valid";
 	}
 
 	@Deprecated
@@ -383,269 +645,6 @@ public class GenericRestWSServer implements IWSServer {
 		{
 			return Response.ok(response, mediaType).build();
 		}
-	}
-
-
-
-
-	protected <E extends Feature> Response generateResponseFromFeatureList(String queryString, FeatureList<E> features, Type listType) throws IOException {
-		String response = "";
-		if (outputFormat != null) {
-			if(outputFormat.equalsIgnoreCase("txt") || outputFormat.equalsIgnoreCase("text") || outputFormat.equalsIgnoreCase("jsontext")) {
-				response = createStringResultFromFeatureList(queryString, features);
-
-				if(outputFormat.equalsIgnoreCase("jsontext")) {
-					mediaType =  MediaType.valueOf("text/javascript");
-					response = convertToJsonText(response);
-				}else {
-					mediaType = MediaType.valueOf("text/plain");
-				}
-			}
-
-			if((outputFormat.equalsIgnoreCase("json") || outputFormat.equalsIgnoreCase("jsonp"))) {
-				mediaType =  MediaType.valueOf("application/json");
-				if(features != null && features.size() > 0) {
-					if(listType != null) {
-						logger.debug("\tCreating JSON object");
-						response = gson.toJson(features, listType);
-					}else {
-						logger.error("[GenericRestWSServer] GenericRestWSServer: TypeToken from Gson equals null");
-					}
-				}
-
-				if(outputFormat.equals("jsonp")) {
-					mediaType =  MediaType.valueOf("text/javascript");
-					response = convertToJson(response);
-				}
-			}
-
-			if(outputFormat.equalsIgnoreCase("xml") ) {
-				mediaType =  MediaType.valueOf("text/xml");
-				response = ListUtils.toString(features, resultSeparator);
-			}
-
-			if(outputFormat.equalsIgnoreCase("das") ) {
-				mediaType =  MediaType.valueOf("text/xml");
-				response = ListUtils.toString(features, resultSeparator);
-			}
-		}
-
-		if(outputCompress != null && outputCompress.equalsIgnoreCase("true")) {
-			response = Arrays.toString(StringUtils.gzipToBytes(response)).replace(" " , "");
-		}
-
-		return createResponse(response);
-	}
-
-	protected <E extends Feature> Response generateResponseFromListFeatureList(String queryString, List<FeatureList<E>> features, Type listType) throws IOException {
-		String response = "";
-		if (outputFormat != null) {
-			if(outputFormat.equalsIgnoreCase("txt") || outputFormat.equalsIgnoreCase("text") || outputFormat.equalsIgnoreCase("jsontext")) {
-				response = createStringResultFromListFeatureList(queryString, features);
-				if(outputFormat.equalsIgnoreCase("jsontext")) {
-					mediaType =  MediaType.valueOf("text/javascript");
-					response = convertToJsonText(response);
-				}else {
-					mediaType = MediaType.valueOf("text/plain");
-				}
-			}
-
-			if((outputFormat.equalsIgnoreCase("json") || outputFormat.equalsIgnoreCase("jsonp"))) {
-				mediaType =  MediaType.valueOf("application/json");
-				if(features != null && features.size() > 0) {
-					if(listType != null) {
-						logger.debug("\tCreating JSON object");
-						response = gson.toJson(features, listType);
-					}else {
-						logger.error("[GenericRestWSServer] GenericRestWSServer: TypeToken from Gson equals null");
-					}
-				}
-
-				if(outputFormat.equals("jsonp")) {
-					mediaType =  MediaType.valueOf("text/javascript");
-					response = convertToJson(response);
-				}
-			}
-
-			if(outputFormat.equalsIgnoreCase("xml") ) {
-				mediaType =  MediaType.valueOf("text/xml");
-				response = ListUtils.toString(features, resultSeparator);
-			}
-
-			if(outputFormat.equalsIgnoreCase("das") ) {
-				mediaType =  MediaType.valueOf("text/xml");
-				response = ListUtils.toString(features, resultSeparator);
-			}
-		}
-
-		if(outputCompress != null && outputCompress.equalsIgnoreCase("true")) {
-			response = Arrays.toString(StringUtils.gzipToBytes(response)).replace(" " , "");
-		}
-
-		return createResponse(response);
-	}
-
-	private Response createResponse(String reponse) {
-		if(fileFormat == null || fileFormat.equalsIgnoreCase("txt")) {
-			mediaType = MediaType.valueOf("text/plain");
-		}else {
-			if(outputCompress != null && outputCompress.equalsIgnoreCase("true")) {
-				mediaType =  MediaType.valueOf("application/zip");	
-			}else {
-				if(fileFormat.equalsIgnoreCase("xml")) {
-					mediaType =  MediaType.valueOf("application/xml");	
-				}
-
-				if(fileFormat.equalsIgnoreCase("excel")) {
-					mediaType =  MediaType.valueOf("application/vnd.ms-excel");
-				}
-			}
-		}
-		return Response.ok(reponse, mediaType).build();
-	}
-
-	private <E extends Feature> String createStringResultFromFeatureList(String queryString, FeatureList<E> features) throws IOException {
-		if(outputRowNames != null && outputRowNames.equalsIgnoreCase("true")) {
-			StringBuilder stringBuilder = new StringBuilder();
-			String[] ids = queryString.split(",");
-			if(ids.length != features.size()) {
-				throw new IOException("IDs length and features size do not match");
-			}
-			for(int i=0; i<features.size(); i++) {
-				if(features.get(i) != null) {
-					stringBuilder.append(ids[i]).append("\t").append(features.get(i).toString()).append(querySeparator);
-				}else {
-					stringBuilder.append(ids[i]).append("\t").append("not found").append(querySeparator);
-				}
-			}
-			return stringBuilder.toString().trim();
-		}else {
-			return ListUtils.toString(features, querySeparator);
-		}
-	}
-
-	private <E extends Feature> String createStringResultFromListFeatureList(String queryString, List<FeatureList<E>> features) throws IOException {
-		StringBuilder stringBuilder = new StringBuilder();
-		String[] ids = queryString.split(",");
-		if(ids.length != features.size()) {
-			throw new IOException("IDs length and features size do not match");
-		}
-
-		if(outputRowNames != null && outputRowNames.equalsIgnoreCase("true")) {
-			for(int i=0; i<features.size(); i++) {
-				if(features.get(i) != null) {
-					stringBuilder.append(ids[i]).append("\t").append(ListUtils.toString(features.get(i), resultSeparator)).append(querySeparator);
-				}else {
-					stringBuilder.append(ids[i]).append(querySeparator);
-				}
-			}
-			return stringBuilder.toString().trim();
-		}else {
-			for(int i=0; i<features.size(); i++) {
-				if(features.get(i) != null) {
-					stringBuilder.append(ids[i]).append("\t").append(ListUtils.toString(features.get(i), resultSeparator)).append(querySeparator);
-				}else {
-					stringBuilder.append(ids[i]).append("\t").append("not found").append(querySeparator);
-				}
-			}
-			return stringBuilder.toString().trim();
-		}
-	}
-
-
-
-
-
-
-
-
-
-	private String convertToJsonText(String response)
-	{
-		String jsonpQueryParam = (uriInfo.getQueryParameters().get("callbackParam") != null) ? uriInfo.getQueryParameters().get("callbackParam").get(0) : "callbackParam";
-		response = "var " + jsonpQueryParam+ " = \"" + response +"\"";
-		return response;
-
-	}
-
-	private String convertToJson(String response)
-	{
-		String jsonpQueryParam = (uriInfo.getQueryParameters().get("callbackParam") != null) ? uriInfo.getQueryParameters().get("callbackParam").get(0) : "callbackParam";	
-		response = "var " + jsonpQueryParam+ " = (" + response +")";
-		return response;
-	}
-
-
-
-	@Deprecated
-	protected Response generateResponse(String entity, String outputFormat, boolean compress) throws IOException {
-		MediaType mediaType = MediaType.valueOf("text/plain");
-		if(outputFormat != null && outputFormat.equals("json")) {
-			mediaType =  MediaType.valueOf("application/json");
-			Gson gson = new Gson();
-			System.out.println("Entro: "+entity);
-			entity = gson.toJson(entity);
-			System.out.println(entity);
-		}
-		if(outputFormat != null && outputFormat.equals("xml")) {
-			mediaType =  MediaType.valueOf("text/xml");
-		}
-		if(compress) {
-			mediaType =  MediaType.valueOf("application/zip");
-			return Response.ok(StringUtils.zipToBytes(entity), mediaType).build();
-		}else {
-			return Response.ok(entity, mediaType).build();
-		}
-	}
-
-	@Deprecated
-	protected <E extends Object> Response generateResponse(List<E> entityList, String outputFormat, boolean compress) throws IOException {
-		MediaType mediaType = MediaType.valueOf("text/plain");
-		String entity = "";
-		String zipEntity = "";
-		if(outputFormat != null && outputFormat.equals("json")) {
-			mediaType =  MediaType.valueOf("application/json");
-			Gson gson = new Gson();
-			System.out.println("Entro: "+entityList);
-			entity = gson.toJson(entityList, this.listType);
-			System.out.println(entity);
-			zipEntity = Arrays.toString(StringUtils.gzipToBytes(entity)).replace(" " , "");
-		}
-		if(outputFormat != null && outputFormat.equals("xml")) {
-			mediaType =  MediaType.valueOf("text/xml");
-		}
-		if(compress) {
-			mediaType =  MediaType.valueOf("application/zip");
-			return Response.ok(zipEntity, mediaType).build();
-		}else {
-			return Response.ok(entity, mediaType).build();
-		}
-	}
-
-	@Deprecated
-	protected String createResultStringByTranscriptConsequenceType(List<String> ids, List<List<TranscriptConsequenceType>> features) {
-		if(outputFormat.equals("txt")) {
-			StringBuilder result = new StringBuilder();
-			for(int i=0; i<ids.size(); i++) {
-				if(features.get(i) != null && features.get(i).size() > 0) {
-					for(TranscriptConsequenceType feature: features.get(i)) {
-						if(feature != null) {
-							result.append(ids.get(i)).append(":\t").append(feature.toString()).append(querySeparator);
-						}else {
-							result.append(ids.get(i)).append(":\t").append("not found").append(querySeparator);
-						}
-					}
-				}else {
-					result.append(ids.get(i)).append(":\t").append("not found").append(querySeparator);
-				}
-			}
-			return result.toString().trim();
-		}else {
-			if(outputFormat.equals("json")) {
-				return new Gson().toJson(features);
-			}
-		}
-		return "output format '"+outputFormat+"' not valid";
 	}
 
 	@Deprecated
@@ -753,6 +752,7 @@ public class GenericRestWSServer implements IWSServer {
 		}
 	}
 
+	@Deprecated
 	protected Response generateErrorMessage(String errorMessage) {
 		return Response.ok("An error occurred: "+errorMessage, MediaType.valueOf("text/plain")).build();
 	}

@@ -94,35 +94,9 @@ public class ChromosomeRegionServer extends GenomicWSServer {
 				}
 				snpList = snpsByConsequenceType;
 			}
-//			FeatureList<SNP> snps = new FeatureList<SNP>();
-////			List<SNP> snps = new ArrayList<SNP>();
-//			FeatureList<SNP> snpsByConsequenceType = new FeatureList<SNP>();
-//			for(Region region: regions) {
-//				if(region != null && region.getChromosome() != null && !region.getChromosome().equals("")) {
-//					if(region.getStart() == 0 && region.getEnd() == 0) {
-//						snps.addAll(snpDbManager.getAllByRegion(region.getChromosome(), 1, Integer.MAX_VALUE));
-//					}else {
-//						snps.addAll(snpDbManager.getAllByRegion(region.getChromosome(), region.getStart(), region.getEnd()));
-//					}
-//				}
-//			}
-//			// if there is a consequence type filter lets filter!
-//			if(uriInfo.getQueryParameters().get("consequence_type") != null) {
-//				List<String> consequencetype = StringUtils.toList(uriInfo.getQueryParameters().get("consequence_type").get(0), ",");
-//				for(SNP snp: snps) {
-//					for(String consquenceType: snp.getConsequenceType()) {
-//						if(consequencetype.contains(consquenceType)) {
-//							snpsByConsequenceType.add(snp);
-//						}
-//					}
-//				}
-//				snps = snpsByConsequenceType;
-//			}
-//			this.listType = new TypeToken<FeatureList<SNP>>() {}.getType();
-			return generateResponseFromListFeatureList(snpList, new TypeToken<List<FeatureList<SNP>>>() {}.getType());
-			//return generateResponse(ListUtils.toString(snps, querySeparator), outputFormat, outputCompress);
+			return generateResponseFromListFeatureList(regionString, snpList, new TypeToken<List<FeatureList<SNP>>>() {}.getType());
 		} catch (Exception e) {
-			return generateErrorMessage(e.toString());
+			return generateErrorResponse(e.toString());
 		}
 	}
 	
@@ -133,22 +107,22 @@ public class ChromosomeRegionServer extends GenomicWSServer {
 			List<Region> regions = Region.parseRegions(regionString);
 			AnnotatedMutationDBManager snpDbManager = new AnnotatedMutationDBManager(infraredDBConnector);
 			List<FeatureList<AnnotatedMutation>> annotMutations = snpDbManager.getAllByRegions(regions);
-			return generateResponseFromListFeatureList(annotMutations, new TypeToken<List<FeatureList<AnnotatedMutation>>>() {}.getType());
+			return generateResponseFromListFeatureList(regionString, annotMutations, new TypeToken<List<FeatureList<AnnotatedMutation>>>() {}.getType());
 		} catch (Exception e) {
-			return generateErrorMessage(e.toString());
+			return generateErrorResponse(e.toString());
 		}
 	}
 	
 	@GET
 	@Path("/{region}/cytoband")
-	public Response getCytobandByRegion(@PathParam("region") String region) {
+	public Response getCytobandByRegion(@PathParam("region") String regionString) {
 		try {
-			List<Region> regions = Region.parseRegions(region);
+			List<Region> regions = Region.parseRegions(regionString);
 			KaryotypeDBManager karyotypeDbManager = new KaryotypeDBManager(infraredDBConnector);
 			List<FeatureList<Cytoband>> CytobandList = karyotypeDbManager.getCytobandByRegions(regions);
-			return generateResponseFromListFeatureList(CytobandList, new TypeToken<List<FeatureList<Cytoband>>>() {}.getType());
+			return generateResponseFromListFeatureList(regionString, CytobandList, new TypeToken<List<FeatureList<Cytoband>>>() {}.getType());
 		} catch (Exception e) {
-			return generateErrorMessage(e.toString());
+			return generateErrorResponse(e.toString());
 		}
 	}
 	
@@ -187,10 +161,10 @@ public class ChromosomeRegionServer extends GenomicWSServer {
 //				genes = genesByBiotype;
 //			}
 //			this.listType = new TypeToken<FeatureList<Gene>>(){}.getType();
-			return generateResponseFromListFeatureList(genes, new TypeToken<List<FeatureList<Gene>>>(){}.getType());
+			return generateResponseFromListFeatureList(regionString, genes, new TypeToken<List<FeatureList<Gene>>>(){}.getType());
 		} catch (Exception e) {
 			e.printStackTrace();
-			return generateErrorMessage(e.toString());
+			return generateErrorResponse(e.toString());
 		}
 	}
 
@@ -216,5 +190,22 @@ public class ChromosomeRegionServer extends GenomicWSServer {
 	//		}
 	//	}
 
-	
+	@GET
+	@Path("/{region}/test")
+	public Response test(@PathParam("region") String regionString) {
+		try {
+			List<Region> regions = Region.parseRegions(regionString);
+			List<FeatureList<Cytoband>> cytobandList = new ArrayList<FeatureList<Cytoband>>(regions.size());
+			FeatureList<Cytoband> cyto;
+			for(Region region: regions) {
+				cyto = new FeatureList<Cytoband>(1);
+				cyto.add(new Cytoband("p12.2", "1", 11, 2222, "50"));
+				
+				cytobandList.add(cyto);
+			}
+			return generateResponseFromListFeatureList(regionString, cytobandList, new TypeToken<List<FeatureList<Cytoband>>>() {}.getType());
+		} catch (Exception e) {
+			return generateErrorResponse(e.toString());
+		}
+	}
 }

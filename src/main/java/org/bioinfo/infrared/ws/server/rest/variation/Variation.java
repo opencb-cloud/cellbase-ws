@@ -11,7 +11,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import org.bioinfo.commons.utils.ListUtils;
 import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.infrared.core.common.FeatureList;
 import org.bioinfo.infrared.core.variation.Omega;
@@ -44,14 +43,6 @@ public class Variation extends GenericRestWSServer {
 		//		connect();
 	}
 
-	public Response getTest(String longText) {
-		try {
-			System.err.println("Length: "+longText.length()+", text: "+longText);
-			return generateResponse("Length: "+longText.length()+", text: "+longText, outputFormat, outputCompress);
-		} catch (IOException e) {
-			return generateErrorMessage(e.toString());
-		}
-	}
 
 	@GET
 	@Path("/ct")
@@ -59,7 +50,8 @@ public class Variation extends GenericRestWSServer {
 		try {
 			SNPDBManager snpDbManager = new SNPDBManager(infraredDBConnector);
 			List<String> ids = snpDbManager.getAllConsequenceTypes();
-			return generateResponse(ListUtils.toString(ids, querySeparator), outputFormat, outputCompress);
+			return null;
+//			return generateResponse(ListUtils.toString(ids, querySeparator), new TypeToken<List<FeatureList<Gene>>>() {}.getType());
 		} catch (Exception e) {
 			return generateErrorMessage(e.toString());
 		}

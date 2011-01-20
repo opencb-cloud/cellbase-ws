@@ -17,6 +17,7 @@ import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.infrared.core.GeneDBManager;
 import org.bioinfo.infrared.core.KaryotypeDBManager;
 import org.bioinfo.infrared.core.common.FeatureList;
+import org.bioinfo.infrared.core.feature.CoreUtils;
 import org.bioinfo.infrared.core.feature.Cytoband;
 import org.bioinfo.infrared.core.feature.Gene;
 import org.bioinfo.infrared.core.feature.Position;
@@ -41,6 +42,7 @@ import org.bioinfo.infrared.variation.SNPDBManager;
 import org.bioinfo.infrared.variation.SpliceSiteDBManager;
 import org.bioinfo.infrared.variation.TranscriptConsequenceTypeDBManager;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
+import org.hamcrest.CoreMatchers;
 
 import com.google.gson.reflect.TypeToken;
 
@@ -133,7 +135,7 @@ public class PositionWSServer extends GenomicWSServer {
 			List<Position> positions = Position.parsePositions(positionString);
 			GeneDBManager geneDBManager = new GeneDBManager(infraredDBConnector);
 			List<FeatureList<Gene>> genes = geneDBManager.getAllByPositions(positions);
-			return generateResponseFromListFeatureList(genes, new TypeToken<List<FeatureList<Gene>>>() {}.getType());
+			return generateResponseFromListFeatureList(positionString, genes, new TypeToken<List<FeatureList<Gene>>>() {}.getType());
 		} catch (Exception e) {
 			return generateErrorMessage(StringUtils.getStackTrace(e));
 		}
@@ -181,10 +183,10 @@ public class PositionWSServer extends GenomicWSServer {
 					}
 					return generateResponseFromListFeatureList(tfbs, new TypeToken<List<FeatureList<OregannoTfbs>>>() {}.getType());
 				}else {
-					return generateResponse("No valid filter provided, please select filter: jaspar or oreganno, eg:  ?filter=jaspar", outputFormat, outputCompress);
+					return generateErrorResponse("No valid filter provided, please select filter: jaspar or oreganno, eg:  ?filter=jaspar");
 				}
 			}else {
-				return generateResponse("No filter provided, please add filter: jaspar or oreganno, eg:  ?filter=jaspar", outputFormat, outputCompress);	
+				return generateErrorResponse("No filter provided, please add filter: jaspar or oreganno, eg:  ?filter=jaspar");	
 			}
 		} catch (Exception e) {
 			return generateErrorMessage(e.toString());
