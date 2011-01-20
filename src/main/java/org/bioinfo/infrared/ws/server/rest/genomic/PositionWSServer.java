@@ -17,7 +17,6 @@ import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.infrared.core.GeneDBManager;
 import org.bioinfo.infrared.core.KaryotypeDBManager;
 import org.bioinfo.infrared.core.common.FeatureList;
-import org.bioinfo.infrared.core.feature.CoreUtils;
 import org.bioinfo.infrared.core.feature.Cytoband;
 import org.bioinfo.infrared.core.feature.Gene;
 import org.bioinfo.infrared.core.feature.Position;
@@ -42,7 +41,6 @@ import org.bioinfo.infrared.variation.SNPDBManager;
 import org.bioinfo.infrared.variation.SpliceSiteDBManager;
 import org.bioinfo.infrared.variation.TranscriptConsequenceTypeDBManager;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
-import org.hamcrest.CoreMatchers;
 
 import com.google.gson.reflect.TypeToken;
 
