@@ -295,8 +295,8 @@ public class GenericRestWSServer implements IWSServer {
 				mediaType =  MediaType.valueOf("text/xml");
 			}
 		}
-
-		if(outputCompress!= null) {
+		logger.info("[GenericRestWSServer] outputCompress(): "+outputCompress);
+		if(outputCompress!= null && outputCompress.equalsIgnoreCase("true")) {
 			mediaType =  MediaType.valueOf("application/zip");
 			String zippedResponse = Arrays.toString(StringUtils.gzipToBytes(response)).replace(" " , "");
 
@@ -578,7 +578,7 @@ public class GenericRestWSServer implements IWSServer {
 
 
 	@Deprecated
-	protected Response generateResponse(String entity, String outputFormat, boolean compress) throws IOException {
+	protected Response generateResponse(String entity, String outputFormat, String compress) throws IOException {
 		MediaType mediaType = MediaType.valueOf("text/plain");
 		if(outputFormat != null && outputFormat.equals("json")) {
 			mediaType =  MediaType.valueOf("application/json");
@@ -590,7 +590,7 @@ public class GenericRestWSServer implements IWSServer {
 		if(outputFormat != null && outputFormat.equals("xml")) {
 			mediaType =  MediaType.valueOf("text/xml");
 		}
-		if(compress) {
+		if(outputCompress!= null) {
 			mediaType =  MediaType.valueOf("application/zip");
 			return Response.ok(StringUtils.zipToBytes(entity), mediaType).build();
 		}else {
