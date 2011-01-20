@@ -1,5 +1,7 @@
 package org.bioinfo.infrared.ws.server.rest;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.sql.SQLException;
@@ -49,6 +51,9 @@ public class GenericRestWSServer implements IWSServer {
 
 	// output format file type: null or txt or text, xml, excel
 	protected String fileFormat;
+	
+	// file name without extension which server will give back when file format !null
+	private String filename;
 
 	// output content format: txt or text, json, jsonp, xml, das
 	protected String outputFormat;
@@ -69,6 +74,7 @@ public class GenericRestWSServer implements IWSServer {
 	private Gson gson; 
 	private GsonBuilder gsonBuilder;
 	protected Logger logger;
+
 
 	private static final String NEW_LINE = "newline";
 	private static final String TAB = "tab";
@@ -178,9 +184,13 @@ public class GenericRestWSServer implements IWSServer {
 		}
 
 		fileFormat = (multivaluedMap.get("fileformat") != null) ? multivaluedMap.get("fileformat").get(0) : "";
+		outputFormat = (multivaluedMap.get("contentformat") != null) ? multivaluedMap.get("contentformat").get(0) : "txt";
+		
+		filename = (multivaluedMap.get("filename") != null) ? multivaluedMap.get("filename").get(0) : "result";
+		
+		
 		outputRowNames = (multivaluedMap.get("outputrownames") != null) ? multivaluedMap.get("outputrownames").get(0) : "false";
 		outputHeader = (multivaluedMap.get("outputheader") != null) ? multivaluedMap.get("outputheader").get(0) : "false";
-		outputFormat = (multivaluedMap.get("outputformat") != null) ? multivaluedMap.get("outputformat").get(0) : "txt";
 		outputCompress = (multivaluedMap.get("outputcompress") != null) ? multivaluedMap.get("outputcompress").get(0) : "false";
 		user = (multivaluedMap.get("user") != null) ? multivaluedMap.get("user").get(0) : "anonymous";
 		password = (multivaluedMap.get("password") != null) ? multivaluedMap.get("password").get(0) : "";
@@ -212,7 +222,7 @@ public class GenericRestWSServer implements IWSServer {
 			infraredDBConnector.disconnect();
 		}
 	}
-	
+
 
 	protected <E> Response generateResponseFromListList(List<List<E>> features, Type listType) throws IOException {
 		return null;
@@ -272,18 +282,17 @@ public class GenericRestWSServer implements IWSServer {
 			if(outputFormat.equalsIgnoreCase("txt") || outputFormat.equalsIgnoreCase("text") || outputFormat.equalsIgnoreCase("jsontext")) {
 				response = createStringResultFromListFeatureList(queryString, features);
 				if(outputFormat.equalsIgnoreCase("jsontext")) {
-					mediaType =  MediaType.valueOf("text/javascript");
+					mediaType = MediaType.TEXT_PLAIN_TYPE;
 					response = convertToJsonText(response);
 				}else {
-					mediaType = MediaType.valueOf("text/plain");
+					mediaType = MediaType.TEXT_PLAIN_TYPE;
 				}
 			}
 
 			if((outputFormat.equalsIgnoreCase("json") || outputFormat.equalsIgnoreCase("jsonp"))) {
-				mediaType =  MediaType.valueOf("application/json");
+				mediaType = MediaType.APPLICATION_JSON_TYPE;
 				if(features != null && features.size() > 0) {
 					if(listType != null) {
-						logger.debug("\tCreating JSON object");
 						response = gson.toJson(features, listType);
 					}else {
 						logger.error("[GenericRestWSServer] GenericRestWSServer: TypeToken from Gson equals null");
@@ -291,51 +300,76 @@ public class GenericRestWSServer implements IWSServer {
 				}
 
 				if(outputFormat.equals("jsonp")) {
-					mediaType =  MediaType.valueOf("text/javascript");
+					mediaType = MediaType.APPLICATION_JSON_TYPE;
 					response = convertToJson(response);
 				}
 			}
 
 			if(outputFormat.equalsIgnoreCase("xml") ) {
-				mediaType =  MediaType.valueOf("text/xml");
+				mediaType = MediaType.TEXT_XML_TYPE;
 				response = ListUtils.toString(features, resultSeparator);
 			}
 
 			if(outputFormat.equalsIgnoreCase("das") ) {
-				mediaType =  MediaType.valueOf("text/xml");
+				mediaType = MediaType.TEXT_XML_TYPE;
 				response = ListUtils.toString(features, resultSeparator);
 			}
 		}
-//		if(outputCompress != null && outputCompress.equalsIgnoreCase("true")) {
-//			response = Arrays.toString(StringUtils.gzipToBytes(response)).replace(" " , "");
-//		}
 
 		return createResponse(response);
 	}
 
 	private Response createResponse(String response) throws IOException {
-		if(fileFormat == null || fileFormat.equalsIgnoreCase("") || fileFormat.equalsIgnoreCase("txt")  || fileFormat.equalsIgnoreCase("text")) {
-			mediaType = MediaType.valueOf("text/plain");
+		
+		logger.debug("Query Params------------ ");
 
-			if(outputCompress != null && outputCompress.equalsIgnoreCase("true")) {
+		logger.debug("\t\t - FileFormat: " + fileFormat);
+		logger.debug("\t\t - ContentFormat: " + outputFormat);
+		logger.debug("\t\t - Compress: " + outputCompress);
+		logger.debug("\t\t -------------------------------");
+		logger.debug("\t\t - Inferred media type: " + mediaType.toString());
+		
+		//if(fileFormat == null || fileFormat.equalsIgnoreCase("") || fileFormat.equalsIgnoreCase("txt")  || fileFormat.equalsIgnoreCase("text")) {
+		if(fileFormat == null || fileFormat.equalsIgnoreCase("")) {
+			if(outputCompress != null && outputCompress.equalsIgnoreCase("true") && !outputFormat.equalsIgnoreCase("jsonp")&& !outputFormat.equalsIgnoreCase("jsontext")) {
 				response = Arrays.toString(StringUtils.gzipToBytes(response)).replace(" " , "");
 			}
+			
 		}else {
+			
+			mediaType = MediaType.APPLICATION_OCTET_STREAM_TYPE;
+		
+			
+			
+			logger.debug("\t\t - Creating byte stream ");
+			
 			if(outputCompress != null && outputCompress.equalsIgnoreCase("true")) {
-				mediaType =  MediaType.valueOf("application/zip");	
+					//mediaType =  MediaType.valueOf("application/zip");	
 			}else {
 				if(fileFormat.equalsIgnoreCase("xml")) {
-					mediaType =  MediaType.valueOf("application/xml");	
+					//mediaType =  MediaType.valueOf("application/xml");	
 				}
 
 				if(fileFormat.equalsIgnoreCase("excel")) {
-					mediaType =  MediaType.valueOf("application/vnd.ms-excel");
+					//mediaType =  MediaType.valueOf("application/vnd.ms-excel");
 				}
+				if(fileFormat.equalsIgnoreCase("txt")||fileFormat.equalsIgnoreCase("text")) {
+					logger.debug("\t\t - text File ");
+					
+					byte[] streamResponse = response.replace(resultSeparator, System.getProperty("line.separator")).getBytes();
+					return Response.ok(streamResponse, mediaType).header("content-disposition","attachment; filename = "+ filename + ".txt").build();
+				}
+				
 			}
 		}
+		logger.debug("");
+		logger.debug("\t\tFinal media Type: " + mediaType.toString());
+		logger.debug(" ------------ ");
 		return Response.ok(response, mediaType).build();
 	}
 
+	
+	
 	private <E extends Feature> String createStringResultFromFeatureList(String queryString, FeatureList<E> features) throws IOException {
 		if(outputRowNames != null && outputRowNames.equalsIgnoreCase("true")) {
 			StringBuilder stringBuilder = new StringBuilder();
@@ -519,7 +553,7 @@ public class GenericRestWSServer implements IWSServer {
 		if(outputFormat != null && outputFormat.equals("xml")) {
 			mediaType =  MediaType.valueOf("text/xml");
 		}
-		if(compress) {
+		if(outputCompress!= null) {
 			mediaType =  MediaType.valueOf("application/zip");
 			return Response.ok(StringUtils.zipToBytes(entity), mediaType).build();
 		}else {
