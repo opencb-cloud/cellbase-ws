@@ -41,7 +41,6 @@ import org.bioinfo.infrared.variation.SNPDBManager;
 import org.bioinfo.infrared.variation.SpliceSiteDBManager;
 import org.bioinfo.infrared.variation.TranscriptConsequenceTypeDBManager;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
-import org.hamcrest.CoreMatchers;
 
 import com.google.gson.reflect.TypeToken;
 
