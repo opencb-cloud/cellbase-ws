@@ -31,13 +31,6 @@ public class GenomicWSServer extends GenericRestWSServer {
 
 
 	@Override
-	@GET
-	@Path("/help")
-	public String help() {
-		return "genomic help";
-	}
-
-	@Override
 	public boolean isValidSpecies() {
 		return true;
 	}

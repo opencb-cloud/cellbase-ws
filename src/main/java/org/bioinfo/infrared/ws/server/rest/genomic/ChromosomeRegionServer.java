@@ -42,12 +42,7 @@ public class ChromosomeRegionServer extends GenomicWSServer {
 		return true;
 	}
 
-	@Override
-	@GET
-	@Path("/help")
-	public String help() {
-		return "region help";
-	}
+	
 	
 	@Override
 	@GET
@@ -65,12 +60,12 @@ public class ChromosomeRegionServer extends GenomicWSServer {
 	@GET
 	@Path("/{region}/snp")
 	public Response getSnpsByRegion(@PathParam("region") String regionString) {
-		logger.debug("in getSnpsByRegion1");
 		try {
 			List<Region> regions = Region.parseRegions(regionString);
 			SNPDBManager snpDbManager = new SNPDBManager(infraredDBConnector);
 		
 			List<FeatureList<SNP>> snpList = snpDbManager.getAllByRegions(regions);
+			
 			// if there is a consequence type filter lets filter!
 			if(uriInfo.getQueryParameters().get("consequence_type") != null) {
 				List<FeatureList<SNP>> snpsByConsequenceType = new ArrayList<FeatureList<SNP>>(snpList.size());

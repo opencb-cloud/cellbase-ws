@@ -61,10 +61,24 @@ public class PositionWSServer extends GenomicWSServer {
 	}
 
 	@Override
-	@GET
-	@Path("/help")
-	public String help() {
-		return "position help";
+	protected List<String> getPathsNicePrint(){
+		List<String> paths = new ArrayList<String>();
+		paths.add("/{position}/snp");
+		paths.add("/{position}/cytoband");
+		paths.add("/{position}/annotated_mutation");
+		paths.add("/{position}/tfbs");
+		
+		return paths;
+	}
+	
+	@Override
+	protected List<String> getExamplesNicePrint(){
+		List<String> examples = new ArrayList<String>();
+		examples.add("/infrared-ws/api/v1/hsa/genomic/position/1:10492/snp");
+		examples.add("/infrared-ws/api/v1/hsa/genomic/position/1:10492/cytoband");
+		examples.add("/infrared-ws/api/v1/hsa/genomic/position/1:10492/annotated_mutation");
+		
+		return examples;
 	}
 
 	@Override
@@ -81,9 +95,9 @@ public class PositionWSServer extends GenomicWSServer {
 			List<Position> positions = Position.parsePositions(positionString);
 			SNPDBManager snpDbManager = new SNPDBManager(infraredDBConnector);
 			List<FeatureList<SNP>> snps = snpDbManager.getAllByPositions(positions);
-			return generateResponseFromListFeatureList(snps, new TypeToken<List<FeatureList<SNP>>>() {}.getType());
+			return generateResponseFromListFeatureList(positionString, snps, new TypeToken<List<FeatureList<SNP>>>() {}.getType());
 		} catch (Exception e) {
-			return generateErrorMessage(StringUtils.getStackTrace(e));
+			return generateErrorResponse(StringUtils.getStackTrace(e));
 		}
 	}
 	
@@ -94,9 +108,9 @@ public class PositionWSServer extends GenomicWSServer {
 			List<Position> positions = Position.parsePositions(positionString);
 			KaryotypeDBManager karyotypeDbManager = new KaryotypeDBManager(infraredDBConnector);
 			List<FeatureList<Cytoband>> CytobandList = karyotypeDbManager.getCytobandByPosition(positions);
-			return generateResponseFromListFeatureList(CytobandList, new TypeToken<List<FeatureList<Cytoband>>>() {}.getType());
+			return generateResponseFromListFeatureList(positionString, CytobandList, new TypeToken<List<FeatureList<Cytoband>>>() {}.getType());
 		} catch (Exception e) {
-			return generateErrorMessage(StringUtils.getStackTrace(e));
+			return generateErrorResponse(StringUtils.getStackTrace(e));
 		}
 	}
 	
@@ -108,9 +122,9 @@ public class PositionWSServer extends GenomicWSServer {
 			List<Position> positions = Position.parsePositions(positionString);
 			AnnotatedMutationDBManager annotMutationDbManager = new AnnotatedMutationDBManager(infraredDBConnector);
 			List<FeatureList<AnnotatedMutation>> annotatedMutations = annotMutationDbManager.getAllByPositions(positions);
-			return generateResponseFromListFeatureList(annotatedMutations, new TypeToken<List<FeatureList<AnnotatedMutation>>>() {}.getType());
+			return generateResponseFromListFeatureList(positionString, annotatedMutations, new TypeToken<List<FeatureList<AnnotatedMutation>>>() {}.getType());
 		} catch (Exception e) {
-			return generateErrorMessage(StringUtils.getStackTrace(e));
+			return generateErrorResponse(StringUtils.getStackTrace(e));
 		}
 	}
 
@@ -123,7 +137,7 @@ public class PositionWSServer extends GenomicWSServer {
 			List<List<TranscriptConsequenceType>> ct = transcriptConsequenceTypeDBManager.getConsequenceTypes(positions);
 			return generateResponseFromListList(ct, new TypeToken<List<List<TranscriptConsequenceType>>>() {}.getType());
 		} catch (Exception e) {
-			return generateErrorMessage(e.toString());
+			return generateErrorResponse(e.toString());
 		}
 	}
 
@@ -136,7 +150,7 @@ public class PositionWSServer extends GenomicWSServer {
 			List<FeatureList<Gene>> genes = geneDBManager.getAllByPositions(positions);
 			return generateResponseFromListFeatureList(positionString, genes, new TypeToken<List<FeatureList<Gene>>>() {}.getType());
 		} catch (Exception e) {
-			return generateErrorMessage(StringUtils.getStackTrace(e));
+			return generateErrorResponse(StringUtils.getStackTrace(e));
 		}
 	}
 
@@ -166,7 +180,8 @@ public class PositionWSServer extends GenomicWSServer {
 						}
 						tfbs.add(jasparTfbs);
 					}
-					return generateResponseFromListFeatureList(tfbs, new TypeToken<List<FeatureList<JasparTfbs>>>() {}.getType());
+					return generateResponseFromListFeatureList(positionString, tfbs, new TypeToken<List<FeatureList<JasparTfbs>>>() {}.getType());
+					//return generateResponseFromListFeatureList(tfbs, new TypeToken<List<FeatureList<JasparTfbs>>>() {}.getType());
 				}
 				if(sources.contains("oreganno")) {
 					OregannoTfbsDBManager oregannoTfbsDBManager = new OregannoTfbsDBManager(infraredDBConnector);
@@ -180,7 +195,8 @@ public class PositionWSServer extends GenomicWSServer {
 						}
 						tfbs.add(oregannoTfbs);
 					}
-					return generateResponseFromListFeatureList(tfbs, new TypeToken<List<FeatureList<OregannoTfbs>>>() {}.getType());
+					return generateResponseFromListFeatureList(positionString, tfbs, new TypeToken<List<FeatureList<OregannoTfbs>>>() {}.getType());
+					//return generateResponseFromListFeatureList(tfbs, new TypeToken<List<FeatureList<OregannoTfbs>>>() {}.getType());
 				}else {
 					return generateErrorResponse("No valid filter provided, please select filter: jaspar or oreganno, eg:  ?filter=jaspar");
 				}
@@ -188,7 +204,7 @@ public class PositionWSServer extends GenomicWSServer {
 				return generateErrorResponse("No filter provided, please add filter: jaspar or oreganno, eg:  ?filter=jaspar");	
 			}
 		} catch (Exception e) {
-			return generateErrorMessage(e.toString());
+			return generateErrorResponse(e.toString());
 		}
 	}
 
@@ -208,9 +224,10 @@ public class PositionWSServer extends GenomicWSServer {
 				}
 				miRnasTargetList.add(miRnaTargetFeatureList);
 			}
-			return generateResponseFromListFeatureList(miRnasTargetList, new TypeToken<List<FeatureList<MiRnaTarget>>>() {}.getType());
+			return generateResponseFromFeatureList(positionString, miRnaTargetFeatureList, new TypeToken<List<FeatureList<MiRnaTarget>>>() {}.getType());
+			//return generateResponseFromListFeatureList(miRnasTargetList, new TypeToken<List<FeatureList<MiRnaTarget>>>() {}.getType());
 		} catch (Exception e) {
-			return generateErrorMessage(e.toString());
+			return generateErrorResponse(e.toString());
 		}
 	}
 
@@ -230,9 +247,10 @@ public class PositionWSServer extends GenomicWSServer {
 				}
 				triplexList.add(triplexFeatureList);
 			}
-			return generateResponseFromListFeatureList(triplexList, new TypeToken<List<FeatureList<Triplex>>>() {}.getType());
+			return generateResponseFromFeatureList(positionString, triplexFeatureList, new TypeToken<List<FeatureList<Triplex>>>() {}.getType());
+			//return generateResponseFromListFeatureList(triplexList, new TypeToken<List<FeatureList<Triplex>>>() {}.getType());
 		} catch (Exception e) {
-			return generateErrorMessage(e.toString());
+			return generateErrorResponse(e.toString());
 		}
 	}
 
@@ -254,7 +272,7 @@ public class PositionWSServer extends GenomicWSServer {
 			}
 			return generateResponseFromListFeatureList(conservedRegions, new TypeToken<List<FeatureList<ConservedRegion>>>() {}.getType());
 		} catch (Exception e) {
-			return generateErrorMessage(e.toString());
+			return generateErrorResponse(e.toString());
 		}
 	}
 
@@ -271,7 +289,7 @@ public class PositionWSServer extends GenomicWSServer {
 			List<FeatureList<AnnotatedMutation>> mutations = annotMutationDbManager.getAllByPositions(positions);
 			return generateResponseFromListFeatureList(mutations, new TypeToken<List<FeatureList<AnnotatedMutation>>>() {}.getType());
 		} catch (Exception e) {
-			return generateErrorMessage(StringUtils.getStackTrace(e));
+			return generateErrorResponse(StringUtils.getStackTrace(e));
 		}
 	}
 
@@ -294,7 +312,7 @@ public class PositionWSServer extends GenomicWSServer {
 			}
 			return generateResponseFromListFeatureList(miRnasGene, new TypeToken<List<FeatureList<MiRnaGene>>>() {}.getType());
 		} catch (Exception e) {
-			return generateErrorMessage(e.toString());
+			return generateErrorResponse(e.toString());
 		}
 	}
 	
@@ -317,7 +335,7 @@ public class PositionWSServer extends GenomicWSServer {
 			}
 			return generateResponseFromListFeatureList(spliceSites, new TypeToken<List<FeatureList<SpliceSite>>>() {}.getType());
 		} catch (Exception e) {
-			return generateErrorMessage(e.toString());
+			return generateErrorResponse(e.toString());
 		}
 	}
 }

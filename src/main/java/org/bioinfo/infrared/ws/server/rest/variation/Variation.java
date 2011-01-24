@@ -66,7 +66,7 @@ public class Variation extends GenericRestWSServer {
 			FeatureList<SNP> snplist = snpDbManager.getByNames(ids);
 			//			return generateResponse(createResultString(ids, snplist), outputFormat, outputCompress);
 			//			this.listType = new TypeToken<FeatureList<SNP>>() {}.getType();
-			return generateResponseFromFeatureList(snplist, new TypeToken<FeatureList<SNP>>() {}.getType());
+			return generateResponseFromFeatureList(snpIds, snplist, new TypeToken<FeatureList<SNP>>() {}.getType());
 		} catch (Exception e) {
 			return generateErrorMessage(e.toString());
 		}
@@ -87,7 +87,7 @@ public class Variation extends GenericRestWSServer {
 			}
 			//			return generateResponse(createResultString(ids, snplist), outputFormat, outputCompress);
 			//			this.listType = new TypeToken<FeatureList<SNP>>() {}.getType();
-			return generateResponseFromFeatureList(snplist, new TypeToken<FeatureList<SNP>>() {}.getType());
+			return generateResponseFromFeatureList(snpIds, snplist, new TypeToken<FeatureList<SNP>>() {}.getType());
 		} catch (Exception e) {
 			return generateErrorMessage(e.toString());
 		}
@@ -108,7 +108,7 @@ public class Variation extends GenericRestWSServer {
 			}
 			//			return generateResponse(createResultString(ids, snplist), outputFormat, outputCompress);
 			//			this.listType = new TypeToken<FeatureList<VariationFrequency>>() {}.getType();
-			return generateResponseFromFeatureList(snplist, new TypeToken<FeatureList<VariationFrequency>>() {}.getType());
+			return generateResponseFromFeatureList(snpIds, snplist, new TypeToken<FeatureList<VariationFrequency>>() {}.getType());
 		} catch (Exception e) {
 			return generateErrorMessage(e.toString());
 		}

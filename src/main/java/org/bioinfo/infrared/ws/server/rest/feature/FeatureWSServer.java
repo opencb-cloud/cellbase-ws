@@ -1,29 +1,15 @@
 package org.bioinfo.infrared.ws.server.rest.feature;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
-import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import org.bioinfo.commons.utils.ListUtils;
-import org.bioinfo.commons.utils.StringUtils;
-import org.bioinfo.infrared.core.GeneDBManager;
-import org.bioinfo.infrared.core.XRefDBManager;
-import org.bioinfo.infrared.core.common.FeatureList;
-import org.bioinfo.infrared.core.feature.DBName;
-import org.bioinfo.infrared.core.feature.Gene;
-import org.bioinfo.infrared.core.feature.XRef;
 import org.bioinfo.infrared.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
-
-import com.google.gson.reflect.TypeToken;
 
 
 @Path("/{version}/{species}/feature")
