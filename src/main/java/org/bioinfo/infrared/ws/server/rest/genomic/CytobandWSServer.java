@@ -74,6 +74,21 @@ public class CytobandWSServer extends GenericRestWSServer{
 		}
 	}
 	
+	private List<Region> getRegionsFrom(FeatureList<Cytoband> cytobandList)
+	{
+		List<Region> regions = new ArrayList<Region>();
+		for (Cytoband cytoband : cytobandList) {
+			if (cytoband!=null){
+				Region region = new Region(cytoband.getChromosome(), cytoband.getStart(), cytoband.getEnd());
+				regions.add(region);
+			}
+			else{
+				regions.add(null);
+			}
+		}
+		return regions;
+		
+	}
 	
 	@GET
 	@Path("/{cytobandId}/snp")
@@ -82,7 +97,7 @@ public class CytobandWSServer extends GenericRestWSServer{
 			KaryotypeDBManager karyotypeDbManager = new KaryotypeDBManager(infraredDBConnector);
 			List<String> idList = StringUtils.toList(cytobandId, ",");
 			FeatureList<Cytoband> cytobandList = karyotypeDbManager.getCytobandById(idList);
-			List<Region> regions = new ArrayList<Region>(idList.size());
+			List<Region> regions = getRegionsFrom(cytobandList);/*new ArrayList<Region>(idList.size());
 			for (Cytoband cytoband : cytobandList) {
 				if (cytoband!=null){
 					Region region = new Region(cytoband.getChromosome(), cytoband.getStart(), cytoband.getEnd());
@@ -91,7 +106,7 @@ public class CytobandWSServer extends GenericRestWSServer{
 				else{
 					regions.add(null);
 				}
-			}
+			}*/
 			String regionQuery = Region.parseRegion(regions);
 			return  new ChromosomeRegionServer(this.version, this.species, this.uriInfo).getSnpsByRegion(regionQuery);
 		} catch (Exception e) {
@@ -106,16 +121,7 @@ public class CytobandWSServer extends GenericRestWSServer{
 			KaryotypeDBManager karyotypeDbManager = new KaryotypeDBManager(infraredDBConnector);
 			List<String> idList = StringUtils.toList(cytobandId, ",");
 			FeatureList<Cytoband> cytobandList = karyotypeDbManager.getCytobandById(idList);
-			List<Region> regions = new ArrayList<Region>(idList.size());
-			for (Cytoband cytoband : cytobandList) {
-				if (cytoband!=null){
-					Region region = new Region(cytoband.getChromosome(), cytoband.getStart(), cytoband.getEnd());
-					regions.add(region);
-				}
-				else{
-					regions.add(null);
-				}
-			}
+			List<Region> regions = getRegionsFrom(cytobandList);
 			String regionQuery = Region.parseRegion(regions);
 			return  new ChromosomeRegionServer(this.version, this.species, this.uriInfo).getGenesByRegion(regionQuery);
 		} catch (Exception e) {

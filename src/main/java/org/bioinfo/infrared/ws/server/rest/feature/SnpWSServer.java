@@ -156,6 +156,21 @@ public class SnpWSServer extends FeatureWSServer implements IFeature {
 			return generateErrorResponse(e.toString());
 		}
 	}
+	/*
+	@GET
+	@Path("/{snpId}/cytoband")
+	public Response getCytoband(@PathParam("snpId") String snpIds) {
+		try {
+			List<String> ids = StringUtils.toList(snpIds, ",");
+			FeatureList<SNP> snplist = getSNPDBManager().getByNames(ids);
+			
+			return generateResponseFromFeatureList(snpIds, snplist, new TypeToken<FeatureList<VariationFrequency>>() {}.getType());
+		} catch (Exception e) {
+			return generateErrorResponse(e.toString());
+		}
+	}
+	
+	*/
 	
 	
 /*
