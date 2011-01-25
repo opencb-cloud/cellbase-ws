@@ -43,6 +43,26 @@ public class ChromosomeRegionServer extends GenomicWSServer {
 	}
 
 	
+	@Override
+	protected List<String> getPathsNicePrint(){
+		List<String> paths = new ArrayList<String>();
+		paths.add("/{region}/snp");
+		paths.add("/{region}/annotated_mutation");
+		paths.add("/{region}/cytoband");
+		paths.add("/{region}/gene");
+		return paths;
+	}
+	
+	@Override
+	protected List<String> getExamplesNicePrint(){
+		List<String> examples = new ArrayList<String>();
+		examples.add("/infrared-ws/api/v1/hsa/genomic/chregion/1:1-100000/snp");
+		examples.add("/infrared-ws/api/v1/hsa/genomic/chregion/1:1-600000/annotated_mutation");
+		examples.add("/infrared-ws/api/v1/hsa/genomic/chregion/1:1-6000000/cytoband");
+		examples.add("/infrared-ws/api/v1/hsa/genomic/chregion/1:1-6000000/gene");
+		return examples;
+	}
+	
 	
 	@Override
 	@GET
@@ -185,22 +205,4 @@ public class ChromosomeRegionServer extends GenomicWSServer {
 	//		}
 	//	}
 
-	@GET
-	@Path("/{region}/test")
-	public Response test(@PathParam("region") String regionString) {
-		try {
-			List<Region> regions = Region.parseRegions(regionString);
-			List<FeatureList<Cytoband>> cytobandList = new ArrayList<FeatureList<Cytoband>>(regions.size());
-			FeatureList<Cytoband> cyto;
-			for(Region region: regions) {
-				cyto = new FeatureList<Cytoband>(1);
-				cyto.add(new Cytoband("p12.2", "1", 11, 2222, "50"));
-				
-				cytobandList.add(cyto);
-			}
-			return generateResponseFromListFeatureList(regionString, cytobandList, new TypeToken<List<FeatureList<Cytoband>>>() {}.getType());
-		} catch (Exception e) {
-			return generateErrorResponse(e.toString());
-		}
-	}
 }

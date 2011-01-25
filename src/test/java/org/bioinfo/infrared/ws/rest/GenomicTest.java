@@ -1,9 +1,5 @@
 package org.bioinfo.infrared.ws.rest;
 
-import static org.junit.Assert.fail;
-
-import javax.ws.rs.core.MediaType;
-
 import org.junit.Test;
 
 import com.sun.jersey.api.client.Client;
@@ -24,20 +20,22 @@ public class GenomicTest {
 //		System.out.println(response);
 //		fail("Not yet implemented");
 	}
-
+/*
 	public void testGetSnpsByRegion() {
 		fail("Not yet implemented");
 	}
-	
+	*/
 	
 	@Test
 	public void getCytobandsList() {
 		Client c = Client.create();
+		/*
 		String url = "http://localhost:8080/infrared-ws-server/api/v1/hsa/genomic/cytoband/1,2,3,4,5/chr";
 		WebResource r = c.resource(url);
 		
 		String response =  r.accept(MediaType.TEXT_PLAIN).header("X-FOO", "BAR").get(String.class);
 		System.out.println(response);
+		*/
 		
 	
 	}

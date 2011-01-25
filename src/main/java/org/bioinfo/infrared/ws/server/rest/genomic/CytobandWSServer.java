@@ -35,6 +35,7 @@ public class CytobandWSServer extends GenericRestWSServer{
 		paths.add("{cytobandId}");
 		paths.add("{cytobandId}/info");
 		paths.add("{cytobandId}/snp");
+		paths.add("/{cytobandId}/gene");
 		return paths;
 	}
 	
@@ -45,6 +46,7 @@ public class CytobandWSServer extends GenericRestWSServer{
 		examples.add("/infrared-ws/api/v1/hsa/genomic/cytoband/p36.33");
 		examples.add("/infrared-ws/api/v1/hsa/genomic/cytoband/p36.33/info");
 		examples.add("/infrared-ws/api/v1/hsa/genomic/cytoband/p36.33/snp");
+		examples.add("/infrared-ws/api/v1/hsa/genomic/cytoband/p36.33/gene");
 		return examples;
 	}
 
@@ -92,6 +94,30 @@ public class CytobandWSServer extends GenericRestWSServer{
 			}
 			String regionQuery = Region.parseRegion(regions);
 			return  new ChromosomeRegionServer(this.version, this.species, this.uriInfo).getSnpsByRegion(regionQuery);
+		} catch (Exception e) {
+			return generateErrorResponse(e.toString());
+		}
+	}
+	
+	@GET
+	@Path("/{cytobandId}/gene")
+	public Response getGeneByCytoband(@PathParam("cytobandId") String cytobandId) {
+		try {
+			KaryotypeDBManager karyotypeDbManager = new KaryotypeDBManager(infraredDBConnector);
+			List<String> idList = StringUtils.toList(cytobandId, ",");
+			FeatureList<Cytoband> cytobandList = karyotypeDbManager.getCytobandById(idList);
+			List<Region> regions = new ArrayList<Region>(idList.size());
+			for (Cytoband cytoband : cytobandList) {
+				if (cytoband!=null){
+					Region region = new Region(cytoband.getChromosome(), cytoband.getStart(), cytoband.getEnd());
+					regions.add(region);
+				}
+				else{
+					regions.add(null);
+				}
+			}
+			String regionQuery = Region.parseRegion(regions);
+			return  new ChromosomeRegionServer(this.version, this.species, this.uriInfo).getGenesByRegion(regionQuery);
 		} catch (Exception e) {
 			return generateErrorResponse(e.toString());
 		}

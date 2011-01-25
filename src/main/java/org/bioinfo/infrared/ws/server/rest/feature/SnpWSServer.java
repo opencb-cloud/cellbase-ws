@@ -34,6 +34,9 @@ public class SnpWSServer extends FeatureWSServer implements IFeature {
 		super(version, species, uriInfo);
 	}
 
+	private SNPDBManager getSNPDBManager(){
+		return  new SNPDBManager(infraredDBConnector);
+	}
 	//For help use
 	@Override
 	protected List<String> getPathsNicePrint(){
@@ -60,13 +63,12 @@ public class SnpWSServer extends FeatureWSServer implements IFeature {
 	@Path("/list")
 	public Response getListIds() {
 		try {
-			SNPDBManager snpDbManager = new SNPDBManager(infraredDBConnector);
 			List<String> snplist = null;
 			if(uriInfo.getQueryParameters().get("consequence_type") != null) {
 				List<String> consequenceTypes = StringUtils.toList(uriInfo.getQueryParameters().get("consequence_type").get(0), ",");
-				snplist = snpDbManager.getAllNamesByConsequenceTypes(consequenceTypes);
+				snplist = getSNPDBManager().getAllNamesByConsequenceTypes(consequenceTypes);
 			}else {
-				snplist = snpDbManager.getAllNames();
+				snplist = getSNPDBManager().getAllNames();
 			}
 			return generateResponseFromList(snplist);
 		} catch (Exception e) {
@@ -86,7 +88,7 @@ public class SnpWSServer extends FeatureWSServer implements IFeature {
 	public Response getSNPListByIds(@PathParam("snpId") String snpIds) {
 		try {
 			List<String> ids = StringUtils.toList(snpIds, ",");
-			SNPDBManager snpDbManager = new SNPDBManager(infraredDBConnector);
+			SNPDBManager snpDbManager = getSNPDBManager();
 			
 			//it could be filtered by consequence type
 			FeatureList<SNP> snplist = snpDbManager.getByNames(ids);
@@ -106,11 +108,11 @@ public class SnpWSServer extends FeatureWSServer implements IFeature {
 	
 	@GET
 	@Path("/{snpId}/consequence_type")
-	public Response getAllFilteredByConsequenceType(@PathParam("snpId") String snpIds) {
+	public Response getFilteredByConsequenceType(@PathParam("snpId") String snpIds) {
 		try {
 			List<String> ids = StringUtils.toList(snpIds, ",");
 			FeatureList<SNP> snplist;
-			SNPDBManager snpDbManager = new SNPDBManager(infraredDBConnector);
+			SNPDBManager snpDbManager = getSNPDBManager();
 			if(uriInfo.getQueryParameters().get("consequencetype") != null) {
 				List<String> consequenceTypes = StringUtils.toList(uriInfo.getQueryParameters().get("consequence_type").get(0), ",");
 				snplist = snpDbManager.getAllFilteredByConsequenceType(ids, consequenceTypes);
@@ -154,6 +156,8 @@ public class SnpWSServer extends FeatureWSServer implements IFeature {
 			return generateErrorResponse(e.toString());
 		}
 	}
+	
+	
 /*
 	@GET
 	@Path("/{snpId}/allele_frequency")
