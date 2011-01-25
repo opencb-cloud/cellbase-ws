@@ -107,7 +107,7 @@ public class CytobandWSServer extends GenericRestWSServer{
 					regions.add(null);
 				}
 			}*/
-			String regionQuery = Region.parseRegion(regions);
+			String regionQuery = Region.parseRegions(regions);
 			return  new ChromosomeRegionServer(this.version, this.species, this.uriInfo).getSnpsByRegion(regionQuery);
 		} catch (Exception e) {
 			return generateErrorResponse(e.toString());
@@ -122,7 +122,7 @@ public class CytobandWSServer extends GenericRestWSServer{
 			List<String> idList = StringUtils.toList(cytobandId, ",");
 			FeatureList<Cytoband> cytobandList = karyotypeDbManager.getCytobandById(idList);
 			List<Region> regions = getRegionsFrom(cytobandList);
-			String regionQuery = Region.parseRegion(regions);
+			String regionQuery = Region.parseRegions(regions);
 			return  new ChromosomeRegionServer(this.version, this.species, this.uriInfo).getGenesByRegion(regionQuery);
 		} catch (Exception e) {
 			return generateErrorResponse(e.toString());
