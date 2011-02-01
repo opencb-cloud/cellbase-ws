@@ -23,7 +23,7 @@ import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
 import com.google.gson.reflect.TypeToken;
 
 
-@Path("/{version}/{species}/featureid/id")
+@Path("/{version}/{species}/feature/id")
 @Produces("text/plain")
 public class IdWSServer extends FeatureWSServer implements IFeature {
 
@@ -33,7 +33,7 @@ public class IdWSServer extends FeatureWSServer implements IFeature {
 
 	@Override
 	public boolean isValidSpecies() {
-		return false;
+		return true;
 	}
 
 	@Override
@@ -66,20 +66,22 @@ public class IdWSServer extends FeatureWSServer implements IFeature {
 		
 		try {
 			
-			List<String> dbNames;
+			List<String> dbNames = null;
 			if(uriInfo.getQueryParameters().get("dbname") != null) {
 				dbNames = StringUtils.toList(uriInfo.getQueryParameters().get("dbname").get(0), ",");
 			}else {
-				dbNames = new ArrayList<String>(50);
+				dbNames = new ArrayList<String>(100);
 				for(DBName dbName: xRefDBManager.getAllDBNames()) {
 					dbNames.add(dbName.getDbname());
 				}
 			}
 			
 			xrefs = xRefDBManager.getByDBName(ids, dbNames);
-			return generateResponseFromList(xrefs);
+			
+			
+			return null;//generateResponseFromList(xrefs);
 		}catch(Exception e) {
-			return generateErrorMessage(StringUtils.getStackTrace(e));
+			return generateErrorResponse(StringUtils.getStackTrace(e));
 		}
 	}
 	

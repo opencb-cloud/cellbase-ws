@@ -123,9 +123,9 @@ public class CytobandWSServer extends GenericRestWSServer{
 			FeatureList<Cytoband> cytobandList = karyotypeDbManager.getCytobandById(idList);
 			List<Region> regions = getRegionsFrom(cytobandList);
 			String regionQuery = Region.parseRegion(regions);
-			return  new ChromosomeRegionServer(this.version, this.species, this.uriInfo).getGenesByRegion(regionQuery);
+			return new ChromosomeRegionServer(this.version, this.species, this.uriInfo).getGenesByRegion(regionQuery);
 		} catch (Exception e) {
-			return generateErrorResponse(e.toString());
+			return generateErrorResponse("getGeneByCytoband: " + e.toString());
 		}
 	}
 	

@@ -327,6 +327,8 @@ public class GenericRestWSServer implements IWSServer {
 	}
 	
 	
+	
+	
 	protected <E extends Feature> Response generateResponseFromFeatureList(FeatureList<E> features, Type listType) throws IOException {
 		return generateResponseFromFeatureList("", features, listType);
 	}
@@ -372,10 +374,6 @@ public class GenericRestWSServer implements IWSServer {
 				response = ListUtils.toString(features, resultSeparator);
 			}
 		}
-//		if(outputCompress != null && outputCompress.equalsIgnoreCase("true")) {
-//			response = Arrays.toString(StringUtils.gzipToBytes(response)).replace(" " , "");
-//		}
-
 		return createResponse(response);
 	}
 
