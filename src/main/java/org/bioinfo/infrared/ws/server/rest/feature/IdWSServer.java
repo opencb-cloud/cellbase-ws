@@ -14,16 +14,14 @@ import javax.ws.rs.core.UriInfo;
 
 import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.infrared.core.XRefDBManager;
-import org.bioinfo.infrared.core.common.FeatureList;
 import org.bioinfo.infrared.core.feature.DBName;
 import org.bioinfo.infrared.core.feature.XRef;
-import org.bioinfo.infrared.core.variation.SNP;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
 
 import com.google.gson.reflect.TypeToken;
 
 
-@Path("/{version}/{species}/featureid/id")
+@Path("/{version}/{species}/feature/id")
 @Produces("text/plain")
 public class IdWSServer extends FeatureWSServer implements IFeature {
 
@@ -33,7 +31,7 @@ public class IdWSServer extends FeatureWSServer implements IFeature {
 
 	@Override
 	public boolean isValidSpecies() {
-		return false;
+		return true;
 	}
 
 	@Override
@@ -74,12 +72,13 @@ public class IdWSServer extends FeatureWSServer implements IFeature {
 				for(DBName dbName: xRefDBManager.getAllDBNames()) {
 					dbNames.add(dbName.getDbname());
 				}
+				logger.debug("No 'dbname' query parameter set, using all dbnames: "+dbNames.toString());
 			}
 			
 			xrefs = xRefDBManager.getByDBName(ids, dbNames);
-			return generateResponseFromList(xrefs);
+			return generateResponseFromList(idString, xrefs, new TypeToken<List<XRef>>() {}.getType());
 		}catch(Exception e) {
-			return generateErrorMessage(StringUtils.getStackTrace(e));
+			return generateErrorResponse(StringUtils.getStackTrace(e));
 		}
 	}
 	

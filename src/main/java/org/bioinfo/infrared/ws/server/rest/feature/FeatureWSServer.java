@@ -1,29 +1,15 @@
 package org.bioinfo.infrared.ws.server.rest.feature;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
-import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import org.bioinfo.commons.utils.ListUtils;
-import org.bioinfo.commons.utils.StringUtils;
-import org.bioinfo.infrared.core.GeneDBManager;
-import org.bioinfo.infrared.core.XRefDBManager;
-import org.bioinfo.infrared.core.common.FeatureList;
-import org.bioinfo.infrared.core.feature.DBName;
-import org.bioinfo.infrared.core.feature.Gene;
-import org.bioinfo.infrared.core.feature.XRef;
 import org.bioinfo.infrared.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
-
-import com.google.gson.reflect.TypeToken;
 
 
 @Path("/{version}/{species}/feature")
@@ -62,9 +48,9 @@ public class FeatureWSServer extends GenericRestWSServer {
 //			}else {
 //				dbnames.addAll(xrefDbManager.getAllDBNames());
 //			}
-//			//return generateResponse(ListUtils.toString(dbnames, querySeparator), outputFormat, compress);
+//			//return generateResponse(ListUtils.toString(dbnames, querySeparator), outputFormat, outputCompress);
 //			this.listType = new TypeToken<List<DBName>>() {}.getType();
-//			return generateResponse(dbnames, outputFormat, compress);
+//			return generateResponse(dbnames, outputFormat, outputCompress);
 //		} catch (Exception e) {
 //			return generateErrorMessage(e.toString());
 //		}
@@ -85,9 +71,9 @@ public class FeatureWSServer extends GenericRestWSServer {
 //			}else {
 //				xrefs = xrefDbManager.getAllIdentifiersByIds(ids);
 //			}
-//			//return generateResponse(ListUtils.toString(xrefs, querySeparator), outputFormat, compress);
+//			//return generateResponse(ListUtils.toString(xrefs, querySeparator), outputFormat, outputCompress);
 //			this.listType = new TypeToken<List<XRef>>() {}.getType();
-//			return generateResponse(xrefs, outputFormat, compress);
+//			return generateResponse(xrefs, outputFormat, outputCompress);
 //		} catch (Exception e) {
 //			return generateErrorMessage(e.toString());
 //		}
@@ -107,9 +93,9 @@ public class FeatureWSServer extends GenericRestWSServer {
 //			}else {
 //				xrefs = xrefDbManager.getAllFunctionalAnnotByIds(ids);
 //			}
-//			//			return generateResponse(ListUtils.toString(xrefs, querySeparator), outputFormat, compress);
+//			//			return generateResponse(ListUtils.toString(xrefs, querySeparator), outputFormat, outputCompress);
 //			this.listType = new TypeToken<List<XRef>>() {}.getType();
-//			return generateResponse(xrefs, outputFormat, compress);
+//			return generateResponse(xrefs, outputFormat, outputCompress);
 //		} catch (Exception e) {
 //			return generateErrorMessage(e.toString());
 //		}
@@ -122,7 +108,7 @@ public class FeatureWSServer extends GenericRestWSServer {
 //			List<String> ids = StringUtils.toList(idsString, ",");
 //			GeneDBManager geneDbManager = new GeneDBManager(infraredDBConnector);
 //			List<FeatureList<Gene>> genes = geneDbManager.getAllByExternalIds(ids);
-////			return generateResponse(createResultString(ids, genes), outputFormat, compress);
+////			return generateResponse(createResultString(ids, genes), outputFormat, outputCompress);
 ////			this.listType = new TypeToken<List<FeatureList<Gene>>>() {}.getType();
 //			return generateResponseFromListFeatureList(genes, new TypeToken<List<FeatureList<Gene>>>() {}.getType());
 //		} catch (Exception e) {
@@ -137,7 +123,7 @@ public class FeatureWSServer extends GenericRestWSServer {
 //			List<String> ids = StringUtils.toList(idsString, ",");
 //			GeneDBManager geneDbManager = new GeneDBManager(infraredDBConnector);
 //			List<FeatureList<Gene>> genes = geneDbManager.getAllByExternalIds(ids);
-////			return generateResponse(createResultString(ids, genes), outputFormat, compress);
+////			return generateResponse(createResultString(ids, genes), outputFormat, outputCompress);
 ////			this.listType = new TypeToken<List<FeatureList<Gene>>>() {}.getType();
 //			return generateResponseFromListFeatureList(genes, new TypeToken<List<FeatureList<Gene>>>() {}.getType());
 //		} catch (Exception e) {
@@ -155,7 +141,7 @@ public class FeatureWSServer extends GenericRestWSServer {
 //			List<String> ids = StringUtils.toList(idsString, ",");
 //			GeneDBManager geneDbManager = new GeneDBManager(infraredDBConnector);
 //			List<FeatureList<Gene>> genes = geneDbManager.getAllByExternalIds(ids);
-//			return generateResponse(createResultString(ids, genes), outputFormat, compress);
+//			return generateResponse(createResultString(ids, genes), outputFormat, outputCompress);
 //		} catch (Exception e) {
 //			return generateErrorMessage(e.toString());
 //		}
@@ -172,7 +158,7 @@ public class FeatureWSServer extends GenericRestWSServer {
 //			List<String> ids = StringUtils.toList(idsString, ",");
 //			GeneDBManager geneDbManager = new GeneDBManager(infraredDBConnector);
 //			List<FeatureList<Gene>> genes = geneDbManager.getAllByExternalIds(ids);
-//			return generateResponse(createResultString(ids, genes), outputFormat, compress);
+//			return generateResponse(createResultString(ids, genes), outputFormat, outputCompress);
 //		} catch (Exception e) {
 //			return generateErrorMessage(e.toString());
 //		}
@@ -188,7 +174,7 @@ public class FeatureWSServer extends GenericRestWSServer {
 //			List<String> ids = StringUtils.toList(idsString, ",");
 //			GeneDBManager geneDbManager = new GeneDBManager(infraredDBConnector);
 //			List<FeatureList<Gene>> genes = geneDbManager.getAllByExternalIds(ids);
-//			return generateResponse(createResultString(ids, genes), outputFormat, compress);
+//			return generateResponse(createResultString(ids, genes), outputFormat, outputCompress);
 //		} catch (Exception e) {
 //			return generateErrorMessage(e.toString());
 //		}
@@ -204,7 +190,7 @@ public class FeatureWSServer extends GenericRestWSServer {
 //			List<String> ids = StringUtils.toList(idsString, ",");
 //			GeneDBManager geneDbManager = new GeneDBManager(infraredDBConnector);
 //			List<FeatureList<Gene>> genes = geneDbManager.getAllByExternalIds(ids);
-//			return generateResponse(createResultString(ids, genes), outputFormat, compress);
+//			return generateResponse(createResultString(ids, genes), outputFormat, outputCompress);
 //		} catch (Exception e) {
 //			return generateErrorMessage(e.toString());
 //		}
@@ -239,7 +225,7 @@ public class FeatureWSServer extends GenericRestWSServer {
 //	//				}
 //	//				snps = snpsByConsequenceType;
 //	//			}
-//	//			return generateResponse(ListUtils.toString(snps, querySeparator), outputFormat, compress);
+//	//			return generateResponse(ListUtils.toString(snps, querySeparator), outputFormat, outputCompress);
 //	//		} catch (Exception e) {
 //	//			return generateErrorMessage(e.toString());
 //	//		}

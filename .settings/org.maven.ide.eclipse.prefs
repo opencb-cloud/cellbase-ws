@@ -1,13 +1,17 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 #Thu Oct 14 17:55:22 CEST 2010
 =======
 #Fri Dec 24 10:32:08 CET 2010
 >>>>>>> a30662291f9992cf6bcafeb190fcfbba32d46a3c
+=======
+#Wed Jan 19 15:55:30 CET 2011
+>>>>>>> ffa494ace00beb3d56d1faff835881886e5fd2b2
 activeProfiles=
 eclipse.preferences.version=1
 fullBuildGoals=process-test-resources
 includeModules=false
-resolveWorkspaceProjects=true
+resolveWorkspaceProjects=false
 resourceFilterGoals=process-resources resources\:testResources
 skipCompilerPlugin=true
 version=1

@@ -14,7 +14,9 @@ import javax.ws.rs.core.UriInfo;
 
 import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.infrared.core.GeneDBManager;
+import org.bioinfo.infrared.core.KaryotypeDBManager;
 import org.bioinfo.infrared.core.common.FeatureList;
+import org.bioinfo.infrared.core.feature.Cytoband;
 import org.bioinfo.infrared.core.feature.Gene;
 import org.bioinfo.infrared.core.feature.Region;
 import org.bioinfo.infrared.core.variation.AnnotatedMutation;
@@ -40,12 +42,27 @@ public class ChromosomeRegionServer extends GenomicWSServer {
 		return true;
 	}
 
+	
 	@Override
-	@GET
-	@Path("/help")
-	public String help() {
-		return "region help";
+	protected List<String> getPathsNicePrint(){
+		List<String> paths = new ArrayList<String>();
+		paths.add("/{region}/snp");
+		paths.add("/{region}/annotated_mutation");
+		paths.add("/{region}/cytoband");
+		paths.add("/{region}/gene");
+		return paths;
 	}
+	
+	@Override
+	protected List<String> getExamplesNicePrint(){
+		List<String> examples = new ArrayList<String>();
+		examples.add("/infrared-ws/api/v1/hsa/genomic/chregion/1:1-100000/snp");
+		examples.add("/infrared-ws/api/v1/hsa/genomic/chregion/1:1-600000/annotated_mutation");
+		examples.add("/infrared-ws/api/v1/hsa/genomic/chregion/1:1-6000000/cytoband");
+		examples.add("/infrared-ws/api/v1/hsa/genomic/chregion/1:1-6000000/gene");
+		return examples;
+	}
+	
 	
 	@Override
 	@GET
@@ -63,12 +80,12 @@ public class ChromosomeRegionServer extends GenomicWSServer {
 	@GET
 	@Path("/{region}/snp")
 	public Response getSnpsByRegion(@PathParam("region") String regionString) {
-		logger.debug("in getSnpsByRegion1");
 		try {
 			List<Region> regions = Region.parseRegions(regionString);
 			SNPDBManager snpDbManager = new SNPDBManager(infraredDBConnector);
 		
 			List<FeatureList<SNP>> snpList = snpDbManager.getAllByRegions(regions);
+			
 			// if there is a consequence type filter lets filter!
 			if(uriInfo.getQueryParameters().get("consequence_type") != null) {
 				List<FeatureList<SNP>> snpsByConsequenceType = new ArrayList<FeatureList<SNP>>(snpList.size());
@@ -92,35 +109,9 @@ public class ChromosomeRegionServer extends GenomicWSServer {
 				}
 				snpList = snpsByConsequenceType;
 			}
-//			FeatureList<SNP> snps = new FeatureList<SNP>();
-////			List<SNP> snps = new ArrayList<SNP>();
-//			FeatureList<SNP> snpsByConsequenceType = new FeatureList<SNP>();
-//			for(Region region: regions) {
-//				if(region != null && region.getChromosome() != null && !region.getChromosome().equals("")) {
-//					if(region.getStart() == 0 && region.getEnd() == 0) {
-//						snps.addAll(snpDbManager.getAllByRegion(region.getChromosome(), 1, Integer.MAX_VALUE));
-//					}else {
-//						snps.addAll(snpDbManager.getAllByRegion(region.getChromosome(), region.getStart(), region.getEnd()));
-//					}
-//				}
-//			}
-//			// if there is a consequence type filter lets filter!
-//			if(uriInfo.getQueryParameters().get("consequence_type") != null) {
-//				List<String> consequencetype = StringUtils.toList(uriInfo.getQueryParameters().get("consequence_type").get(0), ",");
-//				for(SNP snp: snps) {
-//					for(String consquenceType: snp.getConsequenceType()) {
-//						if(consequencetype.contains(consquenceType)) {
-//							snpsByConsequenceType.add(snp);
-//						}
-//					}
-//				}
-//				snps = snpsByConsequenceType;
-//			}
-//			this.listType = new TypeToken<FeatureList<SNP>>() {}.getType();
-			return generateResponseFromListFeatureList(snpList, new TypeToken<List<FeatureList<SNP>>>() {}.getType());
-			//return generateResponse(ListUtils.toString(snps, querySeparator), outputFormat, compress);
+			return generateResponseFromListFeatureList(regionString, snpList, new TypeToken<List<FeatureList<SNP>>>() {}.getType());
 		} catch (Exception e) {
-			return generateErrorMessage(e.toString());
+			return generateErrorResponse(e.toString());
 		}
 	}
 	
@@ -131,9 +122,22 @@ public class ChromosomeRegionServer extends GenomicWSServer {
 			List<Region> regions = Region.parseRegions(regionString);
 			AnnotatedMutationDBManager snpDbManager = new AnnotatedMutationDBManager(infraredDBConnector);
 			List<FeatureList<AnnotatedMutation>> annotMutations = snpDbManager.getAllByRegions(regions);
-			return generateResponseFromListFeatureList(annotMutations, new TypeToken<List<FeatureList<AnnotatedMutation>>>() {}.getType());
+			return generateResponseFromListFeatureList(regionString, annotMutations, new TypeToken<List<FeatureList<AnnotatedMutation>>>() {}.getType());
 		} catch (Exception e) {
-			return generateErrorMessage(e.toString());
+			return generateErrorResponse(e.toString());
+		}
+	}
+	
+	@GET
+	@Path("/{region}/cytoband")
+	public Response getCytobandByRegion(@PathParam("region") String regionString) {
+		try {
+			List<Region> regions = Region.parseRegions(regionString);
+			KaryotypeDBManager karyotypeDbManager = new KaryotypeDBManager(infraredDBConnector);
+			List<FeatureList<Cytoband>> CytobandList = karyotypeDbManager.getCytobandByRegions(regions);
+			return generateResponseFromListFeatureList(regionString, CytobandList, new TypeToken<List<FeatureList<Cytoband>>>() {}.getType());
+		} catch (Exception e) {
+			return generateErrorResponse(e.toString());
 		}
 	}
 	
@@ -172,10 +176,10 @@ public class ChromosomeRegionServer extends GenomicWSServer {
 //				genes = genesByBiotype;
 //			}
 //			this.listType = new TypeToken<FeatureList<Gene>>(){}.getType();
-			return generateResponseFromListFeatureList(genes, new TypeToken<FeatureList<Gene>>(){}.getType());
+			return generateResponseFromListFeatureList(regionString, genes, new TypeToken<List<FeatureList<Gene>>>(){}.getType());
 		} catch (Exception e) {
 			e.printStackTrace();
-			return generateErrorMessage(e.toString());
+			return generateErrorResponse(e.toString());
 		}
 	}
 
@@ -195,11 +199,10 @@ public class ChromosomeRegionServer extends GenomicWSServer {
 	//					snps = geneDbManager.getAllByLocation(region.getChromosome(), region.getStart(), region.getEnd());
 	//				}
 	//			}
-	//			return generateResponse(ListUtils.toString(snps, querySeparator), outputFormat, compress);
+	//			return generateResponse(ListUtils.toString(snps, querySeparator), outputFormat, outputCompress);
 	//		} catch (Exception e) {
 	//			return generateErrorMessage(e.toString());
 	//		}
 	//	}
 
-	
 }
