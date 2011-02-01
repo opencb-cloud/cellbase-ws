@@ -1,9 +1,5 @@
 package org.bioinfo.infrared.ws.rest;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 import org.junit.Test;
 
 import com.sun.jersey.api.client.Client;

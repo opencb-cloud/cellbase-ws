@@ -1,8 +1,6 @@
 package org.bioinfo.infrared.ws.server.rest.feature;
 
 import java.io.IOException;
-import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.ws.rs.GET;
@@ -14,7 +12,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.bioinfo.commons.utils.StringUtils;
-import org.bioinfo.db.handler.ResultSetHandler;
 import org.bioinfo.infrared.core.ExonDBManager;
 import org.bioinfo.infrared.core.GeneDBManager;
 import org.bioinfo.infrared.core.common.FeatureList;
@@ -70,9 +67,9 @@ public class GeneWSServer extends FeatureWSServer implements IFeature {
 	// GeneDBManager: public FeatureList<Gene> getByEnsemblId(String ensemblId)
 	public Response getByEnsemblId(@PathParam("geneId") String geneId) {
 		try {
+			List<String> ids = StringUtils.toList(geneId, ",");
 			GeneDBManager geneDBManager = getGeneDBManager();
 			FeatureList<Gene> geneList;
-			List<String> ids = StringUtils.toList(geneId, ",");
 			if(uriInfo.getQueryParameters().get("biotype") != null) {
 				String biotype = uriInfo.getQueryParameters().get("biotype").get(0);
 				geneList = geneDBManager.getAllByBiotype(biotype);
