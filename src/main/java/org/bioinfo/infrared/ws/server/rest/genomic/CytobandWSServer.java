@@ -107,7 +107,7 @@ public class CytobandWSServer extends GenericRestWSServer{
 					regions.add(null);
 				}
 			}*/
-			String regionQuery = Region.parseRegion(regions);
+			String regionQuery = Region.parseRegions(regions);
 			return  new ChromosomeRegionServer(this.version, this.species, this.uriInfo).getSnpsByRegion(regionQuery);
 		} catch (Exception e) {
 			return generateErrorResponse(e.toString());

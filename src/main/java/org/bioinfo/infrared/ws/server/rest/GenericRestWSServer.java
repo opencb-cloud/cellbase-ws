@@ -1,23 +1,14 @@
 package org.bioinfo.infrared.ws.server.rest;
 
-import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.lang.reflect.Type;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
 import javax.ws.rs.GET;
@@ -31,7 +22,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.bioinfo.commons.Config;
-import org.bioinfo.commons.io.utils.IOUtils;
 import org.bioinfo.commons.log.Logger;
 import org.bioinfo.commons.utils.ListUtils;
 import org.bioinfo.commons.utils.StringUtils;
@@ -326,6 +316,53 @@ public class GenericRestWSServer implements IWSServer {
 		return createResponse(response);
 	}
 	
+	protected <E extends Feature> Response generateResponseFromList(String queryString, List<E> features, Type listType) throws IOException {
+		String response = "";
+		if (contentFormat != null) {
+			if(contentFormat.equalsIgnoreCase("txt") || contentFormat.equalsIgnoreCase("text") || contentFormat.equalsIgnoreCase("jsontext")) {
+				response = createStringResultFromList(queryString, features);
+
+				if(contentFormat.equalsIgnoreCase("jsontext")) {
+					mediaType =  MediaType.valueOf("text/javascript");
+					response = convertToJsonText(response);
+				}else {
+					mediaType = MediaType.valueOf("text/plain");
+				}
+			}
+
+			if((contentFormat.equalsIgnoreCase("json") || contentFormat.equalsIgnoreCase("jsonp"))) {
+				mediaType =  MediaType.valueOf("application/json");
+				if(features != null && features.size() > 0) {
+					if(listType != null) {
+						logger.debug("\tCreating JSON object");
+						response = gson.toJson(features, listType);
+					}else {
+						logger.error("[GenericRestWSServer] GenericRestWSServer: TypeToken from Gson equals null");
+					}
+				}
+
+				if(contentFormat.equals("jsonp")) {
+					mediaType =  MediaType.valueOf("text/javascript");
+					response = convertToJson(response);
+				}
+			}
+
+			if(contentFormat.equalsIgnoreCase("xml") ) {
+				mediaType =  MediaType.valueOf("text/xml");
+				response = ListUtils.toString(features, resultSeparator);
+			}
+
+			if(contentFormat.equalsIgnoreCase("das") ) {
+				mediaType =  MediaType.valueOf("text/xml");
+				response = ListUtils.toString(features, resultSeparator);
+			}
+		}
+//		if(outputCompress != null && outputCompress.equalsIgnoreCase("true")) {
+//			response = Arrays.toString(StringUtils.gzipToBytes(response)).replace(" " , "");
+//		}
+
+		return createResponse(response);
+	}
 	
 	
 	
@@ -512,6 +549,27 @@ public class GenericRestWSServer implements IWSServer {
 			stringBuilder.append(feature.toString()).append(querySeparator);
 		}
 		return stringBuilder.toString().trim();
+	}
+	
+	
+	private <E extends Feature> String createStringResultFromList(String queryString, List<E> features) throws IOException {
+		if(outputRowNames != null && outputRowNames.equalsIgnoreCase("true")) {
+			StringBuilder stringBuilder = new StringBuilder();
+			String[] ids = queryString.split(",");
+			if(ids.length != features.size()) {
+				throw new IOException("IDs length and features size do not match");
+			}
+			for(int i=0; i<features.size(); i++) {
+				if(features.get(i) != null) {
+					stringBuilder.append(ids[i]).append("\t").append(features.get(i).toString()).append(querySeparator);
+				}else {
+					stringBuilder.append(ids[i]).append("\t").append("not found").append(querySeparator);
+				}
+			}
+			return stringBuilder.toString().trim();
+		}else {
+			return ListUtils.toString(features, querySeparator);
+		}
 	}
 	
 	private <E extends Feature> String createStringResultFromFeatureList(String queryString, FeatureList<E> features) throws IOException {
