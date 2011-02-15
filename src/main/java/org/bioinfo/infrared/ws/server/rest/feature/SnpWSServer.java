@@ -35,8 +35,9 @@ public class SnpWSServer extends FeatureWSServer implements IFeature {
 	}
 
 	private SNPDBManager getSNPDBManager(){
-		return  new SNPDBManager(infraredDBConnector);
+		return new SNPDBManager(infraredDBConnector);
 	}
+	
 	//For help use
 	@Override
 	protected List<String> getPathsNicePrint(){

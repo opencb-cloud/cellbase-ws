@@ -64,11 +64,11 @@ public class IdWSServer extends FeatureWSServer implements IFeature {
 		
 		try {
 			
-			List<String> dbNames;
+			List<String> dbNames = null;
 			if(uriInfo.getQueryParameters().get("dbname") != null) {
 				dbNames = StringUtils.toList(uriInfo.getQueryParameters().get("dbname").get(0), ",");
 			}else {
-				dbNames = new ArrayList<String>(50);
+				dbNames = new ArrayList<String>(100);
 				for(DBName dbName: xRefDBManager.getAllDBNames()) {
 					dbNames.add(dbName.getDbname());
 				}

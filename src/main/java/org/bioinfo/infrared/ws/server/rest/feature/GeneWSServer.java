@@ -14,9 +14,11 @@ import javax.ws.rs.core.UriInfo;
 import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.infrared.core.ExonDBManager;
 import org.bioinfo.infrared.core.GeneDBManager;
+import org.bioinfo.infrared.core.TranscriptDBManager;
 import org.bioinfo.infrared.core.common.FeatureList;
 import org.bioinfo.infrared.core.feature.Exon;
 import org.bioinfo.infrared.core.feature.Gene;
+import org.bioinfo.infrared.core.feature.Transcript;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
 
 import com.google.gson.reflect.TypeToken;
@@ -32,8 +34,7 @@ public class GeneWSServer extends FeatureWSServer implements IFeature {
 	}
 	
 	
-	private GeneDBManager getGeneDBManager()
-	{
+	private GeneDBManager getGeneDBManager() {
 		return new GeneDBManager(infraredDBConnector);
 	}
 	
@@ -129,19 +130,36 @@ public class GeneWSServer extends FeatureWSServer implements IFeature {
 	
 	@GET
 	@Path("/{geneId}/transcript")
-	public String getTranscripts(@PathParam("geneId") String geneId) {
-		return null;
+	public Response getTranscripts(@PathParam("geneId") String geneId) {
+		try {
+			List<String> geneIds = StringUtils.toList(geneId, ",");
+			TranscriptDBManager transcriptDbManager = new TranscriptDBManager(infraredDBConnector);
+			List<FeatureList<Transcript>> transcripts  = transcriptDbManager.getAllByExternalIds(geneIds);
+		
+			FeatureList<Transcript> transcriptsByBiotype = new FeatureList<Transcript>();
+			List<String> biotypes = null;
+			if(uriInfo.getQueryParameters().get("biotype") != null) {
+				biotypes = StringUtils.toList(uriInfo.getQueryParameters().get("biotype").get(0), ",");
+				// filter transcripts by biotype
+				// for....
+			}
+			
+			return generateResponseFromListFeatureList(geneId, transcripts, new TypeToken<List<FeatureList<Transcript>>>(){}.getType());
+		} catch (Exception e) {
+			e.printStackTrace();
+			return generateErrorResponse(e.toString());
+		}
 	}
 	
 	@GET
 	@Path("/{geneId}/protein")
-	public String getProteins(@PathParam("geneId") String geneId) {
+	public Response getProteins(@PathParam("geneId") String geneId) {
 		return null;
 	}
 	
 	@GET
 	@Path("/{geneId}/orthologous")
-	public String getOrthologus(@PathParam("geneId") String geneId) {
+	public Response getOrthologus(@PathParam("geneId") String geneId) {
 		return null;
 	}
 	
@@ -149,13 +167,13 @@ public class GeneWSServer extends FeatureWSServer implements IFeature {
 	
 	@GET
 	@Path("/{geneId}/fullinfo")
-	public String getFullInfo(@PathParam("geneId") String geneId) {
+	public Response getFullInfo(@PathParam("geneId") String geneId) {
 		return null;
 	}
 	
 	@GET
 	@Path("/{geneId}/snp")
-	public String getSnps(@PathParam("geneId") String geneId) {
+	public Response getSnps(@PathParam("geneId") String geneId) {
 		return null;
 	}
 	
