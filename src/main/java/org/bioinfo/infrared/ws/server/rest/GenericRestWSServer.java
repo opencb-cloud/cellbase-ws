@@ -86,7 +86,6 @@ public class GenericRestWSServer implements IWSServer {
 	}
 
 	public GenericRestWSServer(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo) throws VersionException, IOException {
-
 		if(version != null && species != null) {
 			init(version, species, uriInfo);
 		}

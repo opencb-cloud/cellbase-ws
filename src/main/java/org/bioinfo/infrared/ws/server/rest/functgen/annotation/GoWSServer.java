@@ -25,6 +25,7 @@ import com.google.gson.reflect.TypeToken;
 public class GoWSServer extends AnnotationWSServer {
 
 	public GoWSServer(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo) throws VersionException, IOException {
+		
 		super(version, species, uriInfo);
 	}
 
@@ -49,6 +50,14 @@ public class GoWSServer extends AnnotationWSServer {
 		} catch (Exception e) {
 			return generateErrorResponse(e.toString());
 		}
+	}
+	
+	@Override
+	public boolean isValidSpecies() {
+		if("hsa".equalsIgnoreCase(species) || "mmu".equalsIgnoreCase(species) || "rno".equalsIgnoreCase(species)) {
+			return true;
+		}
+		return false;
 	}
 	
 	
