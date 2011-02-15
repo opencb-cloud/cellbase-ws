@@ -34,8 +34,7 @@ public class GeneWSServer extends FeatureWSServer implements IFeature {
 	}
 	
 	
-	private GeneDBManager getGeneDBManager()
-	{
+	private GeneDBManager getGeneDBManager() {
 		return new GeneDBManager(infraredDBConnector);
 	}
 	
