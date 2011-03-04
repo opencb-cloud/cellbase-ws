@@ -82,7 +82,7 @@ public class IdWSServer extends FeatureWSServer implements IFeature {
 		}
 	}
 	@GET
-	@Path("/{id}/dbnames")
+	@Path("/{id}/dbname")
 	public Response dbnames(@PathParam("id") String idString) {
 		List<String> ids = StringUtils.toList(idString, ",");
 		XRefDBManager xRefDBManager = new XRefDBManager(infraredDBConnector);
