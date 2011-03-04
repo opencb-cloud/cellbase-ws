@@ -81,5 +81,24 @@ public class IdWSServer extends FeatureWSServer implements IFeature {
 			return generateErrorResponse(StringUtils.getStackTrace(e));
 		}
 	}
+	@GET
+	@Path("/{id}/dbnames")
+	public Response dbnames(@PathParam("id") String idString) {
+		List<String> ids = StringUtils.toList(idString, ",");
+		XRefDBManager xRefDBManager = new XRefDBManager(infraredDBConnector);
+		List<List<DBName>> listOfDbnames = new ArrayList<List<DBName>>();
+		List<DBName> dbnames;
+		
+		try {
+			for(String id: ids){
+				dbnames = xRefDBManager.getAllDBNamesById(id);
+				listOfDbnames.add(dbnames);
+			}
+			
+			return generateResponseFromListOftList(idString, listOfDbnames, new TypeToken<List<List<DBName>>>() {}.getType());
+		}catch(Exception e) {
+			return generateErrorResponse(StringUtils.getStackTrace(e));
+		}
+	}
 	
 }

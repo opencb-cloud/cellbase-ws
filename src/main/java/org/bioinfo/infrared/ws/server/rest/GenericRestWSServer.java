@@ -28,6 +28,7 @@ import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.infrared.common.DBConnector;
 import org.bioinfo.infrared.core.common.Feature;
 import org.bioinfo.infrared.core.common.FeatureList;
+import org.bioinfo.infrared.core.feature.DBName;
 import org.bioinfo.infrared.core.variation.TranscriptConsequenceType;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
 
@@ -455,6 +456,49 @@ public class GenericRestWSServer implements IWSServer {
 
 		return createResponse(response);
 	}
+	
+	protected Response generateResponseFromListOftList(String queryString, List<List<DBName>> dbnames, Type listType) throws IOException {
+		String response = "";
+		if (contentFormat != null) {
+			if(contentFormat.equalsIgnoreCase("txt") || contentFormat.equalsIgnoreCase("text") || contentFormat.equalsIgnoreCase("jsontext")) {
+				response = createStringResultFromListOfLists(queryString, dbnames);
+				if(contentFormat.equalsIgnoreCase("jsontext")) {
+					mediaType = MediaType.valueOf("text/javascript");
+					response = convertToJsonText(response);
+				}else {
+					mediaType = MediaType.TEXT_PLAIN_TYPE;
+				}
+			}
+
+			if((contentFormat.equalsIgnoreCase("json") || contentFormat.equalsIgnoreCase("jsonp"))) {
+				mediaType = MediaType.APPLICATION_JSON_TYPE;
+				if(dbnames != null && dbnames.size() > 0) {
+					if(listType != null) {
+						response = gson.toJson(dbnames, listType);
+					}else {
+						logger.error("[GenericRestWSServer] GenericRestWSServer: TypeToken from Gson equals null");
+					}
+				}
+
+				if(contentFormat.equals("jsonp")) {
+					mediaType = MediaType.valueOf("text/javascript");
+					response = convertToJson(response);
+				}
+			}
+
+			if(contentFormat.equalsIgnoreCase("xml") ) {
+				mediaType = MediaType.TEXT_XML_TYPE;
+				response = ListUtils.toString(dbnames, resultSeparator);
+			}
+
+			if(contentFormat.equalsIgnoreCase("das") ) {
+				mediaType = MediaType.TEXT_XML_TYPE;
+				response = ListUtils.toString(dbnames, resultSeparator);
+			}
+		}
+
+		return createResponse(response);
+	}
 
 	private Response createResponse(String response) throws IOException {
 		//Logs
@@ -618,7 +662,33 @@ public class GenericRestWSServer implements IWSServer {
 			return stringBuilder.toString().trim();
 		}
 	}
+	private  String createStringResultFromListOfLists(String queryString, List<List<DBName>> dbanames) throws IOException {
+		StringBuilder stringBuilder = new StringBuilder();
+		String[] ids = queryString.split(",");
+		if(ids == null || dbanames == null || ids.length != dbanames.size()) {
+			throw new IOException("IDs length and features size do not match");
+		}
 
+		if(outputRowNames != null && outputRowNames.equalsIgnoreCase("true")) {
+			for(int i=0; i<dbanames.size(); i++) {
+				if(dbanames.get(i) != null) {
+					stringBuilder.append(ids[i]).append("\t").append(ListUtils.toString(dbanames.get(i), resultSeparator)).append(querySeparator);
+				}else {
+					stringBuilder.append(ids[i]).append(querySeparator);
+				}
+			}
+			return stringBuilder.toString().trim();
+		}else {
+			for(int i=0; i<dbanames.size(); i++) {
+				if(dbanames.get(i) != null) {
+					stringBuilder.append(ListUtils.toString(dbanames.get(i), resultSeparator)).append(querySeparator);
+				}else {
+					stringBuilder.append("not found").append(querySeparator);
+				}
+			}
+			return stringBuilder.toString().trim();
+		}
+	}
 
 	protected Response generateErrorResponse(String errorMessage) {
 		return Response.ok("An error occurred: "+errorMessage, MediaType.valueOf("text/plain")).build();
