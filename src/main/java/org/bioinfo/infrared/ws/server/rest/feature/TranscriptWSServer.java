@@ -10,8 +10,10 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.bioinfo.commons.utils.StringUtils;
+import org.bioinfo.infrared.core.ExonDBManager;
 import org.bioinfo.infrared.core.GeneDBManager;
 import org.bioinfo.infrared.core.common.FeatureList;
+import org.bioinfo.infrared.core.feature.Exon;
 import org.bioinfo.infrared.core.feature.Gene;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
 
@@ -30,7 +32,7 @@ public class TranscriptWSServer extends FeatureWSServer implements IFeature {
 	}
 
 	@GET
-	@Path("/{transcriptId}/gen")
+	@Path("/{transcriptId}/gene")
 	// GeneDBManager: public Gene getByEnsemblTranscript(String ensemblId)
 	public Response getByEnsemblTranscript(@PathParam("transcriptId") String transcriptId) {
 		try {
@@ -46,7 +48,7 @@ public class TranscriptWSServer extends FeatureWSServer implements IFeature {
 	@Override
 	public boolean isValidSpecies() {
 		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	@Override
@@ -55,4 +57,17 @@ public class TranscriptWSServer extends FeatureWSServer implements IFeature {
 		return null;
 	}
 
+	@GET
+	@Path("/{transcriptId}/exon")
+	public Response getExons(@PathParam("transcriptId") String transcriptId) {
+		try {
+			List<String> ids = StringUtils.toList(transcriptId, ",");
+			ExonDBManager exonDBManager = new ExonDBManager(infraredDBConnector);
+			List<FeatureList<Exon>> exons = exonDBManager.getAllByIds(ids);
+			return generateResponseFromListFeatureList(transcriptId, exons, new TypeToken<List<FeatureList<Exon>>>() {}.getType());
+		} catch (Exception e) {
+			return generateErrorResponse(e.toString());
+		}
+	}
+	
 }
