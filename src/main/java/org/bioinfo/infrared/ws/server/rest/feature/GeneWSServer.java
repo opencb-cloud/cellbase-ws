@@ -1,10 +1,7 @@
 package org.bioinfo.infrared.ws.server.rest.feature;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-
-import javassist.Modifier;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -15,28 +12,18 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.bioinfo.commons.utils.StringUtils;
-import org.bioinfo.infrared.dao.GenomeSequenceDataAdapter;
-import org.bioinfo.infrared.dao.utils.HibernateUtil;
-import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
-
-import com.google.gson.ExclusionStrategy;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.google.gson.reflect.TypeToken;
-import com.sun.jersey.api.client.ClientResponse.Status;
-
-import org.bioinfo.infrared.core.Exon;
 import org.bioinfo.infrared.core.Gene;
 import org.bioinfo.infrared.core.Orthologous;
 import org.bioinfo.infrared.core.Transcript;
+import org.bioinfo.infrared.dao.GenomeSequenceDataAdapter;
+import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
 import org.hibernate.Query;
-import org.hibernate.classic.Session;
-import org.hibernate.criterion.Conjunction;
 import org.hibernate.criterion.Disjunction;
 import org.hibernate.criterion.Restrictions;
+
+import com.sun.jersey.api.client.ClientResponse.Status;
 
 @Path("/{version}/{species}/feature/gene")
 @Produces("text/plain")
@@ -57,7 +44,6 @@ public class GeneWSServer extends FeatureWSServer {
 				disjunction.add(Restrictions.eq("stableId", id.trim()));
 			}
 			criteria.add(disjunction);
-			
 			return  generateResponse(criteria);
 
 		} catch (Exception e) {
@@ -69,6 +55,7 @@ public class GeneWSServer extends FeatureWSServer {
 	@Path("/{geneId}/transcript")
 	public Response getTranscriptsByEnsemblId(@PathParam("geneId") String geneId) {
 		try {
+			// geneId ==> geneId.split(",")
 			Criteria criteria =  this.getSession().createCriteria(Transcript.class)
 			.createCriteria("gene").add( Restrictions.eq("stableId", geneId)).setFetchMode("gene", FetchMode.DEFAULT);
 			return generateResponse(criteria);
