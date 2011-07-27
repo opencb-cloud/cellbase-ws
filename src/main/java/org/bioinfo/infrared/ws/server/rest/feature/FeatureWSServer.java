@@ -2,10 +2,12 @@ package org.bioinfo.infrared.ws.server.rest.feature;
 
 import java.io.IOException;
 
+import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.bioinfo.infrared.ws.server.rest.GenericRestWSServer;
@@ -26,6 +28,13 @@ public class FeatureWSServer extends GenericRestWSServer {
 	//		connect();
 	//	}
 	// Returns all possible DB Names
+	
+	@GET
+	@Path("/test")
+	public String getAllDBNames() {
+		System.out.println("testing feature access");
+		return "feature access granted";
+	}
 //	@GET
 //	@Path("/dbnames")
 //	public Response getAllDBNames() {
