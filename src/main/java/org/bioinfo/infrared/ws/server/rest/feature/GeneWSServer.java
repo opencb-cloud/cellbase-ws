@@ -11,7 +11,11 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.bioinfo.commons.utils.StringUtils;
+import org.bioinfo.infrared.core.Exon;
+import org.bioinfo.infrared.core.Exon2transcript;
 import org.bioinfo.infrared.core.Gene;
 import org.bioinfo.infrared.core.Orthologous;
 import org.bioinfo.infrared.core.Transcript;
@@ -23,6 +27,8 @@ import org.hibernate.Query;
 import org.hibernate.criterion.Disjunction;
 import org.hibernate.criterion.Restrictions;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 @Path("/{version}/{species}/feature/gene")
@@ -43,21 +49,24 @@ public class GeneWSServer extends FeatureWSServer {
 			for (String id : identifiers) {
 				disjunction.add(Restrictions.eq("stableId", id.trim()));
 			}
-			criteria.add(disjunction);
+			criteria.add(disjunction).setFetchMode("transcript", FetchMode.JOIN);
 			return  generateResponse(criteria);
 
 		} catch (Exception e) {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
 	}
+	
+	
+	
 
 	@GET
 	@Path("/{geneId}/transcript")
 	public Response getTranscriptsByEnsemblId(@PathParam("geneId") String geneId) {
 		try {
-			// geneId ==> geneId.split(",")
-			Criteria criteria =  this.getSession().createCriteria(Transcript.class)
-			.createCriteria("gene").add( Restrictions.eq("stableId", geneId)).setFetchMode("gene", FetchMode.DEFAULT);
+			
+			Criteria criteria =  this.getSession().createCriteria(Transcript.class).setFetchMode("gene", FetchMode.SELECT)
+			.createCriteria("gene").add( Restrictions.eq("stableId", geneId));
 			return generateResponse(criteria);
 		} catch (Exception e) {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
@@ -66,10 +75,19 @@ public class GeneWSServer extends FeatureWSServer {
 
 	@GET
 	@Path("/{geneId}/exon")
-	public Response getExonsByEnsemblId(@PathParam("geneId") String geneId) {
+	public Response getExonsByEnsemblId2(@PathParam("geneId") String geneId) {
 		try {
-			Query query = this.getSession().createQuery("select e from Exon e JOIN FETCH e.exon2transcripts et JOIN et.transcript t JOIN t.gene g where g.stableId in :stable_id").setParameterList("stable_id", StringUtils.toList(geneId, ","));  
+			
+			Criteria criteria =  this.getSession().createCriteria(Exon.class).setFetchMode("exon2transcripts", FetchMode.SELECT)
+			.createCriteria("exon2transcripts").setFetchMode("transcript", FetchMode.SELECT)
+			.createCriteria("transcript").setFetchMode("gene", FetchMode.SELECT)
+			.createCriteria("gene").add( Restrictions.eq("stableId", geneId));
+			return generateResponse(criteria);
+			
+			/** HQL 
+			Query query = this.getSession().createQuery("select e from Exon e JOIN FETCH e.exon2transcripts et JOIN et.transcript t JOIN  t.gene g where g.stableId in :stable_id").setParameterList("stable_id", StringUtils.toList(geneId, ","));  
 			return generateResponse(query);
+			**/
 		} catch (Exception e) {
 			e.printStackTrace();
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
@@ -80,7 +98,7 @@ public class GeneWSServer extends FeatureWSServer {
 	@Path("/{geneId}/exon2transcript")
 	public Response getExon2TranscriptByEnsemblId(@PathParam("geneId") String geneId) {
 		try {
-			Query query = this.getSession().createQuery("select e from Exon2transcript e JOIN FETCH e.transcript t JOIN FETCH e.exon JOIN FETCH t.gene g where g.stableId in :stable_id").setParameterList("stable_id", StringUtils.toList(geneId, ","));  
+			Query query = this.getSession().createQuery("select e from Exon2transcript e JOIN FETCH e.transcript t JOIN FETCH e.exon JOIN FETCH t.gene g where g.stableId in :stable_id").setParameterList("stable_id", StringUtils.toList(geneId, ","));
 			return generateResponse(query);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -102,24 +120,24 @@ public class GeneWSServer extends FeatureWSServer {
 	}
 
 
-	@GET
-	@Path("/{geneId}/sequence")
-	public Response getSequenceByEnsemblId(@PathParam("geneId") String geneId) {
-		try {
-			Criteria criteria =  this.getSession().createCriteria(Gene.class).add(Restrictions.eq("stableId", geneId));
-			String sequence = new String();
-			if (criteria.list().size() > 0){
-				Gene gene = (Gene)criteria.list().get(0);
-				sequence = GenomeSequenceDataAdapter.getSequenceByRegion(gene.getChromosome(), gene.getStart(), gene.getEnd());
-			}
-			this.getSession().close();
-			
-			return Response.ok(sequence).build();
-		} catch (Exception e) {
-			e.printStackTrace();
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
-		}
-	}
+//	@GET
+//	@Path("/{geneId}/sequence")
+//	public Response getSequenceByEnsemblId(@PathParam("geneId") String geneId) {
+//		try {
+//			Criteria criteria =  this.getSession().createCriteria(Gene.class).add(Restrictions.eq("stableId", geneId));
+//			String sequence = new String();
+//			if (criteria.list().size() > 0){
+//				Gene gene = (Gene)criteria.list().get(0);
+//				sequence = GenomeSequenceDataAdapter.getSequenceByRegion(gene.getChromosome(), gene.getStart(), gene.getEnd());
+//			}
+//			this.getSession().close();
+//			
+//			return Response.ok(sequence).build();
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+//		}
+//	}
 
 
 }

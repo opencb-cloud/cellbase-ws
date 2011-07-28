@@ -144,6 +144,7 @@ public class GenericRestWSServer implements IWSServer {
 
 		mediaType = MediaType.valueOf("text/plain");
 		gson = new GsonBuilder().serializeNulls().setExclusionStrategies(new FeatureExclusionStrategy()).create();
+//		gson = new Gson();
 		gsonBuilder = new GsonBuilder();
 		logger = new Logger();
 		logger.setLevel(Logger.DEBUG_LEVEL);
@@ -383,7 +384,7 @@ public class GenericRestWSServer implements IWSServer {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private Response generateResponse(String queryString, List features) throws IOException {
+	protected Response generateResponse(String queryString, List features) throws IOException {
 		String response = "";
 		if (contentFormat != null) {
 			if(contentFormat.equalsIgnoreCase("txt") || contentFormat.equalsIgnoreCase("text") || contentFormat.equalsIgnoreCase("jsontext")) {

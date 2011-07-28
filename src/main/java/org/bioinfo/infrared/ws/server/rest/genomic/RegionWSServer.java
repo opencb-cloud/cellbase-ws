@@ -102,8 +102,8 @@ public class RegionWSServer extends GenericRestWSServer {
 	public Response getSequenceByRegion(@PathParam("chrRegionId") String chregionId) {
 		try {
 			Region region = Region.parseRegion(chregionId);
-			String sequence = GenomeSequenceDataAdapter.getSequenceByRegion(region.getChromosome(), region.getStart(), region.getEnd());
-			return  Response.ok("var response = \"" +sequence + "\"").build(); //generateResponse(criteria);
+			List sequences = GenomeSequenceDataAdapter.getSequenceByRegion(region.getChromosome(), region.getStart() + 1, region.getEnd());
+			return this.generateResponse(chregionId, sequences);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();

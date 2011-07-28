@@ -7,12 +7,19 @@ public class FeatureExclusionStrategy implements ExclusionStrategy {
 
 	@Override
 	public boolean shouldSkipClass(Class<?> arg0) {
-		if (arg0.isInterface()) return true;
+//		if (arg0.isInterface()){
+//			System.out.println(arg0.getName());
+//			return true;
+//		}
 		return false;
 	}
 
 	@Override
 	public boolean shouldSkipField(FieldAttributes arg0) {
+		if (arg0.getDeclaredType().toString().contains("infrared")){
+			System.out.println("--> " +arg0.getDeclaredType().toString());
+			return true;
+		}
 		return false;
 	}
 
