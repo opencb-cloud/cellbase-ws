@@ -17,6 +17,7 @@ import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.infrared.core.Exon;
 import org.bioinfo.infrared.core.Exon2transcript;
 import org.bioinfo.infrared.core.Gene;
+import org.bioinfo.infrared.core.GeneDataAdapter;
 import org.bioinfo.infrared.core.Orthologous;
 import org.bioinfo.infrared.core.Transcript;
 import org.bioinfo.infrared.dao.GenomeSequenceDataAdapter;
@@ -38,19 +39,13 @@ public class GeneWSServer extends FeatureWSServer {
 		super(version, species, uriInfo);
 	}
 	
+	public static GeneDataAdapter geneDBManager = new GeneDataAdapter();
 	
 	@GET
 	@Path("/{geneId}/info")
 	public Response getByEnsemblId(@PathParam("geneId") String geneId) {
 		try {
-			List<String> identifiers = StringUtils.toList(geneId, ",");
-			Criteria criteria = this.getSession().createCriteria(Gene.class);
-			Disjunction disjunction = Restrictions.disjunction();
-			for (String id : identifiers) {
-				disjunction.add(Restrictions.eq("stableId", id.trim()));
-			}
-			criteria.add(disjunction).setFetchMode("transcript", FetchMode.JOIN);
-			return  generateResponse(criteria);
+			return  generateResponse(geneId, geneDBManager.getGeneByIds(geneId));//generateResponse(criteria);
 
 		} catch (Exception e) {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();

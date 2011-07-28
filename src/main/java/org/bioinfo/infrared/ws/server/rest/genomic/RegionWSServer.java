@@ -102,7 +102,7 @@ public class RegionWSServer extends GenericRestWSServer {
 	public Response getSequenceByRegion(@PathParam("chrRegionId") String chregionId) {
 		try {
 			Region region = Region.parseRegion(chregionId);
-			List sequences = GenomeSequenceDataAdapter.getSequenceByRegion(region.getChromosome(), region.getStart() + 1, region.getEnd());
+			List sequences = GenomeSequenceDataAdapter.getSequenceByRegion(region.getChromosome(), region.getStart(), region.getEnd());
 			return this.generateResponse(chregionId, sequences);
 		} catch (Exception e) {
 			e.printStackTrace();

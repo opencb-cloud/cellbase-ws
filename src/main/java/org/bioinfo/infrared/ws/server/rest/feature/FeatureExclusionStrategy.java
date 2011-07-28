@@ -17,7 +17,6 @@ public class FeatureExclusionStrategy implements ExclusionStrategy {
 	@Override
 	public boolean shouldSkipField(FieldAttributes arg0) {
 		if (arg0.getDeclaredType().toString().contains("infrared")){
-			System.out.println("--> " +arg0.getDeclaredType().toString());
 			return true;
 		}
 		return false;
