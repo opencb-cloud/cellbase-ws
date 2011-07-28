@@ -34,6 +34,9 @@ import com.sun.jersey.api.client.ClientResponse.Status;
 @Path("/{version}/{species}/feature/gene")
 @Produces("text/plain")
 public class GeneWSServer extends FeatureWSServer {
+	
+//	private GeneDBManager geneDBManager;
+	
 	public GeneWSServer(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo) throws VersionException, IOException {
 		super(version, species, uriInfo);
 	}
@@ -64,7 +67,7 @@ public class GeneWSServer extends FeatureWSServer {
 	@Path("/{geneId}/transcript")
 	public Response getTranscriptsByEnsemblId(@PathParam("geneId") String geneId) {
 		try {
-			
+//			geneDBManager.get...
 			Criteria criteria =  this.getSession().createCriteria(Transcript.class).setFetchMode("gene", FetchMode.SELECT)
 			.createCriteria("gene").add( Restrictions.eq("stableId", geneId));
 			return generateResponse(criteria);
@@ -115,6 +118,7 @@ public class GeneWSServer extends FeatureWSServer {
 			return generateResponse(criteria);
 		} catch (Exception e) {
 			e.printStackTrace();
+			logger.error("", StringUtils.getStackTrace(e));
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
 	}
