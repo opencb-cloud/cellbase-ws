@@ -18,9 +18,11 @@ import org.bioinfo.infrared.core.Exon;
 import org.bioinfo.infrared.core.Exon2transcript;
 import org.bioinfo.infrared.core.Gene;
 import org.bioinfo.infrared.core.GeneDataAdapter;
+import org.bioinfo.infrared.core.TranscriptDataAdapter;
 import org.bioinfo.infrared.core.Orthologous;
 import org.bioinfo.infrared.core.Transcript;
 import org.bioinfo.infrared.dao.GenomeSequenceDataAdapter;
+import org.bioinfo.infrared.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
@@ -34,18 +36,19 @@ import com.sun.jersey.api.client.ClientResponse.Status;
 
 @Path("/{version}/{species}/feature/gene")
 @Produces("text/plain")
-public class GeneWSServer extends FeatureWSServer {
+public class GeneWSServer extends GenericRestWSServer {
+	
+	
 	public GeneWSServer(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo) throws VersionException, IOException {
 		super(version, species, uriInfo);
 	}
 	
-	public static GeneDataAdapter geneDBManager = new GeneDataAdapter();
 	
 	@GET
 	@Path("/{geneId}/info")
 	public Response getByEnsemblId(@PathParam("geneId") String geneId) {
 		try {
-			return  generateResponse(geneId, geneDBManager.getGeneByIds(geneId));//generateResponse(criteria);
+			return  generateResponse(geneId, new GeneDataAdapter().getGeneByIds(geneId));//generateResponse(criteria);
 
 		} catch (Exception e) {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
@@ -53,16 +56,12 @@ public class GeneWSServer extends FeatureWSServer {
 	}
 	
 	
-	
 
 	@GET
 	@Path("/{geneId}/transcript")
-	public Response getTranscriptsByEnsemblId(@PathParam("geneId") String geneId) {
+	public Response getTranscriptsByEnsemblId(@PathParam("geneId") String query) {
 		try {
-			
-			Criteria criteria =  this.getSession().createCriteria(Transcript.class).setFetchMode("gene", FetchMode.SELECT)
-			.createCriteria("gene").add( Restrictions.eq("stableId", geneId));
-			return generateResponse(criteria);
+			return  generateResponse(query, new TranscriptDataAdapter().getByGenes(query));
 		} catch (Exception e) {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
@@ -110,6 +109,7 @@ public class GeneWSServer extends FeatureWSServer {
 			return generateResponse(criteria);
 		} catch (Exception e) {
 			e.printStackTrace();
+			logger.error("", StringUtils.getStackTrace(e));
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
 	}

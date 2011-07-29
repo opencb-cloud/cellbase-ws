@@ -14,6 +14,7 @@ import javax.ws.rs.core.UriInfo;
 import org.bioinfo.infrared.core.Cytoband;
 import org.bioinfo.infrared.core.Exon;
 import org.bioinfo.infrared.core.Gene;
+import org.bioinfo.infrared.core.GeneDataAdapter;
 import org.bioinfo.infrared.core.Orthologous;
 import org.bioinfo.infrared.core.Snp;
 import org.bioinfo.infrared.core.Transcript;
@@ -41,8 +42,7 @@ public class RegionWSServer extends GenericRestWSServer {
 	@Path("/{chrRegionId}/gene")
 	public Response getGenesByRegion(@PathParam("chrRegionId") String chregionId) {
 		try {
-			Criteria criteria =  this.getSession().createCriteria(Gene.class);
-			return getFeaturesByRegion(chregionId, criteria);
+			return generateResponse(chregionId, new GeneDataAdapter().getGeneByRegion(chregionId));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
