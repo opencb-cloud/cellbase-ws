@@ -17,6 +17,7 @@ import org.bioinfo.infrared.core.OrthologousDBAdapter;
 import org.bioinfo.infrared.core.Exon2TranscriptDBAdapter;
 import org.bioinfo.infrared.core.TranscriptDBAdapter;
 import org.bioinfo.infrared.common.dao.GenomeSequenceDataAdapter;
+import org.bioinfo.infrared.dao.utils.HibernateUtil;
 import org.bioinfo.infrared.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
 
@@ -25,6 +26,7 @@ import com.sun.jersey.api.client.ClientResponse.Status;
 @Path("/{version}/{species}/feature/gene")
 @Produces("text/plain")
 public class GeneWSServer extends GenericRestWSServer {
+	
 	
 	
 	public GeneWSServer(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo) throws VersionException, IOException {

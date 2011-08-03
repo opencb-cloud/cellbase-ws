@@ -34,12 +34,15 @@ import org.hibernate.classic.Session;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
+//import org.bioinfo.infrared.serialization;
+import org.bioinfo.infrared.serialization.*;
 
 @Path("/{version}")
 @Produces("text/plain")
 public class GenericRestWSServer implements IWSServer {
 
+	
+	
 	protected Config config;
 
 	// application parameters
@@ -141,6 +144,7 @@ public class GenericRestWSServer implements IWSServer {
 		// load properties file
 		ResourceBundle databaseConfig = ResourceBundle.getBundle("org.bioinfo.infrared.ws.application");
 		config = new Config(databaseConfig);
+		
 
 		mediaType = MediaType.valueOf("text/plain");
 		gson = new GsonBuilder().serializeNulls().setExclusionStrategies(new FeatureExclusionStrategy()).create();
@@ -393,6 +397,8 @@ public class GenericRestWSServer implements IWSServer {
 					response = convertToJsonText(response);
 				}else {
 					mediaType = MediaType.TEXT_PLAIN_TYPE;
+					logger.info("Serializando ? ");
+					response = InfraredSerializer.serialize(features);
 				}
 			}
 
