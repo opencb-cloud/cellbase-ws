@@ -1,5 +1,6 @@
 package org.bioinfo.infrared.ws.server.rest;
 
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -27,7 +28,6 @@ import org.bioinfo.commons.utils.ListUtils;
 import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.infrared.dao.utils.HibernateUtil;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
-import org.bioinfo.infrared.ws.server.rest.feature.FeatureExclusionStrategy;
 import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.classic.Session;
@@ -389,6 +389,10 @@ public class GenericRestWSServer implements IWSServer {
 	
 	@SuppressWarnings("unchecked")
 	protected Response generateResponse(String queryString, List features) throws IOException {
+		logger.info("-------------");
+		logger.info(queryString);
+		logger.info(features.toString());
+		
 		String response = "";
 		if (contentFormat != null) {
 			if(contentFormat.equalsIgnoreCase("txt") || contentFormat.equalsIgnoreCase("text") || contentFormat.equalsIgnoreCase("jsontext")) {

@@ -10,6 +10,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+
+import org.bioinfo.infrared.common.dao.GenomeSequenceFeatureDataAdapter;
 import org.bioinfo.infrared.common.dao.Region;
 import org.bioinfo.infrared.core.Cytoband;
 import org.bioinfo.infrared.core.Exon;
@@ -21,6 +23,7 @@ import org.bioinfo.infrared.core.Orthologous;
 import org.bioinfo.infrared.core.Snp;
 import org.bioinfo.infrared.core.Transcript;
 import org.bioinfo.infrared.core.TranscriptDBAdapter;
+import org.bioinfo.infrared.core.SnpDBAdapter;
 import org.bioinfo.infrared.common.dao.GenomeSequenceDataAdapter;
 import org.bioinfo.infrared.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
@@ -45,6 +48,17 @@ public class RegionWSServer extends GenericRestWSServer {
 	public Response getGenesByRegion(@PathParam("chrRegionId") String chregionId) {
 		try {
 			return generateResponse(chregionId, new GeneDBAdapter().getGeneByRegion(chregionId));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		}
+	}
+	
+	@GET
+	@Path("/{chrRegionId}/snp")
+	public Response getSnpByRegion(@PathParam("chrRegionId") String chregionId) {
+		try {
+			return generateResponse(chregionId, new SnpDBAdapter().getSnpByRegion(chregionId));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
@@ -111,6 +125,21 @@ public class RegionWSServer extends GenericRestWSServer {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
 	}
+	
+	@GET
+	@Path("/{chrRegionId}/sequencecode")
+	public Response getSequenceCodeByRegion(@PathParam("chrRegionId") String chregionId) {
+		try {
+			List<Region> regions = Region.parseRegions(chregionId);
+			List sequences =  GenomeSequenceFeatureDataAdapter.getByRegionList(regions);
+			return this.generateResponse(chregionId, sequences);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		}
+	}
+	
+	
 	
 	
 	

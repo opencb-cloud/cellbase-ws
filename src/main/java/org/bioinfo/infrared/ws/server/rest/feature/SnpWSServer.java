@@ -12,8 +12,10 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.bioinfo.commons.utils.StringUtils;
+import org.bioinfo.infrared.core.GeneDBAdapter;
 import org.bioinfo.infrared.core.PopulationFrequency;
 import org.bioinfo.infrared.core.Snp;
+import org.bioinfo.infrared.core.SnpDBAdapter;
 import org.bioinfo.infrared.core.Transcript;
 import org.bioinfo.infrared.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
@@ -31,6 +33,16 @@ public class SnpWSServer extends GenericRestWSServer {
 		super(version, species, uriInfo);
 	}
 	
+	@GET
+	@Path("/{snpId}/info")
+	public Response getByEnsemblId(@PathParam("snpId") String query) {
+		try {
+			return  generateResponse(query, new SnpDBAdapter().getGeneByIdList(StringUtils.toList(query, ",")));
+		} catch (Exception e) {
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		}
+	}
+
 	
 //	@GET
 //	@Path("/{snpId}/info")
