@@ -5,7 +5,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Type;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -27,6 +26,9 @@ import org.bioinfo.commons.log.Logger;
 import org.bioinfo.commons.utils.ListUtils;
 import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.infrared.dao.utils.HibernateUtil;
+import org.bioinfo.infrared.lib.impl.DBAdaptorFactory;
+import org.bioinfo.infrared.lib.impl.hibernate.HibernateDBAdaptorFactory;
+import org.bioinfo.infrared.serialization.InfraredSerializer;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
 import org.hibernate.Criteria;
 import org.hibernate.Query;
@@ -34,8 +36,6 @@ import org.hibernate.classic.Session;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-//import org.bioinfo.infrared.serialization;
-import org.bioinfo.infrared.serialization.*;
 
 @Path("/{version}")
 @Produces("text/plain")
@@ -75,7 +75,7 @@ public class GenericRestWSServer implements IWSServer {
 
 	protected Type listType;
 
-	private MediaType mediaType;
+//	private MediaType mediaType;
 	private Gson gson; 
 	private GsonBuilder gsonBuilder;
 	protected Logger logger;
@@ -83,12 +83,22 @@ public class GenericRestWSServer implements IWSServer {
 
 	private static final String NEW_LINE = "newline";
 	private static final String TAB = "tab";
+	
+	
+	protected static DBAdaptorFactory HibernateDBAdaptorFactory;
+	static{
+		HibernateDBAdaptorFactory = new HibernateDBAdaptorFactory();
+	}
 
 	public GenericRestWSServer(@PathParam("version") String version) {
 		this.version = version;
 	}
 
 	public GenericRestWSServer(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo) throws VersionException, IOException {
+		this.version = version;
+		this.species = species;
+		this.uriInfo = uriInfo;
+		
 		if(version != null && species != null) {
 			init(version, species, uriInfo);
 		}
@@ -136,19 +146,17 @@ public class GenericRestWSServer implements IWSServer {
 	}
 
 	protected void init(String version, String species, UriInfo uriInfo) throws VersionException, IOException {
-		this.version = version;
-		this.species = species;
-		this.uriInfo = uriInfo;
+	
 
 
 		// load properties file
 		ResourceBundle databaseConfig = ResourceBundle.getBundle("org.bioinfo.infrared.ws.application");
 		config = new Config(databaseConfig);
 		
+		
 
-		mediaType = MediaType.valueOf("text/plain");
+//		mediaType = MediaType.valueOf("text/plain");
 		gson = new GsonBuilder().serializeNulls().setExclusionStrategies(new FeatureExclusionStrategy()).create();
-//		gson = new Gson();
 		gsonBuilder = new GsonBuilder();
 		logger = new Logger();
 		logger.setLevel(Logger.DEBUG_LEVEL);
@@ -159,8 +167,6 @@ public class GenericRestWSServer implements IWSServer {
 	}
 
 	private void parseCommonQueryParameters(MultivaluedMap<String, String> multivaluedMap) {
-		// default result separator is '//'
-		// resultSeparator = (multivaluedMap.get("result_separator") != null) ? multivaluedMap.get("result_separator").get(0) : "//";
 		if(multivaluedMap.get("result_separator") != null) {
 			if(multivaluedMap.get("result_separator").get(0).equalsIgnoreCase(NEW_LINE)) {
 				resultSeparator = "\n";				
@@ -218,7 +224,8 @@ public class GenericRestWSServer implements IWSServer {
 		logger.info("-------------");
 		logger.info(queryString);
 		logger.info(features.toString());
-		
+		MediaType mediaType = MediaType.valueOf("text/plain");
+		 
 		String response = "";
 		if (contentFormat != null) {
 			if(contentFormat.equalsIgnoreCase("txt") || contentFormat.equalsIgnoreCase("text") || contentFormat.equalsIgnoreCase("jsontext")) {
@@ -254,10 +261,10 @@ public class GenericRestWSServer implements IWSServer {
 			}
 		}
 
-		return createResponse(response);
+		return createResponse(response, mediaType);
 	}
 	
-	private Response createResponse(String response) throws IOException {
+	private Response createResponse(String response, MediaType mediaType) throws IOException {
 		logger.debug("\tQuery Params");
 		logger.debug("\t\t - FileFormat: " + fileFormat);
 		logger.debug("\t\t - ContentFormat: " + contentFormat);
@@ -317,12 +324,28 @@ public class GenericRestWSServer implements IWSServer {
 		return Response.ok(response, mediaType).build();
 	}
 
+	/*
+	 protected Response createErrorResponse(String errorMessage) {
+         return Response.ok("An error occurred: "+errorMessage, MediaType.valueOf("text/plain")).header("Access-Control-Allow-Origin", "*").build();
+	 }
+	
+	 protected Response createOkResponse(Object obj){                
+	         return Response.ok(obj).header("Access-Control-Allow-Origin", "*").build();
+	 }
+	 
+	 protected Response createOkResponse(Object obj, MediaType mediaType){
+	         return Response.ok(obj, mediaType).header("Access-Control-Allow-Origin", "*").build();
+	 }
+	 
+	 protected Response createOkResponse(Object obj, MediaType mediaType, String fileName){
+	         return Response.ok(obj, mediaType).header("content-disposition","attachment; filename ="+fileName).header("Access-Control-Allow-Origin", "*").build();
+	 }
 	
 
 	protected Response generateErrorResponse(String errorMessage) {
 		return Response.ok("An error occurred: "+errorMessage, MediaType.valueOf("text/plain")).build();
 	}
-
+*/
 
 	private String convertToJsonText(String response) {
 		String jsonpQueryParam = (uriInfo.getQueryParameters().get("callbackParam") != null) ? uriInfo.getQueryParameters().get("callbackParam").get(0) : "callbackParam";
