@@ -85,9 +85,9 @@ public class GenericRestWSServer implements IWSServer {
 	private static final String TAB = "tab";
 	
 	
-	protected static DBAdaptorFactory HibernateDBAdaptorFactory;
+	protected static DBAdaptorFactory DBAdaptorFactory;
 	static{
-		HibernateDBAdaptorFactory = new HibernateDBAdaptorFactory();
+		DBAdaptorFactory = new HibernateDBAdaptorFactory();
 	}
 
 	public GenericRestWSServer(@PathParam("version") String version) {

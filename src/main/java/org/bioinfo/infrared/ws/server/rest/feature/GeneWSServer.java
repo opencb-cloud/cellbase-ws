@@ -27,7 +27,7 @@ public class GeneWSServer extends GenericRestWSServer {
 	
 	
 	private GeneDBAdaptor getGeneDBAdaptor(){
-		return HibernateDBAdaptorFactory.getGeneDBAdaptor(this.species);
+		return DBAdaptorFactory.getGeneDBAdaptor(this.species, this.version);
 	}
 	
 	@GET
