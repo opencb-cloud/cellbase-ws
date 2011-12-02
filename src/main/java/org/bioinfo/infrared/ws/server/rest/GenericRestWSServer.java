@@ -4,6 +4,7 @@ package org.bioinfo.infrared.ws.server.rest;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.StringWriter;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -223,7 +224,7 @@ public class GenericRestWSServer implements IWSServer {
 	protected Response generateResponse(String queryString, List features) throws IOException {
 		logger.info("-------------");
 		logger.info(queryString);
-		logger.info(features.toString());
+//		logger.info(features.toString());
 		MediaType mediaType = MediaType.valueOf("text/plain");
 		 
 		String response = "";
@@ -234,7 +235,7 @@ public class GenericRestWSServer implements IWSServer {
 					response = convertToJsonText(response);
 				}else {
 					mediaType = MediaType.TEXT_PLAIN_TYPE;
-					response = InfraredSerializer.serialize(features);
+					response = org.bioinfo.infrared.lib.io.output.StringWriter.serialize(features);
 				}
 			}
 

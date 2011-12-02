@@ -11,6 +11,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.infrared.lib.api.GeneDBAdaptor;
 import org.bioinfo.infrared.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
@@ -27,24 +28,28 @@ public class GeneWSServer extends GenericRestWSServer {
 	
 	
 	private GeneDBAdaptor getGeneDBAdaptor(){
-		return DBAdaptorFactory.getGeneDBAdaptor(this.species, this.version);
+		return DBAdaptorFactory.getGeneDBAdaptor(this.species);
 	}
 	
 	@GET
 	@Path("/{geneId}/info")
 	public Response getByEnsemblId(@PathParam("geneId") String query) {
 		try {
-			return generateResponse(query, Arrays.asList(this.getGeneDBAdaptor().getByEnsemblId(query)));
+			return generateResponse(query, Arrays.asList(this.getGeneDBAdaptor().getAllByEnsemblIdList(StringUtils.toList(query, ","))));
 		} catch (Exception e) {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	@GET
 	@Path("/{geneId}/transcript")
 	public Response getTranscriptsByEnsemblId(@PathParam("geneId") String query) {
 		try {
-			return  generateResponse(query, Arrays.asList(this.getGeneDBAdaptor().getAllByEnsemblTranscriptIdList(Arrays.asList(query))));
+			return  generateResponse(query, Arrays.asList( 
+					DBAdaptorFactory
+					.getTranscriptDBAdaptor(this.species)
+					.getByEnsemblGeneId(query)));
 		} catch (Exception e) {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}

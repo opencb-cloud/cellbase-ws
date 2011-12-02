@@ -1,6 +1,7 @@
 package org.bioinfo.infrared.ws.server.rest.feature;
 
 import java.io.IOException;
+import java.util.List;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -10,8 +11,12 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import org.bioinfo.infrared.lib.api.CytobandDBAdaptor;
+import org.bioinfo.infrared.lib.common.Region;
 import org.bioinfo.infrared.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
+
+import com.sun.jersey.api.client.ClientResponse.Status;
 
 @Path("/{version}/{species}/feature/karyotype")
 @Produces("text/plain")
@@ -25,30 +30,32 @@ public class KaryotypeWSServer extends GenericRestWSServer {
 	
 	@GET
 	@Path("/{chromosomeName}/cytoband")
-	public Response getByEnsemblId(@PathParam("chromosomeName") String query) {
-		return null;
-//		try {
-//			return  generateResponse(query, new CytobandDBAdapter().getByChromosome(StringUtils.toList(query, ",")));
-//		} catch (Exception e) {
-//			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
-//		}
+	public Response getByChromosomeName(@PathParam("chromosomeName") String chromosome) {
+		try {
+			CytobandDBAdaptor dbAdaptor = DBAdaptorFactory.getCytobandDBAdaptor(this.species);
+			return generateResponse(chromosome, dbAdaptor.getAllByRegion(chromosome));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		}
 	}
 	
 	@GET
 	@Path("/chromosome")
 	public Response getChromosomes() {
-		return null;
-//		try {
-//			return  generateResponse("query", new CytobandDBAdapter().getChromosomes());
-//		} catch (Exception e) {
-//			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
-//		}
+		try {
+			CytobandDBAdaptor dbAdaptor = DBAdaptorFactory.getCytobandDBAdaptor(this.species);
+			return generateResponse("", dbAdaptor.getAllChromosomesName());
+		} catch (Exception e) {
+			e.printStackTrace();
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		}
 	}
 
 	@GET
 	@Path("/{chromosomeName}/chromosome")
 	public Response getChromosomes(@PathParam("chromosomeName") String query) {
-		return null;
+		return getChromosomes();
 //		try {
 //			return getChromosomes();
 //		} catch (Exception e) {
