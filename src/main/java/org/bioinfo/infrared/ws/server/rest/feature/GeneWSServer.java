@@ -28,7 +28,7 @@ public class GeneWSServer extends GenericRestWSServer {
 	
 	
 	private GeneDBAdaptor getGeneDBAdaptor(){
-		return DBAdaptorFactory.getGeneDBAdaptor(this.species);
+		return dbAdaptorFactory.getGeneDBAdaptor(this.species);
 	}
 	
 	@GET
@@ -47,7 +47,7 @@ public class GeneWSServer extends GenericRestWSServer {
 	public Response getTranscriptsByEnsemblId(@PathParam("geneId") String query) {
 		try {
 			return  generateResponse(query, Arrays.asList( 
-					DBAdaptorFactory
+					dbAdaptorFactory
 					.getTranscriptDBAdaptor(this.species)
 					.getByEnsemblGeneId(query)));
 		} catch (Exception e) {

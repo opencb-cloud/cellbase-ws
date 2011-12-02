@@ -34,7 +34,7 @@ public class RegionWSServer extends GenericRestWSServer {
 	@GET
 	@Path("/{chrRegionId}/gene")
 	public Response getGenesByRegion(@PathParam("chrRegionId") String chregionId) {
-		GeneDBAdaptor dbAdaptor = DBAdaptorFactory.getGeneDBAdaptor(this.species);
+		GeneDBAdaptor dbAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species);
 		List<Region> regions = Region.parseRegions(chregionId);
 		try {
 			return generateResponse(chregionId, dbAdaptor.getAllByRegionList(regions));
@@ -48,7 +48,7 @@ public class RegionWSServer extends GenericRestWSServer {
 	@GET
 	@Path("/{chrRegionId}/transcript")
 	public Response getTranscriptByRegion(@PathParam("chrRegionId") String chregionId) {
-		TranscriptDBAdaptor dbAdaptor = DBAdaptorFactory.getTranscriptDBAdaptor(this.species);
+		TranscriptDBAdaptor dbAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
 		List<Region> regions = Region.parseRegions(chregionId);
 		try {
 			return generateResponse(chregionId, dbAdaptor.getAllByRegionList(regions));
@@ -62,7 +62,7 @@ public class RegionWSServer extends GenericRestWSServer {
 	@GET
 	@Path("/{chrRegionId}/exon")
 	public Response getExonByRegion(@PathParam("chrRegionId") String chregionId) {
-		ExonDBAdaptor dbAdaptor = DBAdaptorFactory.getExonDBAdaptor(this.species);
+		ExonDBAdaptor dbAdaptor = dbAdaptorFactory.getExonDBAdaptor(this.species);
 		List<Region> regions = Region.parseRegions(chregionId);
 		try {
 			return generateResponse(chregionId, dbAdaptor.getAllByRegionList(regions));
@@ -76,7 +76,7 @@ public class RegionWSServer extends GenericRestWSServer {
 	@GET
 	@Path("/{chrRegionId}/snp")
 	public Response getSnpByRegion(@PathParam("chrRegionId") String chregionId) {
-		SnpDBAdaptor dbAdaptor = DBAdaptorFactory.getSnpDBAdaptor(this.species);
+		SnpDBAdaptor dbAdaptor = dbAdaptorFactory.getSnpDBAdaptor(this.species);
 		List<Region> regions = Region.parseRegions(chregionId);
 		try {
 			return generateResponse(chregionId, dbAdaptor.getAllByRegionList(regions));
@@ -91,7 +91,7 @@ public class RegionWSServer extends GenericRestWSServer {
 	public Response getCytobandByRegion(@PathParam("chrRegionId") String chregionId) {
 		try {
 			List<Region> regions = Region.parseRegions(chregionId);
-			CytobandDBAdaptor dbAdaptor = DBAdaptorFactory.getCytobandDBAdaptor(this.species);
+			CytobandDBAdaptor dbAdaptor = dbAdaptorFactory.getCytobandDBAdaptor(this.species);
 			System.out.println("asdasdadas111 " + dbAdaptor);
 			return generateResponse(chregionId, dbAdaptor.getAllByRegionList(regions));
 		} catch (Exception e) {
@@ -107,7 +107,7 @@ public class RegionWSServer extends GenericRestWSServer {
 	public Response getSequenceByRegion(@PathParam("chrRegionId") String chregionId) {
 		try {
 			List<Region> regions = Region.parseRegions(chregionId);
-			GenomeSequenceDBAdaptor dbAdaptor =  DBAdaptorFactory.getGenomeSequenceDBAdaptor(this.species);
+			GenomeSequenceDBAdaptor dbAdaptor =  dbAdaptorFactory.getGenomeSequenceDBAdaptor(this.species);
 			return this.generateResponse(chregionId, dbAdaptor.getByRegionList(regions));
 		} catch (Exception e) {
 			e.printStackTrace();

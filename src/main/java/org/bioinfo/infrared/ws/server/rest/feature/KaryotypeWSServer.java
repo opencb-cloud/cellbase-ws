@@ -32,7 +32,7 @@ public class KaryotypeWSServer extends GenericRestWSServer {
 	@Path("/{chromosomeName}/cytoband")
 	public Response getByChromosomeName(@PathParam("chromosomeName") String chromosome) {
 		try {
-			CytobandDBAdaptor dbAdaptor = DBAdaptorFactory.getCytobandDBAdaptor(this.species);
+			CytobandDBAdaptor dbAdaptor = dbAdaptorFactory.getCytobandDBAdaptor(this.species);
 			return generateResponse(chromosome, dbAdaptor.getAllByRegion(chromosome));
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -44,7 +44,7 @@ public class KaryotypeWSServer extends GenericRestWSServer {
 	@Path("/chromosome")
 	public Response getChromosomes() {
 		try {
-			CytobandDBAdaptor dbAdaptor = DBAdaptorFactory.getCytobandDBAdaptor(this.species);
+			CytobandDBAdaptor dbAdaptor = dbAdaptorFactory.getCytobandDBAdaptor(this.species);
 			return generateResponse("", dbAdaptor.getAllChromosomesName());
 		} catch (Exception e) {
 			e.printStackTrace();
