@@ -24,7 +24,7 @@ import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 
-@Path("/{version}/{species}/genomic/chregion/")
+@Path("/{version}/{species}/genomic/region/")
 @Produces("text/plain")
 public class RegionWSServer extends GenericRestWSServer {
 	public RegionWSServer(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo) throws VersionException, IOException {

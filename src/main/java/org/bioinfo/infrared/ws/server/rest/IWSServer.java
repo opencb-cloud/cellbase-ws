@@ -6,6 +6,12 @@ public interface IWSServer {
 	
 	public String help();
 	
+	/**
+	 * 
+	 * 
+	 * PATH("/stats")
+	 * @return
+	 */
 	public String stats();
 	
 }
