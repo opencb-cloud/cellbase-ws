@@ -11,7 +11,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import org.bioinfo.infrared.core.cellbase.Cytoband;
 import org.bioinfo.infrared.lib.api.ExonDBAdaptor;
 import org.bioinfo.infrared.lib.api.GeneDBAdaptor;
 import org.bioinfo.infrared.lib.api.SnpDBAdaptor;
@@ -19,11 +18,6 @@ import org.bioinfo.infrared.lib.api.TranscriptDBAdaptor;
 import org.bioinfo.infrared.lib.common.Region;
 import org.bioinfo.infrared.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
-import org.hibernate.Criteria;
-import org.hibernate.FetchMode;
-import org.hibernate.criterion.Conjunction;
-import org.hibernate.criterion.Disjunction;
-import org.hibernate.criterion.Restrictions;
 
 import com.sun.jersey.api.client.ClientResponse.Status;
 
@@ -38,7 +32,7 @@ public class RegionWSServer extends GenericRestWSServer {
 	@GET
 	@Path("/{chrRegionId}/gene")
 	public Response getGenesByRegion(@PathParam("chrRegionId") String chregionId) {
-		GeneDBAdaptor dbAdaptor = HibernateDBAdaptorFactory.getGeneDBAdaptor(this.species, this.version);
+		GeneDBAdaptor dbAdaptor = DBAdaptorFactory.getGeneDBAdaptor(this.species);
 		List<Region> regions = Region.parseRegions(chregionId);
 		try {
 			return generateResponse(chregionId, dbAdaptor.getAllByRegionList(regions));
@@ -52,7 +46,7 @@ public class RegionWSServer extends GenericRestWSServer {
 	@GET
 	@Path("/{chrRegionId}/snp")
 	public Response getSnpByRegion(@PathParam("chrRegionId") String chregionId) {
-		SnpDBAdaptor dbAdaptor = HibernateDBAdaptorFactory.getSnpDBAdaptor(this.species);
+		SnpDBAdaptor dbAdaptor = DBAdaptorFactory.getSnpDBAdaptor(this.species);
 		List<Region> regions = Region.parseRegions(chregionId);
 		try {
 			return generateResponse(chregionId, dbAdaptor.getAllByRegionList(regions));
@@ -65,7 +59,7 @@ public class RegionWSServer extends GenericRestWSServer {
 	@GET
 	@Path("/{chrRegionId}/transcript")
 	public Response getTranscriptByRegion(@PathParam("chrRegionId") String chregionId) {
-		TranscriptDBAdaptor dbAdaptor = HibernateDBAdaptorFactory.getTranscriptDBAdaptor(this.species);
+		TranscriptDBAdaptor dbAdaptor = DBAdaptorFactory.getTranscriptDBAdaptor(this.species);
 		List<Region> regions = Region.parseRegions(chregionId);
 		try {
 			return generateResponse(chregionId, dbAdaptor.getAllByRegionList(regions));
@@ -80,7 +74,7 @@ public class RegionWSServer extends GenericRestWSServer {
 	@GET
 	@Path("/{chrRegionId}/exon")
 	public Response getExonByRegion(@PathParam("chrRegionId") String chregionId) {
-		ExonDBAdaptor dbAdaptor = HibernateDBAdaptorFactory.getExonDBAdaptor(this.species);
+		ExonDBAdaptor dbAdaptor = DBAdaptorFactory.getExonDBAdaptor(this.species);
 		List<Region> regions = Region.parseRegions(chregionId);
 		try {
 			return generateResponse(chregionId, dbAdaptor.getAllByRegionList(regions));
@@ -90,19 +84,19 @@ public class RegionWSServer extends GenericRestWSServer {
 		}
 	}
 	
-	@GET
-	@Path("/{chrRegionId}/cytoband")
-	public Response getCytobandByRegion(@PathParam("chrRegionId") String chregionId) {
-		try {
-			List<Region> regions = Region.parseRegions(chregionId);
-			org.bioinfo.infrared.lib.api.CytobandDBAdaptor dbAdaptor = HibernateDBAdaptorFactory.getCytobandDBAdaptor(this.species);
-			
-			return generateResponse(chregionId, dbAdaptor.getAllByRegionList(regions));
-		} catch (Exception e) {
-			e.printStackTrace();
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
-		}
-	}
+//	@GET
+//	@Path("/{chrRegionId}/cytoband")
+//	public Response getCytobandByRegion(@PathParam("chrRegionId") String chregionId) {
+//		try {
+//			List<Region> regions = Region.parseRegions(chregionId);
+//			CytobandDBAdaptor dbAdaptor = DBAdaptorFactory.getCytobandDBAdaptor(this.species);
+//			
+//			return generateResponse(chregionId, dbAdaptor.getAllByRegionList(regions));
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+//		}
+//	}
 	
 //	
 //	@GET
