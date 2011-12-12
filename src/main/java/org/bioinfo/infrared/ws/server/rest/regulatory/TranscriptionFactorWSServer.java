@@ -9,16 +9,30 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 
-import org.bioinfo.infrared.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
 
-@Path("/{version}/{species}/regulatory")
-@Produces("text/plain")
-public class RegulatoryWSServer extends GenericRestWSServer {
 
-	public RegulatoryWSServer(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo) throws VersionException, IOException {
+@Path("/{version}/{species}/regulatory/tf")
+@Produces("text/plain")
+public class TranscriptionFactorWSServer extends RegulatoryWSServer {
+
+	
+	public TranscriptionFactorWSServer(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo) throws VersionException, IOException {
 		super(version, species, uriInfo);
 	}
+
+	@GET
+	@Path("/{tfId}/tfbs")
+	public String getAllTfbs() {
+		return null;
+	}
+	
+	@GET
+	@Path("/{tfId}/gene")
+	public String getAllGenes() {
+		return null;
+	}
+	
 	
 	@GET
 	@Path("/info")

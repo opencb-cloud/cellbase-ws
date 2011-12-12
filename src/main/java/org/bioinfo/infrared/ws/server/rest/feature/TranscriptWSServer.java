@@ -12,6 +12,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.bioinfo.commons.utils.StringUtils;
+import org.bioinfo.infrared.lib.api.ExonDBAdaptor;
 import org.bioinfo.infrared.lib.api.TranscriptDBAdaptor;
 import org.bioinfo.infrared.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
@@ -28,7 +29,7 @@ public class TranscriptWSServer extends GenericRestWSServer {
 	}
 	
 	private TranscriptDBAdaptor getTranscriptDBAdaptor(){
-		return DBAdaptorFactory.getTranscriptDBAdaptor(this.species);
+		return dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
 	}
 	
 	@GET
@@ -72,6 +73,23 @@ public class TranscriptWSServer extends GenericRestWSServer {
 	
 	
 	@GET
+	@Path("/{transcriptId}/fullinfo")
+	public Response getFullInfoByEnsemblId(@PathParam("transcriptId") String query) {
+		return null;
+//		try {
+			// bean
+			// gene
+			// exons
+			// snps
+			// xrefs
+//			System.out.println("transcriptId " + "info");
+//			return  generateResponse(query, new TranscriptDBAdapter().getByIdList(StringUtils.toList(query, ",")));
+//		} catch (Exception e) {
+//			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+//		}
+	}
+	
+	@GET
 	@Path("/{transcriptId}/gene")
 	public Response getByGene(@PathParam("transcriptId") String query) {
 		return null;
@@ -87,18 +105,13 @@ public class TranscriptWSServer extends GenericRestWSServer {
 	@GET
 	@Path("/{transcriptId}/exon")
 	public Response getExonsByEnsemblId2(@PathParam("transcriptId") String query) {
-		return null;
-//		try {
-//			return  generateResponse(query, new ExonDBAdapter().getByTranscriptIdList(StringUtils.toList(query, ",")));
-//			
-//			/** HQL 
-//			Query query = this.getSession().createQuery("select e from Exon e JOIN FETCH e.exon2transcripts et JOIN et.transcript t JOIN  t.gene g where g.stableId in :stable_id").setParameterList("stable_id", StringUtils.toList(geneId, ","));  
-//			return generateResponse(query);
-//			**/
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
-//		}
+		ExonDBAdaptor dbAdaptor = dbAdaptorFactory.getExonDBAdaptor(this.species);
+		try {
+			return  generateResponse(query, dbAdaptor.getByEnsemblTranscriptIdList(StringUtils.toList(query, ",")));
+		} catch (Exception e) {
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		}
+	
 	}
 	
 	@GET
