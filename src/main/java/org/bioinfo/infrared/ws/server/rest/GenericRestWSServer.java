@@ -77,7 +77,7 @@ public class GenericRestWSServer implements IWSServer {
 	protected Type listType;
 
 //	private MediaType mediaType;
-	private Gson gson; 
+	protected Gson gson; 
 	private GsonBuilder gsonBuilder;
 	protected Logger logger;
 
