@@ -39,7 +39,9 @@ public class GeneWSServer extends GenericRestWSServer {
 	@Path("/{geneId}/info")
 	public Response getByEnsemblId(@PathParam("geneId") String query) {
 		try {
-			return generateResponse(query, Arrays.asList(this.getGeneDBAdaptor().getAllByEnsemblIdList(StringUtils.toList(query, ","))));
+			return generateResponse(query, this.getGeneDBAdaptor().getAllByNameList(StringUtils.toList(query, ",")));
+			
+		//	return generateResponse(query, Arrays.asList(this.getGeneDBAdaptor().getAllByEnsemblIdList(StringUtils.toList(query, ","))));
 		} catch (Exception e) {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}

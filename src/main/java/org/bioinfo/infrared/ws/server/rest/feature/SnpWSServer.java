@@ -10,8 +10,12 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import org.bioinfo.commons.utils.StringUtils;
+import org.bioinfo.infrared.lib.api.SnpDBAdaptor;
 import org.bioinfo.infrared.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
+
+import com.sun.jersey.api.client.ClientResponse.Status;
 
 @Path("/{version}/{species}/feature/snp")
 @Produces("text/plain")
@@ -23,12 +27,14 @@ public class SnpWSServer extends GenericRestWSServer {
 	@GET
 	@Path("/{snpId}/info")
 	public Response getByEnsemblId(@PathParam("snpId") String query) {
-		return null;
-//		try {
-//			return  generateResponse(query, new SnpDBAdapter().getGeneByIdList(StringUtils.toList(query, ",")));
-//		} catch (Exception e) {
-//			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
-//		}
+		
+		try {
+			
+			SnpDBAdaptor adapter = dbAdaptorFactory.getSnpDBAdaptor(this.species);
+			return  generateResponse(query, adapter.getByDbSnpIdList(StringUtils.toList(query, ",")));
+		} catch (Exception e) {
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		}
 	}
 
 	

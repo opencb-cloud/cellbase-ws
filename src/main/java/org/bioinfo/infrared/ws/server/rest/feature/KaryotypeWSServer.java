@@ -11,6 +11,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.infrared.lib.api.CytobandDBAdaptor;
 import org.bioinfo.infrared.lib.common.Region;
 import org.bioinfo.infrared.ws.server.rest.GenericRestWSServer;
@@ -33,7 +34,7 @@ public class KaryotypeWSServer extends GenericRestWSServer {
 	public Response getByChromosomeName(@PathParam("chromosomeName") String chromosome) {
 		try {
 			CytobandDBAdaptor dbAdaptor = dbAdaptorFactory.getCytobandDBAdaptor(this.species);
-			return generateResponse(chromosome, dbAdaptor.getAllByRegion(chromosome));
+			return generateResponse(chromosome, dbAdaptor.getAllByChromosomeList(StringUtils.toList(chromosome, ",")));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
