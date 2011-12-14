@@ -2,6 +2,7 @@ package org.bioinfo.infrared.ws.server.rest.feature;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
@@ -10,12 +11,21 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.bioinfo.commons.utils.StringUtils;
+import org.bioinfo.infrared.core.cellbase.Exon;
+import org.bioinfo.infrared.core.cellbase.Gene;
+import org.bioinfo.infrared.core.cellbase.Snp;
+import org.bioinfo.infrared.core.cellbase.Transcript;
+import org.bioinfo.infrared.core.cellbase.Xref;
+import org.bioinfo.infrared.lib.api.ExonDBAdaptor;
 import org.bioinfo.infrared.lib.api.GeneDBAdaptor;
+import org.bioinfo.infrared.lib.api.SnpDBAdaptor;
 import org.bioinfo.infrared.lib.api.TranscriptDBAdaptor;
+import org.bioinfo.infrared.lib.api.XRefsDBAdaptor;
 import org.bioinfo.infrared.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
 
@@ -29,9 +39,20 @@ public class GeneWSServer extends GenericRestWSServer {
 		super(version, species, uriInfo);
 	}
 	
-	
 	private GeneDBAdaptor getGeneDBAdaptor(){
 		return dbAdaptorFactory.getGeneDBAdaptor(this.species);
+	}
+	private TranscriptDBAdaptor getTranscriptDBAdaptor(){
+		return dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
+	}
+	private ExonDBAdaptor getExonDBAdaptor(){
+		return dbAdaptorFactory.getExonDBAdaptor(this.species);
+	}
+	private SnpDBAdaptor getSnpDBAdaptor(){
+		return dbAdaptorFactory.getSnpDBAdaptor(this.species);
+	}
+	private XRefsDBAdaptor getXRefDBAdaptor(){
+		return dbAdaptorFactory.getXRefDBAdaptor(this.species);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -47,22 +68,44 @@ public class GeneWSServer extends GenericRestWSServer {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	@GET
 	@Path("/{geneId}/fullinfo")
 	public Response getFullInfoByEnsemblId(@PathParam("geneId") String query, @DefaultValue("") @QueryParam("sources") String sources) {
+		
 		try {
+			List<Gene> genes = getGeneDBAdaptor().getAllByEnsemblIdList(StringUtils.toList(query, ","));
+			List<List<Transcript>> transcriptList = getTranscriptDBAdaptor().getByEnsemblGeneIdList(StringUtils.toList(query, ","));
+			List<List<Xref>> goLists = getXRefDBAdaptor().getAllByDBName(StringUtils.toList(query, ","),"go");
+			List<List<Xref>> interproLists = getXRefDBAdaptor().getAllByDBName(StringUtils.toList(query, ","),"interpro");
+			List<List<Xref>> reactomeLists = getXRefDBAdaptor().getAllByDBName(StringUtils.toList(query, ","),"reactome");
 			
-			// getBean()
-			// getExons()
-			// List<Transcript> listT = TgetTranscripts()
-			// getXrefs()
-			// getSequence()
-			// ...
-			// for(T t: listT)  t.gene= null;
-			//g.setTranscriptList = listT;
-			// Serialize(g);   1 result per row!!  example:   transcript:    exons:  
-			return generateResponse(query, Arrays.asList(this.getGeneDBAdaptor().getAllByEnsemblIdList(StringUtils.toList(query, ","))));
+			StringBuilder response = new StringBuilder();
+			response.append("[");
+			for (int i = 0; i < genes.size(); i++) {		
+				response.append("{");
+				response.append("\"stableId\":"+"\""+genes.get(i).getStableId()+"\",");
+				response.append("\"externalName\":"+"\""+genes.get(i).getExternalName()+"\",");
+				response.append("\"externalDb\":"+"\""+genes.get(i).getExternalDb()+"\",");
+				response.append("\"biotype\":"+"\""+genes.get(i).getBiotype()+"\",");
+				response.append("\"status\":"+"\""+genes.get(i).getStatus()+"\",");
+				response.append("\"chromosome\":"+"\""+genes.get(i).getChromosome()+"\",");
+				response.append("\"start\":"+genes.get(i).getStart()+",");
+				response.append("\"end\":"+genes.get(i).getEnd()+",");
+				response.append("\"strand\":"+"\""+genes.get(i).getStrand()+"\",");
+				response.append("\"source\":"+"\""+genes.get(i).getSource()+"\",");
+				response.append("\"description\":"+"\""+genes.get(i).getDescription()+"\",");
+				response.append("\"transcripts\":"+gson.toJson(transcriptList.get(i))+",");
+				response.append("\"go\":"+gson.toJson(goLists.get(i))+",");
+				response.append("\"interpro\":"+gson.toJson(interproLists.get(i))+",");
+				response.append("\"reactome\":"+gson.toJson(reactomeLists.get(i))+"");
+				response.append("},");
+				
+			}
+			response.append("]");
+			
+			//Remove the last comma
+			response.replace(response.length()-2, response.length()-1, "");
+			return  generateResponse(query,Arrays.asList(response));
 		} catch (Exception e) {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}

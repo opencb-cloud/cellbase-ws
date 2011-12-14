@@ -13,12 +13,16 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.bioinfo.commons.utils.StringUtils;
+import org.bioinfo.infrared.core.cellbase.Exon;
 import org.bioinfo.infrared.core.cellbase.Gene;
+import org.bioinfo.infrared.core.cellbase.Snp;
 import org.bioinfo.infrared.core.cellbase.Transcript;
+import org.bioinfo.infrared.core.cellbase.Xref;
 import org.bioinfo.infrared.lib.api.ExonDBAdaptor;
 import org.bioinfo.infrared.lib.api.GeneDBAdaptor;
 import org.bioinfo.infrared.lib.api.SnpDBAdaptor;
 import org.bioinfo.infrared.lib.api.TranscriptDBAdaptor;
+import org.bioinfo.infrared.lib.api.XRefsDBAdaptor;
 import org.bioinfo.infrared.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
 
@@ -43,6 +47,9 @@ public class TranscriptWSServer extends GenericRestWSServer {
 	}
 	private SnpDBAdaptor getSnpDBAdaptor(){
 		return dbAdaptorFactory.getSnpDBAdaptor(this.species);
+	}
+	private XRefsDBAdaptor getXRefDBAdaptor(){
+		return dbAdaptorFactory.getXRefDBAdaptor(this.species);
 	}
 	
 	@GET
@@ -90,42 +97,45 @@ public class TranscriptWSServer extends GenericRestWSServer {
 	public Response getFullInfoByEnsemblId(@PathParam("transcriptId") String query) {
 		
 		try {
-			StringBuilder response = new StringBuilder();
 			List<Transcript> transcripts = getTranscriptDBAdaptor().getAllByEnsemblIdList(StringUtils.toList(query, ","));
+			List<Gene> genes = getGeneDBAdaptor().getAllByEnsemblTranscriptIdList(StringUtils.toList(query, ","));
+			List<List<Exon>> exonLists = getExonDBAdaptor().getByEnsemblTranscriptIdList(StringUtils.toList(query, ","));
+			List<List<Snp>> snpLists = getSnpDBAdaptor().getAllByEnsemblTranscriptIdList(StringUtils.toList(query, ","));
+			List<List<Xref>> goLists = getXRefDBAdaptor().getAllByDBName(StringUtils.toList(query, ","),"go");
+			List<List<Xref>> interproLists = getXRefDBAdaptor().getAllByDBName(StringUtils.toList(query, ","),"interpro");
+			List<List<Xref>> reactomeLists = getXRefDBAdaptor().getAllByDBName(StringUtils.toList(query, ","),"reactome");
+			
+			StringBuilder response = new StringBuilder();
 			response.append("[");
-			for(Transcript transcript: transcripts){
+			for (int i = 0; i < transcripts.size(); i++) {		
 				response.append("{");
-				response.append("\"stableId\":"+"\""+transcript.getStableId()+"\",");
-				response.append("\"externalName\":"+"\""+transcript.getExternalName()+"\",");
-				response.append("\"externalDb\":"+"\""+transcript.getExternalDb()+"\",");
-				response.append("\"biotype\":"+"\""+transcript.getBiotype()+"\",");
-				response.append("\"status\":"+"\""+transcript.getStatus()+"\",");
-				response.append("\"chromosome\":"+"\""+transcript.getChromosome()+"\",");
-				response.append("\"start\":"+transcript.getStart()+",");
-				response.append("\"end\":"+transcript.getEnd()+",");
-				response.append("\"strand\":"+"\""+transcript.getStrand()+"\",");
-				response.append("\"codingRegionStart\":"+transcript.getCodingRegionStart()+",");
-				response.append("\"codingRegionEnd\":"+transcript.getCodingRegionEnd()+",");
-				response.append("\"cdnaCodingStart\":"+transcript.getCdnaCodingStart()+",");
-				response.append("\"cdnaCodingEnd\":"+transcript.getCdnaCodingEnd()+",");
-				response.append("\"description\":"+"\""+transcript.getDescription()+"\",");
-				response.append("\"gene\":"+gson.toJson(getGeneDBAdaptor().getByEnsemblTranscriptId(query))+",");
-				response.append("\"exons\":"+gson.toJson(getExonDBAdaptor().getByEnsemblTranscriptId(query))+",");
-				response.append("\"snps\":"+gson.toJson(getSnpDBAdaptor().getAllByEnsemblTranscriptId(query))+"");
+				response.append("\"stableId\":"+"\""+transcripts.get(i).getStableId()+"\",");
+				response.append("\"externalName\":"+"\""+transcripts.get(i).getExternalName()+"\",");
+				response.append("\"externalDb\":"+"\""+transcripts.get(i).getExternalDb()+"\",");
+				response.append("\"biotype\":"+"\""+transcripts.get(i).getBiotype()+"\",");
+				response.append("\"status\":"+"\""+transcripts.get(i).getStatus()+"\",");
+				response.append("\"chromosome\":"+"\""+transcripts.get(i).getChromosome()+"\",");
+				response.append("\"start\":"+transcripts.get(i).getStart()+",");
+				response.append("\"end\":"+transcripts.get(i).getEnd()+",");
+				response.append("\"strand\":"+"\""+transcripts.get(i).getStrand()+"\",");
+				response.append("\"codingRegionStart\":"+transcripts.get(i).getCodingRegionStart()+",");
+				response.append("\"codingRegionEnd\":"+transcripts.get(i).getCodingRegionEnd()+",");
+				response.append("\"cdnaCodingStart\":"+transcripts.get(i).getCdnaCodingStart()+",");
+				response.append("\"cdnaCodingEnd\":"+transcripts.get(i).getCdnaCodingEnd()+",");
+				response.append("\"description\":"+"\""+transcripts.get(i).getDescription()+"\",");
+				response.append("\"gene\":"+gson.toJson(genes.get(i))+",");
+				response.append("\"exons\":"+gson.toJson(exonLists.get(i))+",");
+				response.append("\"snps\":"+gson.toJson(snpLists.get(i))+",");
+				response.append("\"go\":"+gson.toJson(goLists.get(i))+",");
+				response.append("\"interpro\":"+gson.toJson(interproLists.get(i))+",");
+				response.append("\"reactome\":"+gson.toJson(reactomeLists.get(i))+"");
 				response.append("},");
 			}
 			response.append("]");
 			
 			//Remove the last comma
 			response.replace(response.length()-2, response.length()-1, "");
-			
-			// bean
-			// gene
-			// exons
-			// snps
-			// xrefs TODO
-			
-			return createOkResponse(response.toString());
+			return  generateResponse(query,Arrays.asList(response));
 		} catch (Exception e) {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
