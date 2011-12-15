@@ -74,7 +74,7 @@
 
 	<build>
 		<sourceDirectory>src</sourceDirectory>
-		<finalName>infrared</finalName>
+		<finalName>celldb</finalName>
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
