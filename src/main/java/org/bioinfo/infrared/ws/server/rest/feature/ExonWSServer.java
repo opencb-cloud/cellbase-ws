@@ -35,9 +35,10 @@ public class ExonWSServer extends GenericRestWSServer {
 	@GET
 	@Path("/{exonId}/info")
 	public Response getByEnsemblId(@PathParam("exonId") String query) {
+		ExonDBAdaptor adaptor = dbAdaptorFactory.getExonDBAdaptor(this.species);
 		try {
-			return generateResponse(query, Arrays.asList(this.getExonDBAdaptor().getAllByEnsemblIdList(StringUtils.toList(query, ","))));
-		} catch (IOException e) {
+			return  generateResponse(query,adaptor.getAllByEnsemblIdList(StringUtils.toList(query, ",")));
+		} catch (Exception e) {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
 	}

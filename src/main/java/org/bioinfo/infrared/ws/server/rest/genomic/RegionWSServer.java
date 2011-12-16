@@ -92,7 +92,6 @@ public class RegionWSServer extends GenericRestWSServer {
 		try {
 			List<Region> regions = Region.parseRegions(chregionId);
 			CytobandDBAdaptor dbAdaptor = dbAdaptorFactory.getCytobandDBAdaptor(this.species);
-			System.out.println("asdasdadas111 " + dbAdaptor);
 			return generateResponse(chregionId, dbAdaptor.getAllByRegionList(regions));
 		} catch (Exception e) {
 			e.printStackTrace();
