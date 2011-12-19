@@ -24,15 +24,23 @@ public class TranscriptionFactorWSServer extends RegulatoryWSServer {
 	@GET
 	@Path("/{tfId}/tfbs")
 	public String getAllTfbs() {
+//		returns all TFBSs from a TF
 		return null;
 	}
 	
 	@GET
 	@Path("/{tfId}/gene")
 	public String getAllGenes() {
+//		returns all genes regulated by this TF
 		return null;
 	}
 	
+	@GET
+	@Path("/{tfId}/pwm")
+	public String getAllPwms() {
+//		returns all PWMs for this TF
+		return null;
+	}
 	
 	@GET
 	@Path("/info")
