@@ -129,9 +129,40 @@ public class RegionWSServer extends GenericRestWSServer {
 //		}
 	}
 	
+	@GET
+	@Path("/{chrRegionId}/regulatory")
+	public String getRegulatoryByRegion() {
+//		returns all Regulatory regions in this region
+		return null;
+	}
 	
+	@GET
+	@Path("/{chrRegionId}/tf")
+	public String getTfByRegion() {
+//		returns all TF binding in this region
+		return null;
+	}
+
+	@GET
+	@Path("/{chrRegionId}/histone")
+	public String getHistoneByRegion() {
+//		returns all histone binding in this region
+		return null;
+	}
 	
+	@GET
+	@Path("/{chrRegionId}/openchromatin")
+	public String getOpenChromatinByRegion() {
+//		returns all open chromatin regions in this region
+		return null;
+	}
 	
+	@GET
+	@Path("/{chrRegionId}/polymerase")
+	public String getPolymeraseByRegion() {
+//		returns all polymerase binding in this region
+		return null;
+	}
 	
 //	
 //	

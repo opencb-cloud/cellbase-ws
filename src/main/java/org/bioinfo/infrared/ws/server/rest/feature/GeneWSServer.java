@@ -54,6 +54,18 @@ public class GeneWSServer extends GenericRestWSServer {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
 	}
+	
+	@GET
+	@Path("/{geneId}/tf")
+	public String getAllTfbs() {
+		return null;
+	}
+	
+	@GET
+	@Path("/{geneId}/mirna")
+	public String getAllMirna() {
+		return null;
+	}
 
 //	@GET
 //	@Path("/{geneId}/exon")
