@@ -16,6 +16,7 @@ import org.bioinfo.infrared.lib.api.ExonDBAdaptor;
 import org.bioinfo.infrared.lib.api.GeneDBAdaptor;
 import org.bioinfo.infrared.lib.api.SnpDBAdaptor;
 import org.bioinfo.infrared.lib.api.TranscriptDBAdaptor;
+import org.bioinfo.infrared.lib.common.GenomeSequenceFeature;
 import org.bioinfo.infrared.lib.common.Region;
 import org.bioinfo.infrared.lib.impl.hibernate.GenomeSequenceDBAdaptor;
 import org.bioinfo.infrared.ws.server.rest.GenericRestWSServer;
@@ -24,9 +25,10 @@ import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 
-@Path("/{version}/{species}/genomic/region/")
+@Path("/{version}/{species}/genomic/region")
 @Produces("text/plain")
 public class RegionWSServer extends GenericRestWSServer {
+	
 	public RegionWSServer(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo) throws VersionException, IOException {
 		super(version, species, uriInfo);
 	}
@@ -115,6 +117,21 @@ public class RegionWSServer extends GenericRestWSServer {
 	}
 	
 	@GET
+	@Path("/{chrRegionId}/reverse")
+	public Response getReverseSequenceByRegion(@PathParam("chrRegionId") String chregionId) {
+		try {
+			List<Region> regions = Region.parseRegions(chregionId);
+			GenomeSequenceDBAdaptor dbAdaptor =  dbAdaptorFactory.getGenomeSequenceDBAdaptor(this.species);
+			List<GenomeSequenceFeature> result = dbAdaptor.getByRegionList(regions, -1);
+			return this.generateResponse(chregionId, result);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		}
+	}
+	
+	
+	@GET
 	@Path("/{chrRegionId}/sequencecode")
 	public Response getSequenceCodeByRegion(@PathParam("chrRegionId") String chregionId) {
 		return null;
@@ -128,9 +145,40 @@ public class RegionWSServer extends GenericRestWSServer {
 //		}
 	}
 	
+	@GET
+	@Path("/{chrRegionId}/regulatory")
+	public String getRegulatoryByRegion() {
+//		returns all Regulatory regions in this region
+		return null;
+	}
 	
+	@GET
+	@Path("/{chrRegionId}/tf")
+	public String getTfByRegion() {
+//		returns all TF binding in this region
+		return null;
+	}
+
+	@GET
+	@Path("/{chrRegionId}/histone")
+	public String getHistoneByRegion() {
+//		returns all histone binding in this region
+		return null;
+	}
 	
+	@GET
+	@Path("/{chrRegionId}/openchromatin")
+	public String getOpenChromatinByRegion() {
+//		returns all open chromatin regions in this region
+		return null;
+	}
 	
+	@GET
+	@Path("/{chrRegionId}/polymerase")
+	public String getPolymeraseByRegion() {
+//		returns all polymerase binding in this region
+		return null;
+	}
 	
 //	
 //	
