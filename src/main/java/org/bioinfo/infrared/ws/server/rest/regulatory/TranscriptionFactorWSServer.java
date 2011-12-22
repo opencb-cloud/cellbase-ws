@@ -23,7 +23,12 @@ public class TranscriptionFactorWSServer extends RegulatoryWSServer {
 
 	@GET
 	@Path("/{tfId}/tfbs")
-	public String getAllTfbs() {
+	public String getTfbsByTfId(@PathParam("tfId") String query) {
+//		try {
+//			
+//		} catch {
+//			
+//		}
 //		returns all TFBSs from a TF
 		return null;
 	}

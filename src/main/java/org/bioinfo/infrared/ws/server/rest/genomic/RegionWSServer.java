@@ -1,12 +1,15 @@
 package org.bioinfo.infrared.ws.server.rest.genomic;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
@@ -15,6 +18,9 @@ import org.bioinfo.infrared.lib.api.CytobandDBAdaptor;
 import org.bioinfo.infrared.lib.api.ExonDBAdaptor;
 import org.bioinfo.infrared.lib.api.GeneDBAdaptor;
 import org.bioinfo.infrared.lib.api.SnpDBAdaptor;
+import org.bioinfo.infrared.lib.api.TfbsDBAdaptor;
+import org.bioinfo.infrared.lib.api.RegulatoryRegionDBAdaptor;
+
 import org.bioinfo.infrared.lib.api.TranscriptDBAdaptor;
 import org.bioinfo.infrared.lib.common.GenomeSequenceFeature;
 import org.bioinfo.infrared.lib.common.Region;
@@ -146,19 +152,40 @@ public class RegionWSServer extends GenericRestWSServer {
 	}
 	
 	@GET
-	@Path("/{chrRegionId}/regulatory")
-	public String getRegulatoryByRegion() {
-//		returns all Regulatory regions in this region
-		return null;
-	}
-	
-	@GET
-	@Path("/{chrRegionId}/tf")
-	public String getTfByRegion() {
-//		returns all TF binding in this region
-		return null;
+	@Path("/{chrRegionId}/tfbs")
+	public Response getTfByRegion(@PathParam("chrRegionId") String chregionId) {
+		try {
+			List<Region> regions = Region.parseRegions(chregionId);
+			TfbsDBAdaptor adaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species);
+			return this.generateResponse(chregionId, adaptor.getAllByRegionList(regions));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		}
 	}
 
+	
+	@GET
+	@Path("/{chrRegionId}/regulatory")
+	public Response getRegulatoryByRegion(@DefaultValue("")@QueryParam("type")String type, @PathParam("chrRegionId") String chregionId) {
+		try {
+			List<Region> regions = Region.parseRegions(chregionId);
+			RegulatoryRegionDBAdaptor adaptor = dbAdaptorFactory.getRegulatoryRegionDBAdaptor(this.species);
+			
+			if (type.equals("")){
+				return this.generateResponse(chregionId, adaptor.getAllByRegionList(regions));
+			}
+			else{
+				return this.generateResponse(chregionId, adaptor.getAllByRegionList(regions, Arrays.asList(type.split(","))));
+				
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		}
+	}
+	
+	
 	@GET
 	@Path("/{chrRegionId}/histone")
 	public String getHistoneByRegion() {
