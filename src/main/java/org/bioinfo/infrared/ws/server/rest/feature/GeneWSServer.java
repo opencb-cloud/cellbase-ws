@@ -23,7 +23,9 @@ import org.bioinfo.infrared.core.cellbase.Transcript;
 import org.bioinfo.infrared.core.cellbase.Xref;
 import org.bioinfo.infrared.lib.api.ExonDBAdaptor;
 import org.bioinfo.infrared.lib.api.GeneDBAdaptor;
+import org.bioinfo.infrared.lib.api.MirnaDBAdaptor;
 import org.bioinfo.infrared.lib.api.SnpDBAdaptor;
+import org.bioinfo.infrared.lib.api.TfbsDBAdaptor;
 import org.bioinfo.infrared.lib.api.TranscriptDBAdaptor;
 import org.bioinfo.infrared.lib.api.XRefsDBAdaptor;
 import org.bioinfo.infrared.ws.server.rest.GenericRestWSServer;
@@ -125,52 +127,36 @@ public class GeneWSServer extends GenericRestWSServer {
 	}
 	
 	@GET
-	@Path("/{geneId}/tf")
-	public String getAllTfbs() {
-		return null;
+	@Path("/{geneId}/tfbs")
+	public Response getAllTfbs(@PathParam("geneId") String query) {
+		try {
+			TfbsDBAdaptor adaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species);
+			return  generateResponse(query, adaptor.getAllByTargetGeneStableId(StringUtils.toList(query, ",")));
+		} catch (Exception e) {
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		}
 	}
 	
 	@GET
-	@Path("/{geneId}/mirna")
-	public String getAllMirna() {
-		return null;
+	@Path("/{geneId}/mirna_target")
+	public Response getAllMirna(@PathParam("geneId") String query) {
+			try {
+				MirnaDBAdaptor adaptor = dbAdaptorFactory.getMirnaDBAdaptor(this.species);
+				return  generateResponse(query, adaptor.getAllByGeneNameList(StringUtils.toList(query, ",")));
+			} catch (Exception e) {
+				return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			}
+	}
+	
+	@GET
+	@Path("/{geneId}/mirnatarget")
+	public Response getAllMirnaB(@PathParam("geneId") String query) {
+			try {
+				return  getAllMirna(query);
+			} catch (Exception e) {
+				return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			}
 	}
 
-//	@GET
-//	@Path("/{geneId}/exon")
-//	public Response getExonsByEnsemblId2(@PathParam("geneId") String query) {
-//		try {
-//			return generateResponse(query, new ExonDBAdapter().getByGeneIdList(StringUtils.toList(query, ",")));
-//			/** HQL 
-//			Query query = this.getSession().createQuery("select e from Exon e JOIN FETCH e.exon2transcripts et JOIN et.transcript t JOIN  t.gene g where g.stableId in :stable_id").setParameterList("stable_id", StringUtils.toList(geneId, ","));  
-//			return generateResponse(query);
-//			**/
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
-//		}
-//	}
-	
-//	@GET
-//	@Path("/{geneId}/exon2transcript")
-//	public Response getExon2TranscriptByEnsemblId(@PathParam("geneId") String query) {
-//		try {
-//			return generateResponse(query, new Exon2TranscriptDBAdapter().getByGeneIdList(StringUtils.toList(query, ",")));
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
-//		}
-//	}
-	
-//	@GET
-//	@Path("/{geneId}/orthologous")
-//	public Response getOrthologousByEnsemblId(@PathParam("geneId") String query) {
-//		try {
-//			return generateResponse(query, new OrthologousDBAdapter().getByGeneIdList(StringUtils.toList(query, ",")));
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//			logger.error("", StringUtils.getStackTrace(e));
-//			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
-//		}
-//	}
+
 }

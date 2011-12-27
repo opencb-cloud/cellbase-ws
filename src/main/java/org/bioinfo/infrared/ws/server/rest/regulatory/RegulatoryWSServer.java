@@ -20,10 +20,8 @@ public class RegulatoryWSServer extends GenericRestWSServer {
 		super(version, species, uriInfo);
 	}
 	
-	@GET
-	@Path("/info")
-	public String help() {
-		return null;
-	}
+	
+	
+ 
 	
 }

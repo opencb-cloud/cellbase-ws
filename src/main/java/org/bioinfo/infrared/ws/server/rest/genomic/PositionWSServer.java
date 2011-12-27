@@ -18,7 +18,6 @@ import javax.ws.rs.core.UriInfo;
 
 import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.infrared.lib.api.GenomicRegionFeatureDBAdaptor;
-import org.bioinfo.infrared.lib.common.GenomicRegionFeatures;
 import org.bioinfo.infrared.lib.common.Position;
 import org.bioinfo.infrared.lib.common.Region;
 import org.bioinfo.infrared.ws.server.rest.GenericRestWSServer;
@@ -37,42 +36,42 @@ public class PositionWSServer extends GenericRestWSServer {
 		super(version, species, uriInfo);
 	}
 
-	@GET
-	@Path("/{positionId}/consequence_type")
-	public Response getConsequenceTypeByPositionGet(@PathParam("positionId") String positionId, @DefaultValue("") @QueryParam("gene") String gene, @DefaultValue("") @QueryParam("transcript") String transcript) {
-		String chromosome = Arrays.asList(positionId.split(":")).get(0);
-		int position = Integer.valueOf(Arrays.asList(positionId.split(":")).get(1));
-		
-		System.out.println("Position: " + position);
-		
-		
-		
-		try {
-			List todo = new ArrayList();
-//			List<GenomicRegionFeatures> result = new ArrayList<GenomicRegionFeatures>();
+//	@GET
+//	@Path("/{positionId}/consequence_type")
+//	public Response getConsequenceTypeByPositionGet(@PathParam("positionId") String positionId, @DefaultValue("") @QueryParam("gene") String gene, @DefaultValue("") @QueryParam("transcript") String transcript) {
+//		String chromosome = Arrays.asList(positionId.split(":")).get(0);
+//		int position = Integer.valueOf(Arrays.asList(positionId.split(":")).get(1));
+//		
+//		System.out.println("Position: " + position);
+//		
+//		
+//		
+//		try {
+//			List todo = new ArrayList();
+////			List<GenomicRegionFeatures> result = new ArrayList<GenomicRegionFeatures>();
+////			
+////			
+//			GenomicRegionFeatureDBAdaptor adaptor = dbAdaptorFactory.getFeatureMapDBAdaptor(this.species);
+////			GenomicRegionFeatures maps = adaptor.getByRegion(new Region(chromosome, position, position));
+////			System.out.println(maps.getGenes().size());
+////			result.add(maps);
+////			
+////			todo.addAll(maps.getGenes());
+////			todo.addAll(maps.getTranscripts());
+////			todo.addAll(maps.getExons());
+////			todo.addAll(maps.getSnp());
+//			
+//			Gson gson = new Gson();
+//			todo.add(adaptor.getConsequenceType(chromosome, position));
+//			return generateResponse(positionId, todo);
 //			
 //			
-			GenomicRegionFeatureDBAdaptor adaptor = dbAdaptorFactory.getFeatureMapDBAdaptor(this.species);
-//			GenomicRegionFeatures maps = adaptor.getByRegion(new Region(chromosome, position, position));
-//			System.out.println(maps.getGenes().size());
-//			result.add(maps);
 //			
-//			todo.addAll(maps.getGenes());
-//			todo.addAll(maps.getTranscripts());
-//			todo.addAll(maps.getExons());
-//			todo.addAll(maps.getSnp());
-			
-			Gson gson = new Gson();
-			todo.add(adaptor.getConsequenceType(chromosome, position));
-			return generateResponse(positionId, todo);
-			
-			
-			
-		} catch (Exception e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
-		}
-	}
-	
+//		} catch (Exception e) {
+//			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+//		}
+//	}
+//	
 	@POST
 	@Path("/{positionId}/consequence_type")
 	public Response getConsequenceTypeByPositionPost(@PathParam("positionId") String positionId) {
