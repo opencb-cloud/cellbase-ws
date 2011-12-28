@@ -77,7 +77,7 @@ public class GenericRestWSServer implements IWSServer {
 	protected Type listType;
 
 //	private MediaType mediaType;
-	private Gson gson; 
+	protected Gson gson; 
 	private GsonBuilder gsonBuilder;
 	protected Logger logger;
 
@@ -299,8 +299,8 @@ public class GenericRestWSServer implements IWSServer {
 				logger.debug("\t\t - zipping.... ");
 				logger.debug("\t\tFinal media Type: " + mediaType.toString());
 				
-				return Response.ok(zipstream, mediaType).header("content-disposition","attachment; filename = "+ filename + ".zip").build();
-
+//				return Response.ok(zipstream, mediaType).header("content-disposition","attachment; filename = "+ filename + ".zip").build();
+				return this.createOkResponse(zipstream, mediaType, filename+".zip");
 					
 			}else {
 				if(fileFormat.equalsIgnoreCase("xml")) {
@@ -314,7 +314,8 @@ public class GenericRestWSServer implements IWSServer {
 					logger.debug("\t\t - text File ");
 					
 					byte[] streamResponse = response.getBytes();
-					return Response.ok(streamResponse, mediaType).header("content-disposition","attachment; filename = "+ filename + ".txt").build();
+//					return Response.ok(streamResponse, mediaType).header("content-disposition","attachment; filename = "+ filename + ".txt").build();
+					return this.createOkResponse(streamResponse, mediaType, filename+".txt");
 				}
 				
 			}
@@ -322,10 +323,11 @@ public class GenericRestWSServer implements IWSServer {
 		logger.debug("");
 		logger.debug("\t\tFinal media Type: " + mediaType.toString());
 		logger.debug(" ------------ ");
-		return Response.ok(response, mediaType).build();
+//		return Response.ok(response, mediaType).build();
+		return this.createOkResponse(response, mediaType);
 	}
 
-	/*
+	
 	 protected Response createErrorResponse(String errorMessage) {
          return Response.ok("An error occurred: "+errorMessage, MediaType.valueOf("text/plain")).header("Access-Control-Allow-Origin", "*").build();
 	 }
@@ -346,7 +348,7 @@ public class GenericRestWSServer implements IWSServer {
 	protected Response generateErrorResponse(String errorMessage) {
 		return Response.ok("An error occurred: "+errorMessage, MediaType.valueOf("text/plain")).build();
 	}
-*/
+
 
 	private String convertToJsonText(String response) {
 		String jsonpQueryParam = (uriInfo.getQueryParameters().get("callbackParam") != null) ? uriInfo.getQueryParameters().get("callbackParam").get(0) : "callbackParam";
@@ -359,11 +361,5 @@ public class GenericRestWSServer implements IWSServer {
 		response = "var " + jsonpQueryParam+ " = (" + response +")";
 		return response;
 	}
-
-	
-	
-	
-
-	
 
 }
