@@ -34,7 +34,6 @@ import com.sun.jersey.api.client.ClientResponse.Status;
 @Produces("text/plain")
 public class VariantWSServer extends GenericRestWSServer {
 
-
 	public VariantWSServer(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo) throws VersionException, IOException {
 		super(version, species, uriInfo);
 	}
@@ -58,8 +57,13 @@ public class VariantWSServer extends GenericRestWSServer {
 	
 	private Response getConsequenceTypeByPosition(String query){
 		try {
+			if (query.length() > 100){
+				logger.debug("VARIANT TOOL: " + query.substring(0, 99) + "....");
+			}
+			else{
+				logger.debug("VARIANT TOOL: " + query);
+			}
 			
-			logger.debug("VARIANT TOOL: " + query);
 			List<GenomicVariant> variants = GenomicVariant.parseVariants(query) ;
 			GenomicVariantEffect gv = new GenomicVariantEffect(this.species);
 			return generateResponse(query, gv.getConsequenceType(variants));

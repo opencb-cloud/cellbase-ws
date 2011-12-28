@@ -60,13 +60,17 @@ public class TranscriptWSServer extends GenericRestWSServer {
 		} catch (IOException e) {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
-//		return null;
-//		try {
-//			System.out.println("transcriptId " + "info");
-//			return  generateResponse(query, new TranscriptDBAdapter().getByIdList(StringUtils.toList(query, ",")));
-//		} catch (Exception e) {
-//			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
-//		}
+	}
+
+	
+	@GET
+	@Path("/{transcriptId}/all")
+	public Response getAll() {
+		try {
+			return generateResponse(new String(), Arrays.asList(getTranscriptDBAdaptor().getAll()));
+		} catch (IOException e) {
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		}
 	}
 
 	

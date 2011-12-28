@@ -223,7 +223,13 @@ public class GenericRestWSServer implements IWSServer {
 	@SuppressWarnings("unchecked")
 	protected Response generateResponse(String queryString, List features) throws IOException {
 		logger.info("-------------");
-		logger.info(queryString);
+		if (queryString.length()>99){
+			logger.debug("\t\t -Response: " + queryString.substring(0,100) + ".....");
+		}
+		else{
+			logger.debug("\t\t -Response: " + queryString);
+		}
+		
 //		logger.info(features.toString());
 		MediaType mediaType = MediaType.valueOf("text/plain");
 		 
