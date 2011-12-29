@@ -12,8 +12,12 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import org.bioinfo.commons.utils.StringUtils;
+import org.bioinfo.infrared.lib.api.ProteinDBAdaptor;
 import org.bioinfo.infrared.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
+
+import com.sun.jersey.api.client.ClientResponse.Status;
 
 @Path("/{version}/{species}/feature/protein")
 @Produces("text/plain")
@@ -26,7 +30,12 @@ public class ProteinWSServer extends GenericRestWSServer {
 	@GET
 	@Path("/{proteinId}/info")
 	public Response getByEnsemblId(@PathParam("proteinId") String query) {
-		return null;
+		try {
+			ProteinDBAdaptor adaptor = dbAdaptorFactory.getProteinDBAdaptor(this.species);
+			return generateResponse(query, adaptor.getAllByGeneNameList(StringUtils.toList(query, ",")));
+		} catch (Exception e) {
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		}
 	}
 
 	@GET
@@ -48,9 +57,16 @@ public class ProteinWSServer extends GenericRestWSServer {
 	}
 	
 	@GET
-	@Path("/{proteinId}/features")
+	@Path("/{proteinId}/feature")
 	public Response getFeatures(@PathParam("proteinId") String query, @DefaultValue("") @QueryParam("type") String type) {
-		return null;
+		try {
+			ProteinDBAdaptor adaptor = dbAdaptorFactory.getProteinDBAdaptor(this.species);
+//			return generateResponse(query, adaptor.getAllProteinFeaturesByUniprotIdList(StringUtils.toList(query, ",")));
+			// this si slower but finds everything
+			return generateResponse(query, adaptor.getAllProteinFeaturesByProteinXrefList(StringUtils.toList(query, ",")));
+		} catch (Exception e) {
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		}
 	}
 	
 	@GET
@@ -62,7 +78,12 @@ public class ProteinWSServer extends GenericRestWSServer {
 	@GET
 	@Path("/{proteinId}/xref")
 	public Response getTargetGene(@PathParam("proteinId") String query, @DefaultValue("") @QueryParam("dbname") String dbname) {
-		return null;
+		try {
+			ProteinDBAdaptor adaptor = dbAdaptorFactory.getProteinDBAdaptor(this.species);
+			return generateResponse(query, adaptor.getAllProteinXrefsByProteinNameList(StringUtils.toList(dbname, ",")));
+		} catch (Exception e) {
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		}
 	}
 	
 	@GET

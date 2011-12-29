@@ -21,6 +21,7 @@ import org.bioinfo.infrared.core.cellbase.Xref;
 import org.bioinfo.infrared.lib.api.ExonDBAdaptor;
 import org.bioinfo.infrared.lib.api.GeneDBAdaptor;
 import org.bioinfo.infrared.lib.api.MirnaDBAdaptor;
+import org.bioinfo.infrared.lib.api.ProteinDBAdaptor;
 import org.bioinfo.infrared.lib.api.SnpDBAdaptor;
 import org.bioinfo.infrared.lib.api.TfbsDBAdaptor;
 import org.bioinfo.infrared.lib.api.TranscriptDBAdaptor;
@@ -128,7 +129,7 @@ public class GeneWSServer extends GenericRestWSServer {
 	public Response getAllTfbs(@PathParam("geneId") String query) {
 		try {
 			TfbsDBAdaptor adaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species);
-			return  generateResponse(query, adaptor.getAllByTargetGeneStableIdList(StringUtils.toList(query, ",")));
+			return  generateResponse(query, adaptor.getAllByTargetGeneNameList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
@@ -150,6 +151,17 @@ public class GeneWSServer extends GenericRestWSServer {
 	public Response getAllMirnaB(@PathParam("geneId") String query) {
 			try {
 				return  getAllMirna(query);
+			} catch (Exception e) {
+				return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			}
+	}
+	
+	@GET
+	@Path("/{geneId}/protein_feature")
+	public Response getProteinFeature(@PathParam("geneId") String query) {
+			try {
+				ProteinDBAdaptor dbProteinDBAdaptor = dbAdaptorFactory.getProteinDBAdaptor(this.species);
+				return  generateResponse(query, dbProteinDBAdaptor.getAllProteinFeaturesByGeneNameList(StringUtils.toList(query, ",")));
 			} catch (Exception e) {
 				return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 			}

@@ -33,7 +33,7 @@ public class TfWSServer extends RegulatoryWSServer {
 
 
 	@GET
-	@Path("/{tfId}/info")
+	@Path("/{tfId}/info") // Devuelve los TFBSs para el TFId que le das
 	public Response getTfInfo(@PathParam("tfId") String query) {
 		try {
 			TfbsDBAdaptor adaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species);
@@ -46,7 +46,7 @@ public class TfWSServer extends RegulatoryWSServer {
 	
 
 	@GET
-	@Path("/{tfId}/fullinfo")
+	@Path("/{tfId}/fullinfo") // Devuelve los TFBSs para el TFId que le das
 	public Response getTfFullInfo(@PathParam("tfId") String query) {
 		try {
 			TfbsDBAdaptor adaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species);
@@ -87,7 +87,7 @@ public class TfWSServer extends RegulatoryWSServer {
 	public Response getAllPwms(@PathParam("tfId") String query) {
 		try {
 			TfbsDBAdaptor adaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species);
-			return  generateResponse(query, adaptor.getPwmByTfNameList(StringUtils.toList(query, ",")));
+			return  generateResponse(query, adaptor.getAllPwmByTfGeneNameList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
