@@ -3,6 +3,7 @@ package org.bioinfo.infrared.ws.server.rest.genomic;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.ws.rs.DefaultValue;
@@ -14,11 +15,15 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import org.bioinfo.commons.log.Logger;
 import org.bioinfo.commons.utils.StringUtils;
+import org.bioinfo.infrared.core.cellbase.Transcript;
 import org.bioinfo.infrared.lib.api.GenomicRegionFeatureDBAdaptor;
+import org.bioinfo.infrared.lib.api.TranscriptDBAdaptor;
 import org.bioinfo.infrared.lib.common.Position;
 import org.bioinfo.infrared.lib.common.Region;
 import org.bioinfo.infrared.lib.common.GenomicVariant;
@@ -33,16 +38,35 @@ import com.sun.jersey.api.client.ClientResponse.Status;
 @Path("/{version}/{species}/genomic/variant")
 @Produces("text/plain")
 public class VariantWSServer extends GenericRestWSServer {
+<<<<<<< HEAD
+=======
+	
+	protected static HashMap<String, List<Transcript>> CACHE_TRANSCRIPT = new HashMap<String, List<Transcript>>();
+>>>>>>> 6_FUNCSNP
 
 	public VariantWSServer(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo) throws VersionException, IOException {
 		super(version, species, uriInfo);
+		
+		if (CACHE_TRANSCRIPT.get(this.species) == null){
+			logger.debug("\tCACHE_TRANSCRIPT is null");
+			long t0 = System.currentTimeMillis();
+			TranscriptDBAdaptor adaptor = dbAdaptorFactory.getTranscriptDBAdaptor(species);
+			CACHE_TRANSCRIPT.put(species, adaptor.getAll());
+			logger.debug("\t\tFilling up for " + this.species + " in " + (System.currentTimeMillis() - t0) + " ms");
+			logger.debug("\t\tNumber of transcripts: " + CACHE_TRANSCRIPT.get(this.species).size());
+		}
 	}
 
 	@GET
 	@Path("/{positionId}/consequence_type")
-	public Response getConsequenceTypeByPositionByGet(@PathParam("positionId") String query) {
+	public Response getConsequenceTypeByPositionByGet(	@PathParam("positionId") String query, 
+														@DefaultValue("true")@QueryParam("features")String features,
+														@DefaultValue("true")@QueryParam("variation")String variation,
+														@DefaultValue("true")@QueryParam("regulatory")String regulatory,
+														@DefaultValue("true")@QueryParam("disease")String diseases)
+	{
 		try {
-			return getConsequenceTypeByPosition(query);
+			return getConsequenceTypeByPosition(query, features, variation, regulatory, diseases);
 		} catch (Exception e) {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
@@ -50,12 +74,38 @@ public class VariantWSServer extends GenericRestWSServer {
 	
 	@POST
 	@Path("/consequence_type")
-	public Response getConsequenceTypeByPositionByPost(@FormParam("positionId") String query) {
-			return getConsequenceTypeByPosition(query);
+	public Response getConsequenceTypeByPositionByPost(@FormParam("positionId") String postQuery){
+		
+		String features = "true";
+		String variation = "true"; 
+		String regulatory = "true";
+		String diseases = "true";
+		
+		postQuery = postQuery.replace("?", "%");
+		
+		String query = Arrays.asList(postQuery.split("%")).get(0);
+		String queryParams =  Arrays.asList(postQuery.split("%")).get(1);
+		if (queryParams.toLowerCase().contains("features=false")){
+			features = "false";
+		}
+		if (queryParams.toLowerCase().contains("regulatory=false")){
+			regulatory = "false";
+		}
+		if (queryParams.toLowerCase().contains("variation=false")){
+			variation = "false";
+		}
+		if (queryParams.toLowerCase().contains("disease=false")){
+			diseases = "false";
+		}
+		
+		return getConsequenceTypeByPosition(query, features, variation, regulatory, diseases);
 	}
 	
 	
-	private Response getConsequenceTypeByPosition(String query){
+	private Response getConsequenceTypeByPosition(String query, String features, String variation, String regulatory, String diseases){
+		
+		logger.debug(features + " " + variation + " " + regulatory + " " + diseases);
+		
 		try {
 			if (query.length() > 100){
 				logger.debug("VARIANT TOOL: " + query.substring(0, 99) + "....");
@@ -64,9 +114,42 @@ public class VariantWSServer extends GenericRestWSServer {
 				logger.debug("VARIANT TOOL: " + query);
 			}
 			
+<<<<<<< HEAD
 			List<GenomicVariant> variants = GenomicVariant.parseVariants(query) ;
+=======
+			List<GenomicVariant> variants = GenomicVariant.parseVariants(query);
+>>>>>>> 6_FUNCSNP
 			GenomicVariantEffect gv = new GenomicVariantEffect(this.species);
-			return generateResponse(query, gv.getConsequenceType(variants));
+			
+			if (features.equalsIgnoreCase("true")){
+				gv.setShowFeatures(true);
+			}
+			else{
+				gv.setShowFeatures(false);
+			}
+			
+			if (variation.equalsIgnoreCase("true")){
+				gv.setShowVariation(true);
+			}
+			else{
+				gv.setShowVariation(false);
+			}
+			
+			if (regulatory.equalsIgnoreCase("true")){
+				gv.setShowRegulatory(true);
+			}
+			else{
+				gv.setShowRegulatory(false);
+			}
+			
+			if (diseases.equalsIgnoreCase("true")){
+				gv.setShowDiseases(true);
+			}
+			else{
+				gv.setShowDiseases(false);
+			}
+			
+			return generateResponse(query, gv.getConsequenceType(variants, CACHE_TRANSCRIPT.get(this.species)));
 		} catch (Exception e) {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}

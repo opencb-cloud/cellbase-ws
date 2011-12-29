@@ -61,6 +61,20 @@ public class TranscriptWSServer extends GenericRestWSServer {
 		} catch (IOException e) {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
+<<<<<<< HEAD
+=======
+	}
+
+	
+	@GET
+	@Path("/{transcriptId}/all")
+	public Response getAll() {
+		try {
+			return generateResponse(new String(), Arrays.asList(getTranscriptDBAdaptor().getAll()));
+		} catch (IOException e) {
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		}
+>>>>>>> 6_FUNCSNP
 	}
 
 	
