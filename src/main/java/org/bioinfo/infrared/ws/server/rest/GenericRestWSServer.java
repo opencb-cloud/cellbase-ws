@@ -8,6 +8,7 @@ import java.io.StringWriter;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.zip.ZipOutputStream;
@@ -86,10 +87,15 @@ public class GenericRestWSServer implements IWSServer {
 	private static final String TAB = "tab";
 	
 	
+	
+	
 	protected static DBAdaptorFactory dbAdaptorFactory;
 	static{
 		dbAdaptorFactory = new HibernateDBAdaptorFactory();
 	}
+	
+	
+	
 
 	public GenericRestWSServer(@PathParam("version") String version) {
 		this.version = version;
