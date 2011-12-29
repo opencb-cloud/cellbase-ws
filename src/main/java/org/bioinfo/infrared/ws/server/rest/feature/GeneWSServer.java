@@ -11,14 +11,11 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.bioinfo.commons.utils.StringUtils;
-import org.bioinfo.infrared.core.cellbase.Exon;
 import org.bioinfo.infrared.core.cellbase.Gene;
-import org.bioinfo.infrared.core.cellbase.Snp;
 import org.bioinfo.infrared.core.cellbase.Transcript;
 import org.bioinfo.infrared.core.cellbase.Xref;
 import org.bioinfo.infrared.lib.api.ExonDBAdaptor;
@@ -131,7 +128,7 @@ public class GeneWSServer extends GenericRestWSServer {
 	public Response getAllTfbs(@PathParam("geneId") String query) {
 		try {
 			TfbsDBAdaptor adaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species);
-			return  generateResponse(query, adaptor.getAllByTargetGeneStableId(StringUtils.toList(query, ",")));
+			return  generateResponse(query, adaptor.getAllByTargetGeneStableIdList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
@@ -142,7 +139,7 @@ public class GeneWSServer extends GenericRestWSServer {
 	public Response getAllMirna(@PathParam("geneId") String query) {
 			try {
 				MirnaDBAdaptor adaptor = dbAdaptorFactory.getMirnaDBAdaptor(this.species);
-				return  generateResponse(query, adaptor.getAllByGeneNameList(StringUtils.toList(query, ",")));
+				return  generateResponse(query, adaptor.getAllMiRnaTargetsByGeneNameList(StringUtils.toList(query, ",")));
 			} catch (Exception e) {
 				return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 			}
