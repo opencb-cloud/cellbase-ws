@@ -52,6 +52,7 @@ public class TranscriptWSServer extends GenericRestWSServer {
 		return dbAdaptorFactory.getXRefDBAdaptor(this.species);
 	}
 	
+	@SuppressWarnings("unchecked")
 	@GET
 	@Path("/{transcriptId}/info")
 	public Response getByEnsemblId(@PathParam("transcriptId") String query) {
@@ -60,6 +61,8 @@ public class TranscriptWSServer extends GenericRestWSServer {
 		} catch (IOException e) {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
+<<<<<<< HEAD
+=======
 	}
 
 	
@@ -71,9 +74,23 @@ public class TranscriptWSServer extends GenericRestWSServer {
 		} catch (IOException e) {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
+>>>>>>> 6_FUNCSNP
 	}
 
 	
+	@SuppressWarnings("unchecked")
+	@GET
+	@Path("/{transcriptId}/all")
+	public Response getAll() {
+		try {
+			return generateResponse(new String(), Arrays.asList(getTranscriptDBAdaptor().getAll()));
+		} catch (IOException e) {
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		}
+	}
+
+	
+	@SuppressWarnings("unchecked")
 	@GET
 	@Path("/{transcriptId}/sequence")
 	public Response getSequencesByIdList(@PathParam("transcriptId") String query) {
@@ -84,6 +101,7 @@ public class TranscriptWSServer extends GenericRestWSServer {
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	@GET
 	@Path("/{transcriptId}/region")
 	public Response getRegionsByIdList(@PathParam("transcriptId") String query) {
