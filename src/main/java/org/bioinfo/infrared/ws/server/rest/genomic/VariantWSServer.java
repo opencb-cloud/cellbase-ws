@@ -1,7 +1,6 @@
 package org.bioinfo.infrared.ws.server.rest.genomic;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -15,23 +14,16 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import org.bioinfo.commons.log.Logger;
-import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.infrared.core.cellbase.Transcript;
-import org.bioinfo.infrared.lib.api.GenomicRegionFeatureDBAdaptor;
 import org.bioinfo.infrared.lib.api.TranscriptDBAdaptor;
-import org.bioinfo.infrared.lib.common.Position;
-import org.bioinfo.infrared.lib.common.Region;
 import org.bioinfo.infrared.lib.common.GenomicVariant;
 import org.bioinfo.infrared.lib.common.GenomicVariantEffect;
 import org.bioinfo.infrared.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
 
-import com.google.gson.Gson;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 

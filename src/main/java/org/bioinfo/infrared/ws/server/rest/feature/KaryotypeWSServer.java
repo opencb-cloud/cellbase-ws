@@ -46,7 +46,7 @@ public class KaryotypeWSServer extends GenericRestWSServer {
 	public Response getChromosomes() {
 		try {
 			CytobandDBAdaptor dbAdaptor = dbAdaptorFactory.getCytobandDBAdaptor(this.species);
-			return generateResponse("", dbAdaptor.getAllChromosomesName());
+			return generateResponse("", dbAdaptor.getAllChromosomeNames());
 		} catch (Exception e) {
 			e.printStackTrace();
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();

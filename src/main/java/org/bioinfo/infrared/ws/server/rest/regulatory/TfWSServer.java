@@ -2,8 +2,6 @@ package org.bioinfo.infrared.ws.server.rest.regulatory;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 
 import javax.ws.rs.DefaultValue;
@@ -20,7 +18,6 @@ import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.infrared.lib.api.GeneDBAdaptor;
 import org.bioinfo.infrared.lib.api.TfbsDBAdaptor;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
-import org.hibernate.mapping.Map;
 
 import com.sun.jersey.api.client.ClientResponse.Status;
 
@@ -34,26 +31,63 @@ public class TfWSServer extends RegulatoryWSServer {
 		super(version, species, uriInfo);
 	}
 
-//	@GET
-//	@Path("/{tfId}/tfbs")
-//	public Response getTfbsByTfId(@PathParam("tfId") String query) {
-////		try {
-////			
-////		} catch {
-////			
-////		}
-////		returns all TFBSs from a TF
-//		return null;
-//	}
+
+	@GET
+	@Path("/{tfId}/info") // Devuelve los TFBSs para el TFId que le das
+	public Response getTfInfo(@PathParam("tfId") String query) {
+		try {
+			TfbsDBAdaptor adaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species);
+			return generateResponse(query, adaptor.getAllByTfGeneNameList(StringUtils.toList(query, ",")));
+			
+		} catch (Exception e) {
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		}
+	}
 	
+
+	@GET
+	@Path("/{tfId}/fullinfo") // Devuelve los TFBSs para el TFId que le das
+	public Response getTfFullInfo(@PathParam("tfId") String query) {
+		try {
+			TfbsDBAdaptor adaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species);
+			return generateResponse(query, adaptor.getAllByTfGeneNameList(StringUtils.toList(query, ",")));
+			
+		} catch (Exception e) {
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		}
+	}
 	
 	@GET
 	@Path("/{tfId}/tfbs")
 	public Response getAllByTfbs(@PathParam("tfId") String query) {
 		try {
 			TfbsDBAdaptor adaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species);
-			return  generateResponse(query, adaptor.getAllByTfGeneName(StringUtils.toList(query, ",")));
+			return generateResponse(query, adaptor.getAllByTfGeneNameList(StringUtils.toList(query, ",")));
 			
+		} catch (Exception e) {
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		}
+	}
+	
+	
+	@GET
+	@Path("/{tfId}/gene")
+	public Response getEnsemblGenes(@PathParam("tfId") String query) {
+		try {
+			GeneDBAdaptor adaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species);
+			return  generateResponse(query, adaptor.getAllByTfList(StringUtils.toList(query, ",")));
+		} catch (Exception e) {
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		}
+	}
+	
+	
+	@GET
+	@Path("/{tfId}/pwm")
+	public Response getAllPwms(@PathParam("tfId") String query) {
+		try {
+			TfbsDBAdaptor adaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species);
+			return  generateResponse(query, adaptor.getAllPwmByTfGeneNameList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
@@ -67,10 +101,10 @@ public class TfWSServer extends RegulatoryWSServer {
 			TfbsDBAdaptor adaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species);
 			List<Object> results;
 			if (celltype.equals("")){
-				results = adaptor.getAnnotation();
+				results = adaptor.getAllAnnotation();
 			}
 			else{
-				results = adaptor.getAnnotation(StringUtils.toList(celltype, ","));
+				results = adaptor.getAllAnnotationByCellTypeList(StringUtils.toList(celltype, ","));
 			}
 			List lista = new ArrayList<String>();			
 			
@@ -83,30 +117,6 @@ public class TfWSServer extends RegulatoryWSServer {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
 	}
-	
-	
-	@GET
-	@Path("/{tfId}/gene")
-	public Response getAllByGenes(@PathParam("tfId") String query) {
-		try {
-			GeneDBAdaptor adaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species);
-			return  generateResponse(query, adaptor.getAllByTf(StringUtils.toList(query, ",")));
-		} catch (Exception e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
-		}
-	}
-	
-	
-	@GET
-	@Path("/{tfId}/pwm")
-	public Response getAllPwms(@PathParam("tfId") String query) {
-		try {
-			TfbsDBAdaptor adaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species);
-			return  generateResponse(query, adaptor.getPwnByTfName(StringUtils.toList(query, ",")));
-		} catch (Exception e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
-		}
-	}
-	
+
 	
 }

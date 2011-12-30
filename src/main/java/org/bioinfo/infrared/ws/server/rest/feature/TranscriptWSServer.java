@@ -52,6 +52,7 @@ public class TranscriptWSServer extends GenericRestWSServer {
 		return dbAdaptorFactory.getXRefDBAdaptor(this.species);
 	}
 	
+	@SuppressWarnings("unchecked")
 	@GET
 	@Path("/{transcriptId}/info")
 	public Response getByEnsemblId(@PathParam("transcriptId") String query) {
@@ -63,6 +64,7 @@ public class TranscriptWSServer extends GenericRestWSServer {
 	}
 
 	
+	@SuppressWarnings("unchecked")
 	@GET
 	@Path("/{transcriptId}/all")
 	public Response getAll() {
@@ -74,6 +76,7 @@ public class TranscriptWSServer extends GenericRestWSServer {
 	}
 
 	
+	@SuppressWarnings("unchecked")
 	@GET
 	@Path("/{transcriptId}/sequence")
 	public Response getSequencesByIdList(@PathParam("transcriptId") String query) {
@@ -84,6 +87,7 @@ public class TranscriptWSServer extends GenericRestWSServer {
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	@GET
 	@Path("/{transcriptId}/region")
 	public Response getRegionsByIdList(@PathParam("transcriptId") String query) {
