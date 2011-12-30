@@ -100,15 +100,12 @@ public class VariantWSServer extends GenericRestWSServer {
 	
 	
 	private Response getConsequenceTypeByPosition(String query, String features, String variation, String regulatory, String diseases){
-		
-		logger.debug(features + " " + variation + " " + regulatory + " " + diseases);
-		
 		try {
 			if (query.length() > 100){
-				logger.debug("VARIANT TOOL: " + query.substring(0, 99) + "....");
+				logger.debug("VARIANT TOOL WS: " + query.substring(0, 99) + "....");
 			}
 			else{
-				logger.debug("VARIANT TOOL: " + query);
+				logger.debug("VARIANT TOOL WS: " + query);
 			}
 			
 			List<GenomicVariant> variants = GenomicVariant.parseVariants(query);
