@@ -17,6 +17,7 @@ import javax.ws.rs.core.UriInfo;
 import org.bioinfo.infrared.lib.api.CytobandDBAdaptor;
 import org.bioinfo.infrared.lib.api.ExonDBAdaptor;
 import org.bioinfo.infrared.lib.api.GeneDBAdaptor;
+import org.bioinfo.infrared.lib.api.MirnaDBAdaptor;
 import org.bioinfo.infrared.lib.api.SnpDBAdaptor;
 import org.bioinfo.infrared.lib.api.TfbsDBAdaptor;
 import org.bioinfo.infrared.lib.api.RegulatoryRegionDBAdaptor;
@@ -169,6 +170,7 @@ public class RegionWSServer extends GenericRestWSServer {
 	@Path("/{chrRegionId}/regulatory")
 	public Response getRegulatoryByRegion(@DefaultValue("")@QueryParam("type")String type, @PathParam("chrRegionId") String chregionId) {
 		try {
+			/** type ["open chromatin", "Polymerase", "HISTONE"] **/
 			List<Region> regions = Region.parseRegions(chregionId);
 			RegulatoryRegionDBAdaptor adaptor = dbAdaptorFactory.getRegulatoryRegionDBAdaptor(this.species);
 			
@@ -186,25 +188,18 @@ public class RegionWSServer extends GenericRestWSServer {
 	}
 	
 	
-	@GET
-	@Path("/{chrRegionId}/histone")
-	public String getHistoneByRegion() {
-//		returns all histone binding in this region
-		return null;
-	}
 	
 	@GET
-	@Path("/{chrRegionId}/openchromatin")
-	public String getOpenChromatinByRegion() {
-//		returns all open chromatin regions in this region
-		return null;
-	}
-	
-	@GET
-	@Path("/{chrRegionId}/polymerase")
-	public String getPolymeraseByRegion() {
-//		returns all polymerase binding in this region
-		return null;
+	@Path("/{chrRegionId}/mirnatarget")
+	public Response getMirnaTargetByRegion(@PathParam("chrRegionId") String chregionId) {
+		try {
+			List<Region> regions = Region.parseRegions(chregionId);
+			MirnaDBAdaptor adaptor = dbAdaptorFactory.getMirnaDBAdaptor(this.species);
+			return this.generateResponse(chregionId, adaptor.getAllMiRnaTargetsByRegionList(regions));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		}
 	}
 	
 //	
