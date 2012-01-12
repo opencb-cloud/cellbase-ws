@@ -11,17 +11,18 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import org.bioinfo.infrared.core.cellbase.RegulatoryRegion;
 import org.bioinfo.infrared.lib.api.CytobandDBAdaptor;
 import org.bioinfo.infrared.lib.api.ExonDBAdaptor;
 import org.bioinfo.infrared.lib.api.GeneDBAdaptor;
 import org.bioinfo.infrared.lib.api.MirnaDBAdaptor;
+import org.bioinfo.infrared.lib.api.RegulatoryRegionDBAdaptor;
 import org.bioinfo.infrared.lib.api.SnpDBAdaptor;
 import org.bioinfo.infrared.lib.api.TfbsDBAdaptor;
-import org.bioinfo.infrared.lib.api.RegulatoryRegionDBAdaptor;
-
 import org.bioinfo.infrared.lib.api.TranscriptDBAdaptor;
 import org.bioinfo.infrared.lib.common.GenomeSequenceFeature;
 import org.bioinfo.infrared.lib.common.Region;
@@ -35,9 +36,44 @@ import com.sun.jersey.api.client.ClientResponse.Status;
 @Path("/{version}/{species}/genomic/region")
 @Produces("text/plain")
 public class RegionWSServer extends GenericRestWSServer {
+	private int histogramIntervalSize = 1000000;
 	
 	public RegionWSServer(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo) throws VersionException, IOException {
 		super(version, species, uriInfo);
+	}
+	
+	
+	private String getHistogramParameter(){
+		MultivaluedMap<String, String> parameters = uriInfo.getQueryParameters();
+		return (parameters.get("histogram") != null) ? parameters.get("histogram").get(0) : "false";
+	}
+	
+	private int getHistogramIntervalSize(){
+		MultivaluedMap<String, String> parameters = uriInfo.getQueryParameters();
+		if (parameters.containsKey("interval")){
+			int value = this.histogramIntervalSize;
+			try{
+				value =  Integer.parseInt(parameters.get("interval").get(0));
+				return value;
+			}
+			catch(Exception exp){
+				/** malformed string y no se puede castear a int **/
+				return value;
+			}
+		}
+		else{
+			return this.histogramIntervalSize;
+		}
+	}
+	
+	private boolean hasHistogramQueryParam(){
+		if (getHistogramParameter().toLowerCase().equals("true")){
+			return true;
+		}
+		else{
+			return false;
+		}
+		
 	}
 	
 	@GET
@@ -46,12 +82,16 @@ public class RegionWSServer extends GenericRestWSServer {
 		GeneDBAdaptor dbAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species);
 		List<Region> regions = Region.parseRegions(chregionId);
 		try {
-			return generateResponse(chregionId, dbAdaptor.getAllByRegionList(regions));
+			if (hasHistogramQueryParam()){
+				return generateResponse(chregionId, getHistogramByFeatures(dbAdaptor.getAllByRegionList(regions)));
+			}
+			else{
+				return generateResponse(chregionId, dbAdaptor.getAllByRegionList(regions));
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
-		
 	}
 	
 	@GET
@@ -107,7 +147,6 @@ public class RegionWSServer extends GenericRestWSServer {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
 	}
-	
 
 	
 	@GET
@@ -139,20 +178,6 @@ public class RegionWSServer extends GenericRestWSServer {
 	
 	
 	@GET
-	@Path("/{chrRegionId}/sequencecode")
-	public Response getSequenceCodeByRegion(@PathParam("chrRegionId") String chregionId) {
-		return null;
-//		try {
-//			List<Region> regions = Region.parseRegions(chregionId);
-//			List sequences =  GenomeSequenceFeatureDataAdapter.getByRegionList(regions);
-//			return this.generateResponse(chregionId, sequences);
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
-//		}
-	}
-	
-	@GET
 	@Path("/{chrRegionId}/tfbs")
 	public Response getTfByRegion(@PathParam("chrRegionId") String chregionId) {
 		try {
@@ -174,20 +199,27 @@ public class RegionWSServer extends GenericRestWSServer {
 			List<Region> regions = Region.parseRegions(chregionId);
 			RegulatoryRegionDBAdaptor adaptor = dbAdaptorFactory.getRegulatoryRegionDBAdaptor(this.species);
 			
+			List<List<RegulatoryRegion>> results;
 			if (type.equals("")){
-				return this.generateResponse(chregionId, adaptor.getAllByRegionList(regions));
+				results =  adaptor.getAllByRegionList(regions);
 			}
 			else{
-				return this.generateResponse(chregionId, adaptor.getAllByRegionList(regions, Arrays.asList(type.split(","))));
-				
+				results = adaptor.getAllByRegionList(regions, Arrays.asList(type.split(",")));
 			}
+			
+			if (hasHistogramQueryParam()){
+				return generateResponse(chregionId, getHistogramByFeatures(results));
+			}
+			else{
+				return generateResponse(chregionId, results);
+			}
+			
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
 	}
-	
-	
 	
 	@GET
 	@Path("/{chrRegionId}/mirnatarget")
@@ -202,23 +234,15 @@ public class RegionWSServer extends GenericRestWSServer {
 		}
 	}
 	
-//	
-//	
-//	private Response getFeaturesByRegion(String chregionId, Criteria criteria){
-//		try {
-//			List<Region> regions = Region.parseRegions(chregionId);
-//			Disjunction disjunction = Restrictions.disjunction();
-//			for (Region region : regions) {
-//				Conjunction disjunctionRegion = Restrictions.conjunction();
-//				disjunctionRegion.add(Restrictions.eq("chromosome", region.getChromosome())).add( Restrictions.ge("start", region.getStart())).add(Restrictions.le("end", region.getEnd()));
-//				disjunction.add(disjunctionRegion);
-//			}
-//			criteria.add(disjunction);
-//			return generateResponse(criteria);
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
-//		}
-//	}
 
+	
+	
+	
+	private  List<?>  getHistogramByFeatures(List<?> list){
+		Histogram histogram = new Histogram(list, this.getHistogramIntervalSize());
+		
+		return histogram.getIntervals();
+	}
+	
+	
 }

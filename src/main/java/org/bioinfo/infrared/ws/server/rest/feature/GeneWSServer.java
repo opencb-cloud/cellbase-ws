@@ -1,6 +1,7 @@
 package org.bioinfo.infrared.ws.server.rest.feature;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -16,6 +17,7 @@ import javax.ws.rs.core.UriInfo;
 
 import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.infrared.core.cellbase.Gene;
+import org.bioinfo.infrared.core.cellbase.Snp;
 import org.bioinfo.infrared.core.cellbase.Transcript;
 import org.bioinfo.infrared.core.cellbase.Xref;
 import org.bioinfo.infrared.lib.api.ExonDBAdaptor;
@@ -26,6 +28,7 @@ import org.bioinfo.infrared.lib.api.SnpDBAdaptor;
 import org.bioinfo.infrared.lib.api.TfbsDBAdaptor;
 import org.bioinfo.infrared.lib.api.TranscriptDBAdaptor;
 import org.bioinfo.infrared.lib.api.XRefsDBAdaptor;
+import org.bioinfo.infrared.lib.common.Region;
 import org.bioinfo.infrared.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
 
@@ -71,14 +74,12 @@ public class GeneWSServer extends GenericRestWSServer {
 	@GET
 	@Path("/{geneId}/fullinfo")
 	public Response getFullInfoByEnsemblId(@PathParam("geneId") String query, @DefaultValue("") @QueryParam("sources") String sources) {
-		
 		try {
 			List<Gene> genes = getGeneDBAdaptor().getAllByEnsemblIdList(StringUtils.toList(query, ","));
 			List<List<Transcript>> transcriptList = getTranscriptDBAdaptor().getByEnsemblGeneIdList(StringUtils.toList(query, ","));
 			List<List<Xref>> goLists = getXRefDBAdaptor().getAllByDBName(StringUtils.toList(query, ","),"go");
 			List<List<Xref>> interproLists = getXRefDBAdaptor().getAllByDBName(StringUtils.toList(query, ","),"interpro");
 			List<List<Xref>> reactomeLists = getXRefDBAdaptor().getAllByDBName(StringUtils.toList(query, ","),"reactome");
-			
 			StringBuilder response = new StringBuilder();
 			response.append("[");
 			for (int i = 0; i < genes.size(); i++) {		
@@ -99,10 +100,8 @@ public class GeneWSServer extends GenericRestWSServer {
 				response.append("\"interpro\":"+gson.toJson(interproLists.get(i))+",");
 				response.append("\"reactome\":"+gson.toJson(reactomeLists.get(i))+"");
 				response.append("},");
-				
 			}
 			response.append("]");
-			
 			//Remove the last comma
 			response.replace(response.length()-2, response.length()-1, "");
 			return  generateResponse(query,Arrays.asList(response));
@@ -118,7 +117,6 @@ public class GeneWSServer extends GenericRestWSServer {
 		try {
 			TranscriptDBAdaptor dbAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
 			return  generateResponse(query, Arrays.asList(dbAdaptor.getByEnsemblGeneIdList(StringUtils.toList(query, ","))));
-			
 		} catch (Exception e) {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
@@ -131,6 +129,7 @@ public class GeneWSServer extends GenericRestWSServer {
 			TfbsDBAdaptor adaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species);
 			return  generateResponse(query, adaptor.getAllByTargetGeneNameList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
+			e.printStackTrace();
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
 	}
@@ -142,6 +141,7 @@ public class GeneWSServer extends GenericRestWSServer {
 				MirnaDBAdaptor adaptor = dbAdaptorFactory.getMirnaDBAdaptor(this.species);
 				return  generateResponse(query, adaptor.getAllMiRnaTargetsByGeneNameList(StringUtils.toList(query, ",")));
 			} catch (Exception e) {
+				e.printStackTrace();
 				return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 			}
 	}
@@ -152,6 +152,7 @@ public class GeneWSServer extends GenericRestWSServer {
 			try {
 				return  getAllMirna(query);
 			} catch (Exception e) {
+				e.printStackTrace();
 				return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 			}
 	}
@@ -166,6 +167,29 @@ public class GeneWSServer extends GenericRestWSServer {
 				return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 			}
 	}
+	
+	@GET
+	@Path("/{geneId}/snp")
+	public Response getSNPByGene(@PathParam("geneId") String query) {
+			try {
+				GeneDBAdaptor geneAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species);
+				List<List<Gene>> geneList = geneAdaptor.getAllByNameList(StringUtils.toList(query, ","));
+				List<List<Snp>> result = new ArrayList<List<Snp>>();
+				SnpDBAdaptor snpAdaptor = dbAdaptorFactory.getSnpDBAdaptor(this.species);
+				
+				for (List<Gene> list : geneList) {
+					List<Snp> resultSNP = new ArrayList<Snp>();
+					for (Gene gene : list) {
+						resultSNP.addAll(snpAdaptor.getAllByRegion(new Region(gene.getChromosome(), gene.getStart(), gene.getEnd())));
+					}
+					result.add(resultSNP);
+				}
+				return  generateResponse(query, result);
+			} catch (Exception e) {
+				return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			}
+	}
+	
 
 
 }
