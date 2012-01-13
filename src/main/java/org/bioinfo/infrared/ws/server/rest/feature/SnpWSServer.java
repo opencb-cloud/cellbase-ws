@@ -42,7 +42,7 @@ public class SnpWSServer extends GenericRestWSServer {
 		try {
 			
 			SnpDBAdaptor adapter = dbAdaptorFactory.getSnpDBAdaptor(this.species);
-			return  generateResponse(query, adapter.getByDbSnpIdList(StringUtils.toList(query, ",")));
+			return  generateResponse(query, adapter.getAllBySnpIdList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
@@ -66,7 +66,7 @@ public class SnpWSServer extends GenericRestWSServer {
 	@Path("/{snpId}/fullinfo")
 	public Response getFullInfoById(@PathParam("snpId") String query) {
 		try {
-			List<List<Snp>> snpLists = getSnpDBAdaptor().getByDbSnpIdList(StringUtils.toList(query, ","));
+			List<List<Snp>> snpLists = getSnpDBAdaptor().getAllBySnpIdList(StringUtils.toList(query, ","));
 			
 			StringBuilder response = new StringBuilder();
 			response.append("[");
@@ -117,7 +117,7 @@ public class SnpWSServer extends GenericRestWSServer {
 	private Response getConsequenceType(String snpId) {
 		try {
 			SnpDBAdaptor snpDBAdaptor = dbAdaptorFactory.getSnpDBAdaptor(species, version);
-			return generateResponse(query, snpDBAdaptor.g adaptor.getAllByTargetGeneNameList(StringUtils.toList(query, ",")));
+			return generateResponse(snpId, snpDBAdaptor.getAllConsequenceTypesBySnpIdList(StringUtils.toList(snpId, ",")));
 		} catch (Exception e) {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
