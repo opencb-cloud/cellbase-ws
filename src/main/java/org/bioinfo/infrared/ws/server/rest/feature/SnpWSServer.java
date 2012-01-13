@@ -5,9 +5,11 @@ import java.util.Arrays;
 import java.util.List;
 
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
@@ -15,6 +17,8 @@ import javax.ws.rs.core.UriInfo;
 import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.infrared.core.cellbase.Snp;
 import org.bioinfo.infrared.lib.api.SnpDBAdaptor;
+import org.bioinfo.infrared.lib.api.TfbsDBAdaptor;
+import org.bioinfo.infrared.lib.api.TranscriptDBAdaptor;
 import org.bioinfo.infrared.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
 
@@ -44,9 +48,6 @@ public class SnpWSServer extends GenericRestWSServer {
 		}
 	}
 
-	
-	
-	
 //	private int snpId;
 //	private String name;
 //	private String chromosome;
@@ -61,7 +62,6 @@ public class SnpWSServer extends GenericRestWSServer {
 //	private String soConsequenceType;
 //	private String displayConsequence;
 //	private String sequence;
-	
 	@GET
 	@Path("/{snpId}/fullinfo")
 	public Response getFullInfoById(@PathParam("snpId") String query) {
@@ -101,38 +101,59 @@ public class SnpWSServer extends GenericRestWSServer {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
 	}	
-	
-//	@GET
-//	@Path("/{snpId}/info")
-//	public Response getBySnpName(@PathParam("snpId") String snpId) {
-//		try {
-//			List<String> identifiers = StringUtils.toList(snpId, ",");
-//			Criteria criteria = this.getSession().createCriteria(Snp.class);
-//			Disjunction disjunction = Restrictions.disjunction();
-//			for (String id : identifiers) {
-//				disjunction.add(Restrictions.eq("name", id.trim()));
-//			}
-//			criteria.add(disjunction);
-//			return  generateResponse(criteria);
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
-//		}
-//	}
-	
-	
-//	@GET
-//	@Path("/{snpId}/population")
-//	public Response getPopulationBySnpName(@PathParam("snpId") String snpId) {
-//		try {
-//			Criteria criteria =  this.getSession().createCriteria(PopulationFrequency.class)
-//			.createCriteria("snp").add( Restrictions.eq("name", snpId));
-//			return generateResponse(criteria);
-//		} catch (Exception e) {
-//			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
-//		}
-//	}
 
-
-
+	@GET
+	@Path("/{snpId}/consequence_type")
+	public Response getConsequenceTypeByGetMethod(@PathParam("snpId") String snpId) {
+		return getConsequenceType(snpId);
+	}
+	
+	@POST
+	@Path("/consequence_type")
+	public Response getConsequenceTypeByPostMethod(@QueryParam("id") String snpId) {
+		return getConsequenceType(snpId);
+	}
+	
+	private Response getConsequenceType(String snpId) {
+		try {
+			SnpDBAdaptor snpDBAdaptor = dbAdaptorFactory.getSnpDBAdaptor(species, version);
+			return generateResponse(query, snpDBAdaptor.g adaptor.getAllByTargetGeneNameList(StringUtils.toList(query, ",")));
+		} catch (Exception e) {
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		}
+	}
+	
+	@GET
+	@Path("/{snpId}/population_frequency")
+	public Response getPopulationFrequency(@PathParam("snpId") String snpId) {
+		try {
+			return null;
+		} catch (Exception e) {
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		}
+	}
+	
+	@GET
+	@Path("/snpId}/phenotype")
+	public Response getPhenotype(@PathParam("geneId") String query) {
+		try {
+			TranscriptDBAdaptor dbAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
+			return  generateResponse(query, Arrays.asList(dbAdaptor.getByEnsemblGeneIdList(StringUtils.toList(query, ","))));
+		} catch (Exception e) {
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		}
+	}
+	
+	@GET
+	@Path("/snpId}/xref")
+	public Response getXrefs(@PathParam("geneId") String query) {
+		try {
+			TfbsDBAdaptor adaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species);
+			return  generateResponse(query, adaptor.getAllByTargetGeneNameList(StringUtils.toList(query, ",")));
+		} catch (Exception e) {
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		}
+	}
+	
+	
 }
