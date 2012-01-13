@@ -32,7 +32,6 @@ import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
 
 import com.sun.jersey.api.client.ClientResponse.Status;
 
-
 @Path("/{version}/{species}/genomic/region")
 @Produces("text/plain")
 public class RegionWSServer extends GenericRestWSServer {
@@ -57,6 +56,7 @@ public class RegionWSServer extends GenericRestWSServer {
 				return value;
 			}
 			catch(Exception exp){
+				exp.printStackTrace();
 				/** malformed string y no se puede castear a int **/
 				return value;
 			}

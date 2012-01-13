@@ -17,7 +17,12 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.bioinfo.commons.utils.StringUtils;
+import org.bioinfo.infrared.core.cellbase.Gene;
+import org.bioinfo.infrared.lib.api.ExonDBAdaptor;
+import org.bioinfo.infrared.lib.api.GeneDBAdaptor;
 import org.bioinfo.infrared.lib.api.GenomicRegionFeatureDBAdaptor;
+import org.bioinfo.infrared.lib.api.SnpDBAdaptor;
+import org.bioinfo.infrared.lib.api.TranscriptDBAdaptor;
 import org.bioinfo.infrared.lib.common.Position;
 import org.bioinfo.infrared.lib.common.Region;
 import org.bioinfo.infrared.ws.server.rest.GenericRestWSServer;
@@ -72,6 +77,43 @@ public class PositionWSServer extends GenericRestWSServer {
 //		}
 //	}
 //	
+	
+	@GET
+	@Path("/{geneId}/gene")
+	public Response getGeneByPosition(@PathParam("geneId") String query) {
+			try {
+				List<Position> positionList = Position.parsePositions(query);
+				GeneDBAdaptor geneAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species);
+				return  generateResponse(query,  geneAdaptor.getAllByPositionList(positionList));
+			} catch (Exception e) {
+				return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			}
+	}
+	
+	@GET
+	@Path("/{geneId}/transcript")
+	public Response getTranscriptByPosition(@PathParam("geneId") String query) {
+			try {
+				List<Position> positionList = Position.parsePositions(query);
+				TranscriptDBAdaptor transcriptAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
+				return  generateResponse(query,  transcriptAdaptor.getAllByPositionList(positionList));
+			} catch (Exception e) {
+				return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			}
+	}
+	
+	@GET
+	@Path("/{geneId}/snp")
+	public Response getSNPByPosition(@PathParam("geneId") String query) {
+			try {
+				List<Position> positionList = Position.parsePositions(query);
+				SnpDBAdaptor snpAdaptor = dbAdaptorFactory.getSnpDBAdaptor(this.species);
+				return  generateResponse(query,  snpAdaptor.getAllByPositionList(positionList));
+			} catch (Exception e) {
+				return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			}
+	}
+	
 	@POST
 	@Path("/{positionId}/consequence_type")
 	public Response getConsequenceTypeByPositionPost(@PathParam("positionId") String positionId) {
@@ -83,14 +125,10 @@ public class PositionWSServer extends GenericRestWSServer {
 		return null;
 	}
 	
-	
 	@GET
 	@Path("/{positionId}/functional")
 	public Response getFunctionalByPositionGet(@PathParam("positionId") String positionId, @DefaultValue("") @QueryParam("source") String source) {
 		return Response.ok("/{positionId}/functional").build();
-		
-		
-//		return getFunctionalByPosition(positionId);
 	}
 	
 	@POST
@@ -103,8 +141,4 @@ public class PositionWSServer extends GenericRestWSServer {
 		List<Position> positionList = Position.parsePositions(positionId);
 		return null;
 	}
-	
-	
-	
-	
 }

@@ -16,6 +16,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.bioinfo.commons.utils.StringUtils;
+import org.bioinfo.infrared.core.cellbase.Exon;
 import org.bioinfo.infrared.core.cellbase.Gene;
 import org.bioinfo.infrared.core.cellbase.Snp;
 import org.bioinfo.infrared.core.cellbase.Transcript;
@@ -189,6 +190,27 @@ public class GeneWSServer extends GenericRestWSServer {
 				return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 			}
 	}
+	
+	@GET
+	@Path("/{geneId}/exon")
+	public Response getExonByGene(@PathParam("geneId") String query) {
+			try {
+				GeneDBAdaptor geneAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species);
+				List<List<Gene>> geneList = geneAdaptor.getAllByNameList(StringUtils.toList(query, ","));
+				
+				List ensemblIds = new ArrayList<String>();
+				for (List<Gene> list : geneList) {
+					for (Gene gene : list) {
+						ensemblIds.add(gene.getStableId());
+					}
+				}
+				ExonDBAdaptor exonDBAdaptor = dbAdaptorFactory.getExonDBAdaptor(this.species);
+				return  generateResponse(query, exonDBAdaptor.getByEnsemblGeneIdList(ensemblIds));
+			} catch (Exception e) {
+				return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			}
+	}
+	
 	
 
 
