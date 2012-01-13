@@ -28,6 +28,7 @@ import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.infrared.dao.utils.HibernateUtil;
 import org.bioinfo.infrared.lib.impl.DBAdaptorFactory;
 import org.bioinfo.infrared.lib.impl.hibernate.HibernateDBAdaptorFactory;
+import org.bioinfo.infrared.lib.io.output.StringWriter;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
 import org.hibernate.Criteria;
 import org.hibernate.Query;
@@ -227,10 +228,10 @@ public class GenericRestWSServer implements IWSServer {
 	protected Response generateResponse(String queryString, List features) throws IOException {
 		logger.info("-------------");
 		if (queryString.length()>99){
-			logger.debug("\t\t -Response: " + queryString.substring(0,100) + ".....");
+			logger.debug("\t\t - Response: " + queryString.substring(0,100) + ".....");
 		}
 		else{
-			logger.debug("\t\t -Response: " + queryString);
+			logger.debug("\t\t - Response: " + queryString);
 		}
 		
 //		logger.info(features.toString());
@@ -244,7 +245,7 @@ public class GenericRestWSServer implements IWSServer {
 					response = convertToJsonText(response);
 				}else {
 					mediaType = MediaType.TEXT_PLAIN_TYPE;
-					response = org.bioinfo.infrared.lib.io.output.StringWriter.serialize(features);
+					response = StringWriter.serialize(features);
 				}
 			}
 

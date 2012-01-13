@@ -61,8 +61,6 @@ public class ProteinWSServer extends GenericRestWSServer {
 	public Response getFeatures(@PathParam("proteinId") String query, @DefaultValue("") @QueryParam("type") String type) {
 		try {
 			ProteinDBAdaptor adaptor = dbAdaptorFactory.getProteinDBAdaptor(this.species);
-//			return generateResponse(query, adaptor.getAllProteinFeaturesByUniprotIdList(StringUtils.toList(query, ",")));
-			// this si slower but finds everything
 			return generateResponse(query, adaptor.getAllProteinFeaturesByProteinXrefList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
@@ -77,10 +75,10 @@ public class ProteinWSServer extends GenericRestWSServer {
 	
 	@GET
 	@Path("/{proteinId}/xref")
-	public Response getTargetGene(@PathParam("proteinId") String query, @DefaultValue("") @QueryParam("dbname") String dbname) {
+	public Response getXrefs(@PathParam("proteinId") String proteinId, @DefaultValue("") @QueryParam("dbname") String dbname) {
 		try {
 			ProteinDBAdaptor adaptor = dbAdaptorFactory.getProteinDBAdaptor(this.species);
-			return generateResponse(query, adaptor.getAllProteinXrefsByProteinNameList(StringUtils.toList(dbname, ",")));
+			return generateResponse(proteinId, adaptor.getAllProteinXrefsByProteinNameList(StringUtils.toList(proteinId, ",")));
 		} catch (Exception e) {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
