@@ -114,14 +114,10 @@ public class SnpWSServer extends GenericRestWSServer {
 		return getConsequenceType(snpId);
 	}
 	
-	private Response getConsequenceType(String query) {
+	private Response getConsequenceType(String snpId) {
 		try {
 			SnpDBAdaptor snpDBAdaptor = dbAdaptorFactory.getSnpDBAdaptor(species, version);
-<<<<<<< HEAD
-			return generateResponse(query,snpDBAdaptor.getAllByTargetGeneNameList(StringUtils.toList(query, ",")));
-=======
 			return generateResponse(snpId, snpDBAdaptor.getAllConsequenceTypesBySnpIdList(StringUtils.toList(snpId, ",")));
->>>>>>> afe1b37ed72d042efeaea73dd3b53e179d6e4213
 		} catch (Exception e) {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}

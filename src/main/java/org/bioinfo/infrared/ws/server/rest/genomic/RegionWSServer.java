@@ -27,6 +27,8 @@ import org.bioinfo.infrared.lib.api.TranscriptDBAdaptor;
 import org.bioinfo.infrared.lib.common.GenomeSequenceFeature;
 import org.bioinfo.infrared.lib.common.Region;
 import org.bioinfo.infrared.lib.impl.hibernate.GenomeSequenceDBAdaptor;
+import org.bioinfo.infrared.lib.impl.hibernate.GenomicRegionFeatureHibernateDBAdaptor;
+import org.bioinfo.infrared.lib.impl.hibernate.GenomicRegionFeatures;
 import org.bioinfo.infrared.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
 
@@ -189,13 +191,27 @@ public class RegionWSServer extends GenericRestWSServer {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
 	}
+	
+	@GET
+	@Path("/{chrRegionId}/feature")
+	public Response getFeatureMap(@PathParam("chrRegionId") String chregionId) {
+		try {
+			List<Region> regions = Region.parseRegions(chregionId);
+			RegulatoryRegionDBAdaptor adaptor = dbAdaptorFactory.getRegulatoryRegionDBAdaptor(this.species);
+			
+			return this.generateResponse(chregionId, adaptor.getAllFeatureMapByRegion(regions));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		}
+	}
 
 	
 	@GET
 	@Path("/{chrRegionId}/regulatory")
 	public Response getRegulatoryByRegion(@DefaultValue("")@QueryParam("type")String type, @PathParam("chrRegionId") String chregionId) {
 		try {
-			/** type ["open chromatin", "Polymerase", "HISTONE"] **/
+			/** type ["open chromatin", "Polymerase", "HISTONE", "Transcription Factor"] **/
 			List<Region> regions = Region.parseRegions(chregionId);
 			RegulatoryRegionDBAdaptor adaptor = dbAdaptorFactory.getRegulatoryRegionDBAdaptor(this.species);
 			
