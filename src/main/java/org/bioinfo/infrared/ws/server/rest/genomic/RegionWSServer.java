@@ -19,6 +19,7 @@ import org.bioinfo.infrared.core.cellbase.RegulatoryRegion;
 import org.bioinfo.infrared.lib.api.CytobandDBAdaptor;
 import org.bioinfo.infrared.lib.api.ExonDBAdaptor;
 import org.bioinfo.infrared.lib.api.GeneDBAdaptor;
+import org.bioinfo.infrared.lib.api.GenomeSequenceDBAdaptor;
 import org.bioinfo.infrared.lib.api.MirnaDBAdaptor;
 import org.bioinfo.infrared.lib.api.RegulatoryRegionDBAdaptor;
 import org.bioinfo.infrared.lib.api.SnpDBAdaptor;
@@ -26,13 +27,11 @@ import org.bioinfo.infrared.lib.api.TfbsDBAdaptor;
 import org.bioinfo.infrared.lib.api.TranscriptDBAdaptor;
 import org.bioinfo.infrared.lib.common.GenomeSequenceFeature;
 import org.bioinfo.infrared.lib.common.Region;
-import org.bioinfo.infrared.lib.impl.hibernate.GenomeSequenceDBAdaptor;
-import org.bioinfo.infrared.lib.impl.hibernate.GenomicRegionFeatureHibernateDBAdaptor;
-import org.bioinfo.infrared.lib.impl.hibernate.GenomicRegionFeatures;
 import org.bioinfo.infrared.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
 
 import com.sun.jersey.api.client.ClientResponse.Status;
+
 
 @Path("/{version}/{species}/genomic/region")
 @Produces("text/plain")
@@ -44,12 +43,12 @@ public class RegionWSServer extends GenericRestWSServer {
 	}
 	
 	
-	private String getHistogramParameter(){
+	private String getHistogramParameter() {
 		MultivaluedMap<String, String> parameters = uriInfo.getQueryParameters();
 		return (parameters.get("histogram") != null) ? parameters.get("histogram").get(0) : "false";
 	}
 	
-	private int getHistogramIntervalSize(){
+	private int getHistogramIntervalSize() {
 		MultivaluedMap<String, String> parameters = uriInfo.getQueryParameters();
 		if (parameters.containsKey("interval")){
 			int value = this.histogramIntervalSize;
@@ -68,7 +67,7 @@ public class RegionWSServer extends GenericRestWSServer {
 		}
 	}
 	
-	private boolean hasHistogramQueryParam(){
+	private boolean hasHistogramQueryParam() {
 		if (getHistogramParameter().toLowerCase().equals("true")){
 			return true;
 		}
@@ -85,7 +84,10 @@ public class RegionWSServer extends GenericRestWSServer {
 		List<Region> regions = Region.parseRegions(chregionId);
 		try {
 			if (hasHistogramQueryParam()){
-				return generateResponse(chregionId, getHistogramByFeatures(dbAdaptor.getAllByRegionList(regions)));
+				long t1 = System.currentTimeMillis();
+				Response resp = generateResponse(chregionId, getHistogramByFeatures(dbAdaptor.getAllByRegionList(regions)));
+				logger.info("Old histogram: "+(System.currentTimeMillis()-t1)+",  resp: "+resp.toString());
+				return resp;
 			}
 			else{
 				return generateResponse(chregionId, dbAdaptor.getAllByRegionList(regions));

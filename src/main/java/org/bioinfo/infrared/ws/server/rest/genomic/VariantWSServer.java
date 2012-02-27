@@ -21,6 +21,7 @@ import org.bioinfo.infrared.core.cellbase.Transcript;
 import org.bioinfo.infrared.lib.api.TranscriptDBAdaptor;
 import org.bioinfo.infrared.lib.common.GenomicVariant;
 import org.bioinfo.infrared.lib.common.GenomicVariantEffect;
+import org.bioinfo.infrared.lib.impl.hibernate.GenomicVariantEffectDBAdaptor;
 import org.bioinfo.infrared.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
 
@@ -37,12 +38,12 @@ public class VariantWSServer extends GenericRestWSServer {
 		super(version, species, uriInfo);
 		
 		if (CACHE_TRANSCRIPT.get(this.species) == null){
-			logger.debug("\tCACHE_TRANSCRIPT is null");
+//			logger.debug("\tCACHE_TRANSCRIPT is null");
 			long t0 = System.currentTimeMillis();
 			TranscriptDBAdaptor adaptor = dbAdaptorFactory.getTranscriptDBAdaptor(species);
-			CACHE_TRANSCRIPT.put(species, adaptor.getAll());
+//			CACHE_TRANSCRIPT.put(species, adaptor.getAll());
 			logger.debug("\t\tFilling up for " + this.species + " in " + (System.currentTimeMillis() - t0) + " ms");
-			logger.debug("\t\tNumber of transcripts: " + CACHE_TRANSCRIPT.get(this.species).size());
+//			logger.debug("\t\tNumber of transcripts: " + CACHE_TRANSCRIPT.get(this.species).size());
 		}
 	}
 
@@ -64,12 +65,11 @@ public class VariantWSServer extends GenericRestWSServer {
 	@POST
 	@Path("/consequence_type")
 	public Response getConsequenceTypeByPositionByPost(@FormParam("positionId") String postQuery){
-		
 		String features = "true";
 		String variation = "true"; 
 		String regulatory = "true";
 		String diseases = "true";
-		
+		System.out.println("postQuery: "+postQuery);
 		postQuery = postQuery.replace("?", "%");
 		
 		String query = Arrays.asList(postQuery.split("%")).get(0);
@@ -101,8 +101,8 @@ public class VariantWSServer extends GenericRestWSServer {
 			}
 			
 			List<GenomicVariant> variants = GenomicVariant.parseVariants(query);
-			GenomicVariantEffect gv = new GenomicVariantEffect(this.species);
-			
+//			GenomicVariantEffect gv = new GenomicVariantEffect(this.species);
+			GenomicVariantEffectDBAdaptor gv = dbAdaptorFactory.getGenomicVariantEffectDBAdaptor(species);
 			if (features.equalsIgnoreCase("true")){
 				gv.setShowFeatures(true);
 			}
@@ -131,15 +131,11 @@ public class VariantWSServer extends GenericRestWSServer {
 				gv.setShowDiseases(false);
 			}
 			
-			return generateResponse(query, gv.getConsequenceType(variants, CACHE_TRANSCRIPT.get(this.species)));
+//			return generateResponse(query, gv.getConsequenceType(variants, CACHE_TRANSCRIPT.get(this.species)));
+			return generateResponse(query, gv.getAllConsequenceTypeByVariantList(variants));
 		} catch (Exception e) {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
 	}
-	
-	
-	
-
-	
 	
 }

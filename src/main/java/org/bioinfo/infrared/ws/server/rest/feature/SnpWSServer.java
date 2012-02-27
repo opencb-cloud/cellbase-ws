@@ -30,17 +30,15 @@ public class SnpWSServer extends GenericRestWSServer {
 	public SnpWSServer(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo) throws VersionException, IOException {
 		super(version, species, uriInfo);
 	}
-	
+
 	private SnpDBAdaptor getSnpDBAdaptor(){
 		return dbAdaptorFactory.getSnpDBAdaptor(this.species);
 	}
-	
+
 	@GET
 	@Path("/{snpId}/info")
 	public Response getByEnsemblId(@PathParam("snpId") String query) {
-		
 		try {
-			
 			SnpDBAdaptor adapter = dbAdaptorFactory.getSnpDBAdaptor(this.species);
 			return  generateResponse(query, adapter.getAllBySnpIdList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
@@ -48,26 +46,26 @@ public class SnpWSServer extends GenericRestWSServer {
 		}
 	}
 
-//	private int snpId;
-//	private String name;
-//	private String chromosome;
-//	private int start;
-//	private int end;
-//	private String strand;
-//	private int mapWeight;
-//	private String alleleString;
-//	private String ancestralAllele;
-//	private String source;
-//	private String displaySoConsequence;
-//	private String soConsequenceType;
-//	private String displayConsequence;
-//	private String sequence;
+	//	private int snpId;
+	//	private String name;
+	//	private String chromosome;
+	//	private int start;
+	//	private int end;
+	//	private String strand;
+	//	private int mapWeight;
+	//	private String alleleString;
+	//	private String ancestralAllele;
+	//	private String source;
+	//	private String displaySoConsequence;
+	//	private String soConsequenceType;
+	//	private String displayConsequence;
+	//	private String sequence;
 	@GET
 	@Path("/{snpId}/fullinfo")
 	public Response getFullInfoById(@PathParam("snpId") String query) {
 		try {
 			List<List<Snp>> snpLists = getSnpDBAdaptor().getAllBySnpIdList(StringUtils.toList(query, ","));
-			
+
 			StringBuilder response = new StringBuilder();
 			response.append("[");
 			for(List<Snp> snps : snpLists){
@@ -93,7 +91,7 @@ public class SnpWSServer extends GenericRestWSServer {
 				response.replace(response.length()-3, response.length()-2, "");
 			}
 			response.append("]");
-			
+
 			//Remove the last comma
 			response.replace(response.length()-2, response.length()-1, "");
 			return  generateResponse(query,Arrays.asList(response));
@@ -102,18 +100,19 @@ public class SnpWSServer extends GenericRestWSServer {
 		}
 	}	
 
+	
 	@GET
 	@Path("/{snpId}/consequence_type")
 	public Response getConsequenceTypeByGetMethod(@PathParam("snpId") String snpId) {
 		return getConsequenceType(snpId);
 	}
-	
+
 	@POST
 	@Path("/consequence_type")
 	public Response getConsequenceTypeByPostMethod(@QueryParam("id") String snpId) {
 		return getConsequenceType(snpId);
 	}
-	
+
 	private Response getConsequenceType(String snpId) {
 		try {
 			SnpDBAdaptor snpDBAdaptor = dbAdaptorFactory.getSnpDBAdaptor(species, version);
@@ -122,6 +121,7 @@ public class SnpWSServer extends GenericRestWSServer {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
 	}
+
 	
 	@GET
 	@Path("/{snpId}/population_frequency")
@@ -132,7 +132,7 @@ public class SnpWSServer extends GenericRestWSServer {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
 	}
-	
+
 	@GET
 	@Path("/snpId}/phenotype")
 	public Response getPhenotype(@PathParam("geneId") String query) {
@@ -143,7 +143,7 @@ public class SnpWSServer extends GenericRestWSServer {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
 	}
-	
+
 	@GET
 	@Path("/snpId}/xref")
 	public Response getXrefs(@PathParam("geneId") String query) {
@@ -154,6 +154,6 @@ public class SnpWSServer extends GenericRestWSServer {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
 	}
-	
-	
+
+
 }

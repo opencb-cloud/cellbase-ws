@@ -28,12 +28,11 @@ import com.sun.jersey.api.client.ClientResponse.Status;
 @Produces("text/plain")
 public class ExonWSServer extends GenericRestWSServer {
 	
-	
-	
 	public ExonWSServer(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo) throws VersionException, IOException {
 		super(version, species, uriInfo);
 	}
 	
+	@Deprecated
 	private ExonDBAdaptor getExonDBAdaptor(){
 		return dbAdaptorFactory.getExonDBAdaptor(this.species);
 	}
