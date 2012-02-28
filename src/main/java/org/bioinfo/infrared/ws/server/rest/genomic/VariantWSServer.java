@@ -20,7 +20,6 @@ import javax.ws.rs.core.UriInfo;
 import org.bioinfo.infrared.core.cellbase.Transcript;
 import org.bioinfo.infrared.lib.api.TranscriptDBAdaptor;
 import org.bioinfo.infrared.lib.common.GenomicVariant;
-import org.bioinfo.infrared.lib.common.GenomicVariantEffect;
 import org.bioinfo.infrared.lib.impl.hibernate.GenomicVariantEffectDBAdaptor;
 import org.bioinfo.infrared.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
