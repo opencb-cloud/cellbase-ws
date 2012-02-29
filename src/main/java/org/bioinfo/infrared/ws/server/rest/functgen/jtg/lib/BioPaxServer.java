@@ -1,38 +1,41 @@
 package org.bioinfo.infrared.ws.server.rest.functgen.jtg.lib;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.bioinfo.biopax.core.SessionManager;
+import org.bioinfo.biopax.model.BioEntity;
+import org.bioinfo.biopax.model.Catalysis;
+import org.bioinfo.biopax.model.Complex;
+import org.bioinfo.biopax.model.Control;
+import org.bioinfo.biopax.model.Conversion;
+import org.bioinfo.biopax.model.DataSource;
+import org.bioinfo.biopax.model.Dna;
+import org.bioinfo.biopax.model.Dnaregion;
+import org.bioinfo.biopax.model.GeneticInteraction;
+import org.bioinfo.biopax.model.Interaction;
+import org.bioinfo.biopax.model.MolecularInteraction;
+import org.bioinfo.biopax.model.NameEntity;
+import org.bioinfo.biopax.model.Pathway;
+import org.bioinfo.biopax.model.PathwayStep;
+import org.bioinfo.biopax.model.PhysicalEntity;
+import org.bioinfo.biopax.model.Protein;
+import org.bioinfo.biopax.model.ProteinReference;
+import org.bioinfo.biopax.model.Rna;
+import org.bioinfo.biopax.model.Rnaregion;
+import org.bioinfo.biopax.model.SmallMolecule;
+import org.bioinfo.biopax.model.TemplateReaction;
+import org.bioinfo.biopax.model.Xref;
 import org.bioinfo.commons.utils.ListUtils;
-import org.bioinfo.infrared.core.biopax.v3.BioEntity;
-import org.bioinfo.infrared.core.biopax.v3.Catalysis;
-import org.bioinfo.infrared.core.biopax.v3.Complex;
-import org.bioinfo.infrared.core.biopax.v3.Control;
-import org.bioinfo.infrared.core.biopax.v3.Conversion;
-import org.bioinfo.infrared.core.biopax.v3.DataSource;
-import org.bioinfo.infrared.core.biopax.v3.Dna;
-import org.bioinfo.infrared.core.biopax.v3.Dnaregion;
-import org.bioinfo.infrared.core.biopax.v3.GeneticInteraction;
-import org.bioinfo.infrared.core.biopax.v3.Interaction;
-import org.bioinfo.infrared.core.biopax.v3.MolecularInteraction;
-import org.bioinfo.infrared.core.biopax.v3.NameEntity;
-import org.bioinfo.infrared.core.biopax.v3.Pathway;
-import org.bioinfo.infrared.core.biopax.v3.PathwayStep;
-import org.bioinfo.infrared.core.biopax.v3.PhysicalEntity;
-import org.bioinfo.infrared.core.biopax.v3.Protein;
-import org.bioinfo.infrared.core.biopax.v3.ProteinReference;
-import org.bioinfo.infrared.core.biopax.v3.Rna;
-import org.bioinfo.infrared.core.biopax.v3.Rnaregion;
-import org.bioinfo.infrared.core.biopax.v3.SmallMolecule;
-import org.bioinfo.infrared.core.biopax.v3.TemplateReaction;
-import org.bioinfo.infrared.core.biopax.v3.Xref;
+import org.bioinfo.formats.core.graph.dot.Edge;
+import org.bioinfo.formats.core.graph.dot.Node;
 import org.hibernate.Hibernate;
 import org.hibernate.Query;
 import org.hibernate.Session;
 
-@Deprecated
 public class BioPaxServer {
 
 	private Session session = SessionManager.createSession();

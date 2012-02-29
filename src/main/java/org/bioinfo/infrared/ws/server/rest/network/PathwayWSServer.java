@@ -1,7 +1,7 @@
 package org.bioinfo.infrared.ws.server.rest.network;
 
+import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -11,10 +11,13 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import org.bioinfo.commons.io.utils.IOUtils;
 import org.bioinfo.commons.utils.StringUtils;
+import org.bioinfo.formats.core.graph.dot.Dot;
 import org.bioinfo.infrared.core.biopax.v3.BioEntity;
 import org.bioinfo.infrared.core.biopax.v3.Interaction;
 import org.bioinfo.infrared.core.biopax.v3.NameEntity;
@@ -23,7 +26,9 @@ import org.bioinfo.infrared.lib.api.BioPaxDBAdaptor;
 import org.bioinfo.infrared.lib.api.TfbsDBAdaptor;
 import org.bioinfo.infrared.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
+import org.bioinfo.infrared.ws.server.rest.functgen.jtg.lib.DotServer;
 
+import com.google.gson.Gson;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 @Path("/{version}/{species}/network/pathway")
@@ -53,22 +58,82 @@ public class PathwayWSServer extends GenericRestWSServer {
 	}
 
 	@GET
-	@Path("/annotation")
-	public Response getPathwayAnnotation() {
+	@Path("/{pathwayId}/info")
+	public Response getPathwayInfo(@PathParam("pathwayId") String query) {
 		try {
-			TfbsDBAdaptor adaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species);
-			return null;
+			
+			StringBuilder sb = new StringBuilder();
+			BioPaxDBAdaptor dbAdaptor = dbAdaptorFactory.getBioPaxDBAdaptor(this.species);
+			Pathway pathway = dbAdaptor.getPathway(query, "Reactome");
+			return generateResponse("", pathway);
 		} catch (Exception e) {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
 	}
 
+	
 	@GET
-	@Path("/{pathwayId}/info")
-	public Response getPathwayInfo(@PathParam("pathwayId") String query) {
+	@Path("/{pathwayId}/image")
+	public Response getPathwayImage(@PathParam("pathwayId") String query) {
+		try {
+			
+			BioPaxDBAdaptor dbAdaptor = dbAdaptorFactory.getBioPaxDBAdaptor(this.species);
+			Pathway pathway = dbAdaptor.getPathway(query, "Reactome");
+			
+			if (pathway!=null) {
+				String contentType = "image/jpeg";
+				String outFormat = "jpg";
+				
+				String filename = query.replace(" ", "_").replace("(", "").replace(")", "").replace("/", "_").replace(":", "_");
+
+				DotServer dotServer = new DotServer();
+				Dot dot = dotServer.generateDot(pathway);
+
+				try {
+
+					File dotFile = new File("/tmp/" + filename + ".in");
+					File imgFile = new File("/tmp/" + filename + "." + outFormat);
+
+					dot.save(dotFile);
+					String cmd;
+					if ("dot".equalsIgnoreCase(outFormat) || "dotp".equalsIgnoreCase(outFormat)) {
+						cmd = "dot " + dotFile.getAbsolutePath() + " -o " + imgFile.getAbsolutePath();
+					} else {
+						cmd = "dot -T" + outFormat + " " + dotFile.getAbsolutePath() + " -o " + imgFile.getAbsolutePath();
+					}
+					System.out.println("-----------------------> cmd = " + cmd);
+					Runtime.getRuntime().exec(cmd);
+					Thread.sleep(2000);
+					if (imgFile.exists()) {
+						System.out.println("-----------------------> image exists !!!");			
+						if ("dotp".equalsIgnoreCase(outFormat)) {
+							String out = "var response = (" +  new Gson().toJson(IOUtils.readLines(imgFile)) + ")";
+							return Response.ok(out).build();
+						} else {
+							return Response.ok(imgFile, contentType).build();
+						}					
+					} else {
+						System.out.println("-----------------------> image DO NOT exist !!!");
+						return Response.ok("An error occurred generating image for pathway '" + query + "'", MediaType.valueOf("text/plain")).build();
+					}
+				} catch (Exception e) {
+					return Response.ok("An error occurred generating image for pathway '" + query + "': " + e.getMessage(), MediaType.valueOf("text/plain")).build();
+				}
+			} else {
+				return Response.ok("Could not find pathway '" + query + "'", MediaType.valueOf("text/plain")).build(); 
+			}
+		} catch (Exception e) {
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		}
+	}
+	
+	
+	@GET
+	@Path("/annotation")
+	public Response getPathwayAnnotation() {
 		try {
 			TfbsDBAdaptor adaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species);
-			return generateResponse(query, adaptor.getAllByTfGeneNameList(StringUtils.toList(query, ",")));
+			return null;
 		} catch (Exception e) {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
