@@ -23,7 +23,7 @@ import org.bioinfo.infrared.core.biopax.v3.Pathway;
 import org.bioinfo.infrared.core.biopax.v3.Protein;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
 import org.bioinfo.infrared.ws.server.rest.functgen.jtg.lib.ComplexComponent;
-import org.bioinfo.infrared.ws.server.rest.functgen.jtg.lib.DotServer;
+import org.bioinfo.infrared.ws.server.rest.network.DotServer;
 
 import com.google.gson.Gson;
 

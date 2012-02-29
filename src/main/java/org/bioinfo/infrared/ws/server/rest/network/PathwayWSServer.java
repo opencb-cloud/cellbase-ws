@@ -26,7 +26,6 @@ import org.bioinfo.infrared.lib.api.BioPaxDBAdaptor;
 import org.bioinfo.infrared.lib.api.TfbsDBAdaptor;
 import org.bioinfo.infrared.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
-import org.bioinfo.infrared.ws.server.rest.functgen.jtg.lib.DotServer;
 
 import com.google.gson.Gson;
 import com.sun.jersey.api.client.ClientResponse.Status;

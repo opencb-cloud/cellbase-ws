@@ -16,12 +16,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.bioinfo.commons.io.utils.IOUtils;
-import org.bioinfo.formats.core.graph.dot.Dot;
-import org.bioinfo.infrared.core.biopax.v3.Interaction;
-import org.bioinfo.infrared.core.biopax.v3.Pathway;
-import org.bioinfo.infrared.lib.api.BioPaxDBAdaptor;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
-import org.bioinfo.infrared.ws.server.rest.functgen.jtg.lib.DotServer;
+import org.bioinfo.infrared.ws.server.rest.network.DotServer;
 
 import com.google.gson.Gson;
 
