@@ -15,13 +15,13 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import org.bioinfo.biopax.graph.DotServer;
-import org.bioinfo.biopax.model.Interaction;
-import org.bioinfo.biopax.model.NameEntity;
-import org.bioinfo.biopax.model.Pathway;
-import org.bioinfo.biopax.model.Xref;
 import org.bioinfo.commons.io.utils.IOUtils;
 import org.bioinfo.formats.core.graph.dot.Dot;
+import org.bioinfo.infrared.core.biopax.v3.Interaction;
+import org.bioinfo.infrared.core.biopax.v3.Pathway;
+import org.bioinfo.infrared.lib.api.BioPaxDBAdaptor;
+import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
+import org.bioinfo.infrared.ws.server.rest.functgen.jtg.lib.DotServer;
 
 import com.google.gson.Gson;
 
@@ -31,8 +31,8 @@ public class PathwayServer extends BioPaxWSServer {
 
 	private String dataSourceName = null;
 
-	public PathwayServer(@PathParam("version") String version, @PathParam("datasource") String dataSource, @Context UriInfo uriInfo) throws IOException {
-		super(version, uriInfo);
+	public PathwayServer(@PathParam("version") String version, @PathParam("datasource") String dataSource, @Context UriInfo uriInfo) throws IOException, VersionException {
+		super(version, dataSource, uriInfo);
 
 		this.dataSourceName = dataSource;
 	}
@@ -60,7 +60,10 @@ public class PathwayServer extends BioPaxWSServer {
 
 		StringBuilder sb = new StringBuilder();
 
-		List<Pathway> pathways = bpServer.getPathways(dataSourceName, search, onlyTopLevel);
+		BioPaxDBAdaptor dbAdaptor = dbAdaptorFactory.getBioPaxDBAdaptor(this.species);
+		
+		List<Pathway> pathways = dbAdaptor.getPathways(dataSourceName, search, onlyTopLevel);
+//		List<Pathway> pathways = bpServer.getPathways(dataSourceName, search, onlyTopLevel);
 		if (pathways!=null) {
 			if ("json".equalsIgnoreCase(contentFormat) || "jsonp".equalsIgnoreCase(contentFormat)) {
 				if ("jsonp".equalsIgnoreCase(contentFormat)) {

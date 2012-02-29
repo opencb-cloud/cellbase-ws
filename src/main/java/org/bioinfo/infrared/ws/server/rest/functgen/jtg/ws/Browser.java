@@ -3,7 +3,6 @@ package org.bioinfo.infrared.ws.server.rest.functgen.jtg.ws;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.logging.Logger;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -15,15 +14,16 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import org.bioinfo.biopax.graph.DotServer;
-import org.bioinfo.biopax.model.Complex;
-import org.bioinfo.biopax.model.DataSource;
-import org.bioinfo.biopax.model.Interaction;
-import org.bioinfo.biopax.model.Pathway;
-import org.bioinfo.biopax.model.Protein;
-import org.bioinfo.biopax.server.ComplexComponent;
 import org.bioinfo.commons.io.utils.IOUtils;
 import org.bioinfo.formats.core.graph.dot.Dot;
+import org.bioinfo.infrared.core.biopax.v3.Complex;
+import org.bioinfo.infrared.core.biopax.v3.DataSource;
+import org.bioinfo.infrared.core.biopax.v3.Interaction;
+import org.bioinfo.infrared.core.biopax.v3.Pathway;
+import org.bioinfo.infrared.core.biopax.v3.Protein;
+import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
+import org.bioinfo.infrared.ws.server.rest.functgen.jtg.lib.ComplexComponent;
+import org.bioinfo.infrared.ws.server.rest.functgen.jtg.lib.DotServer;
 
 import com.google.gson.Gson;
 
@@ -33,8 +33,8 @@ public class Browser extends BioPaxWSServer {
 
 	private String dataSourceName = null;
 
-	public Browser(@PathParam("version") String version, @PathParam("datasource") String dataSource, @Context UriInfo uriInfo) throws IOException {
-		super(version, uriInfo);
+	public Browser(@PathParam("version") String version, @PathParam("datasource") String dataSource, @Context UriInfo uriInfo) throws IOException, VersionException {
+		super(version, dataSource, uriInfo);
 
 		this.dataSourceName = dataSource;
 	}

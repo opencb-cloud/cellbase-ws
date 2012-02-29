@@ -11,17 +11,18 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 
-import org.bioinfo.biopax.model.DataSource;
-import org.bioinfo.biopax.server.DataSourceStats;
+import org.bioinfo.infrared.core.biopax.v3.DataSource;
+import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
+import org.bioinfo.infrared.ws.server.rest.functgen.jtg.lib.DataSourceStats;
 
 
 @Path("/{version}/datasources")
 public class DataSourceServer extends BioPaxWSServer {
 
-	public DataSourceServer(@PathParam("version") String version, @Context UriInfo uriInfo) throws IOException {
+	public DataSourceServer(@PathParam("version") String version, @Context UriInfo uriInfo) throws IOException, VersionException {
 		//System.out.println("********************* DataSourceServer");
 		
-		super(version, uriInfo);
+		super(version, "hsa", uriInfo);
 		
 	}
 
@@ -47,14 +48,14 @@ public class DataSourceServer extends BioPaxWSServer {
 						sb.append(",");
 					}
 					
-					sb.append("{\"name\": \"").append(ds.getName()).append("\", \"filename\" : \"").append(ds.getFilename()).append("\", \"description\" : \"").append(ds.getDescription()).append("\",").append(dsStats.toJson()).append("}");
+					sb.append("{\"name\": \"").append(ds.getSourceName()).append("\", \"description\" : \"").append(ds.getDescription()).append("\",").append(dsStats.toJson()).append("}");
 				}
 				sb.append("]});");
 			} else {
 				sb.append("#name").append("\t").append("filename").append("\t").append("description").append("\n");
 
 				for(DataSource ds: dataSources) {
-					sb.append(ds.getName()).append("\t").append(ds.getFilename()).append("\t").append(ds.getDescription()).append("\n");
+					sb.append(ds.getSourceName()).append("\t").append(ds.getDescription()).append("\n");
 				}
 			}
 		} catch (Exception e) {

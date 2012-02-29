@@ -1,23 +1,7 @@
 package org.bioinfo.infrared.ws.server.rest.functgen.jtg.lib;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
-import org.bioinfo.biopax.core.SessionManager;
-import org.bioinfo.biopax.model.Complex;
-import org.bioinfo.biopax.model.Control;
-import org.bioinfo.biopax.model.Conversion;
-import org.bioinfo.biopax.model.Interaction;
-import org.bioinfo.biopax.model.Pathway;
-import org.bioinfo.biopax.model.PhysicalEntity;
-import org.bioinfo.biopax.model.Protein;
-import org.bioinfo.biopax.model.ProteinReference;
-import org.bioinfo.biopax.model.Xref;
-import org.hibernate.Hibernate;
-import org.hibernate.Query;
-import org.hibernate.Session;
-
+@Deprecated
 public class InteractionBrowser {
 /*
 	private static Session session = SessionManager.createSession();

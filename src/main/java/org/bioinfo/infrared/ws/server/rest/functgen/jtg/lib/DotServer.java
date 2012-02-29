@@ -8,20 +8,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.bioinfo.biopax.model.Complex;
-import org.bioinfo.biopax.model.Control;
-import org.bioinfo.biopax.model.Conversion;
-import org.bioinfo.biopax.model.Interaction;
-import org.bioinfo.biopax.model.Pathway;
-import org.bioinfo.biopax.model.PathwayStep;
-import org.bioinfo.biopax.model.PhysicalEntity;
-import org.bioinfo.biopax.model.Protein;
-import org.bioinfo.biopax.model.Term;
-import org.bioinfo.biopax.server.BioPaxServer;
-import org.bioinfo.biopax.server.ComplexComponent;
 import org.bioinfo.formats.core.graph.dot.Dot;
 import org.bioinfo.formats.core.graph.dot.Edge;
 import org.bioinfo.formats.core.graph.dot.Node;
+import org.bioinfo.infrared.core.biopax.v3.Complex;
+import org.bioinfo.infrared.core.biopax.v3.Control;
+import org.bioinfo.infrared.core.biopax.v3.Conversion;
+import org.bioinfo.infrared.core.biopax.v3.Interaction;
+import org.bioinfo.infrared.core.biopax.v3.Pathway;
+import org.bioinfo.infrared.core.biopax.v3.PathwayStep;
+import org.bioinfo.infrared.core.biopax.v3.PhysicalEntity;
+import org.bioinfo.infrared.core.biopax.v3.Protein;
+import org.bioinfo.infrared.core.biopax.v3.Term;
 
 public class DotServer {
 

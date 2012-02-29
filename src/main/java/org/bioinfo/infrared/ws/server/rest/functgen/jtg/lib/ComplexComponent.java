@@ -1,5 +1,6 @@
 package org.bioinfo.infrared.ws.server.rest.functgen.jtg.lib;
 
+@Deprecated
 public class ComplexComponent {
 
 	public enum TYPE {Protein, SmallMollecule, DNA, DNARegion, RNA, RNARegion, Unknown};

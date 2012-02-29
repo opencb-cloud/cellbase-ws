@@ -1,32 +1,37 @@
 package org.bioinfo.infrared.ws.server.rest.functgen.jtg.ws;
 
+import java.io.IOException;
+
+import javax.ws.rs.PathParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 
-import org.bioinfo.biopax.server.BioPaxServer;
-import org.bioinfo.biopax.graph.DotServer;
-import org.bioinfo.biopax.model.Pathway;
-import org.bioinfo.commons.io.utils.IOUtils;
+import org.bioinfo.infrared.lib.api.BioPaxDBAdaptor;
+import org.bioinfo.infrared.ws.server.rest.GenericRestWSServer;
+import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
+import org.bioinfo.infrared.ws.server.rest.functgen.jtg.lib.BioPaxServer;
 
-public class BioPaxWSServer {
+public class BioPaxWSServer extends GenericRestWSServer {
 
 	public String version;
 	public UriInfo uriInfo;
 	
 	public BioPaxServer bpServer = null;
+	
+	private BioPaxDBAdaptor bioPaxDBAdaptor;
 
-	public BioPaxWSServer() {
-		this(null, null);
+	public BioPaxWSServer() throws VersionException, IOException {
+		this(null, null, null);
 	}
 
-	public BioPaxWSServer(String version, UriInfo uriInfo) {
-		this.version = version;
-		this.uriInfo = uriInfo;
+	public BioPaxWSServer(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo) throws VersionException, IOException {
+		super(version, species, uriInfo);
 		
-		bpServer = new BioPaxServer();		
+//		bpServer = new BioPaxServer();		
 	}
 
 	public void clear() {
-		bpServer.getSession().clear();
+//		bpServer.getSession().clear();
 	}
 
 	protected String getFormat(String input) {

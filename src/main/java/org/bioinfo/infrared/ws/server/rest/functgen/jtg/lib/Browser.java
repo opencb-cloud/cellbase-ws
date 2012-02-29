@@ -1,24 +1,7 @@
 package org.bioinfo.infrared.ws.server.rest.functgen.jtg.lib;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
-import org.bioinfo.biopax.model.Control;
-import org.bioinfo.biopax.model.Conversion;
-import org.bioinfo.biopax.model.Interaction;
-import org.bioinfo.biopax.model.NameEntity;
-import org.bioinfo.biopax.model.Pathway;
-import org.bioinfo.biopax.model.PathwayStep;
-import org.bioinfo.biopax.model.PhysicalEntity;
-import org.hibernate.Hibernate;
-import org.hibernate.Query;
-import org.hibernate.Session;
-
+@Deprecated
 public class Browser {
 /*
 	Session session = null;

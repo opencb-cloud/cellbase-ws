@@ -18,10 +18,9 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.bioinfo.infrared.core.cellbase.Transcript;
+import org.bioinfo.infrared.lib.api.GenomicVariantEffectDBAdaptor;
 import org.bioinfo.infrared.lib.api.TranscriptDBAdaptor;
 import org.bioinfo.infrared.lib.common.GenomicVariant;
-import org.bioinfo.infrared.lib.common.GenomicVariantEffect;
-import org.bioinfo.infrared.lib.impl.hibernate.GenomicVariantEffectDBAdaptor;
 import org.bioinfo.infrared.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
 
@@ -103,33 +102,33 @@ public class VariantWSServer extends GenericRestWSServer {
 			List<GenomicVariant> variants = GenomicVariant.parseVariants(query);
 //			GenomicVariantEffect gv = new GenomicVariantEffect(this.species);
 			GenomicVariantEffectDBAdaptor gv = dbAdaptorFactory.getGenomicVariantEffectDBAdaptor(species);
-			if (features.equalsIgnoreCase("true")){
-				gv.setShowFeatures(true);
-			}
-			else{
-				gv.setShowFeatures(false);
-			}
-			
-			if (variation.equalsIgnoreCase("true")){
-				gv.setShowVariation(true);
-			}
-			else{
-				gv.setShowVariation(false);
-			}
-			
-			if (regulatory.equalsIgnoreCase("true")){
-				gv.setShowRegulatory(true);
-			}
-			else{
-				gv.setShowRegulatory(false);
-			}
-			
-			if (diseases.equalsIgnoreCase("true")){
-				gv.setShowDiseases(true);
-			}
-			else{
-				gv.setShowDiseases(false);
-			}
+//			if (features.equalsIgnoreCase("true")){
+//				gv.setShowFeatures(true);
+//			}
+//			else{
+//				gv.setShowFeatures(false);
+//			}
+//			
+//			if (variation.equalsIgnoreCase("true")){
+//				gv.setShowVariation(true);
+//			}
+//			else{
+//				gv.setShowVariation(false);
+//			}
+//			
+//			if (regulatory.equalsIgnoreCase("true")){
+//				gv.setShowRegulatory(true);
+//			}
+//			else{
+//				gv.setShowRegulatory(false);
+//			}
+//			
+//			if (diseases.equalsIgnoreCase("true")){
+//				gv.setShowDiseases(true);
+//			}
+//			else{
+//				gv.setShowDiseases(false);
+//			}
 			
 //			return generateResponse(query, gv.getConsequenceType(variants, CACHE_TRANSCRIPT.get(this.species)));
 			return generateResponse(query, gv.getAllConsequenceTypeByVariantList(variants));

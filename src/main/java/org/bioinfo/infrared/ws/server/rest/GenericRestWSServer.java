@@ -27,6 +27,7 @@ import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.infrared.dao.utils.HibernateUtil;
 import org.bioinfo.infrared.lib.impl.DBAdaptorFactory;
 import org.bioinfo.infrared.lib.impl.hibernate.HibernateDBAdaptorFactory;
+import org.bioinfo.infrared.lib.io.output.JsonWriter;
 import org.bioinfo.infrared.lib.io.output.StringWriter;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
 import org.hibernate.Criteria;
@@ -113,7 +114,7 @@ public class GenericRestWSServer implements IWSServer {
 
 		// mediaType = MediaType.valueOf("text/plain");
 		gson = new GsonBuilder().serializeNulls().setExclusionStrategies(new FeatureExclusionStrategy()).create();
-		gsonBuilder = new GsonBuilder();
+//		gsonBuilder = new GsonBuilder();
 
 		logger = new Logger();
 		logger.setLevel(Logger.DEBUG_LEVEL);
@@ -245,7 +246,9 @@ public class GenericRestWSServer implements IWSServer {
 			if((outputFormat.equalsIgnoreCase("json") || outputFormat.equalsIgnoreCase("jsonp"))) {
 				mediaType = MediaType.APPLICATION_JSON_TYPE;
 				if(features != null && features.size() > 0) {
-					response = gson.toJson(features);
+//					response = gson.toJson(features);
+					JsonWriter jsonWriter = new JsonWriter();
+					response = jsonWriter.serialize(features);
 				}
 
 				if(outputFormat.equals("jsonp")) {

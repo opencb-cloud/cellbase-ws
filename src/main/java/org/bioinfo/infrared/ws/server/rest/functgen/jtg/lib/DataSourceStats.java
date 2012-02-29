@@ -1,6 +1,5 @@
 package org.bioinfo.infrared.ws.server.rest.functgen.jtg.lib;
 
-import org.bioinfo.biopax.model.DataSource;
 
 public class DataSourceStats {
 	
