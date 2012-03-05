@@ -246,9 +246,9 @@ public class GenericRestWSServer implements IWSServer {
 			if((outputFormat.equalsIgnoreCase("json") || outputFormat.equalsIgnoreCase("jsonp"))) {
 				mediaType = MediaType.APPLICATION_JSON_TYPE;
 				if(features != null && features.size() > 0) {
-//					response = gson.toJson(features);
-					JsonWriter jsonWriter = new JsonWriter();
-					response = jsonWriter.serialize(features);
+					response = gson.toJson(features);
+//					JsonWriter jsonWriter = new JsonWriter(new FeatureExclusionStrategy());
+//					response = jsonWriter.serialize(features);
 				}
 
 				if(outputFormat.equals("jsonp")) {

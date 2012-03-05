@@ -23,6 +23,8 @@ import org.bioinfo.infrared.core.biopax.v3.PhysicalEntity;
 import org.bioinfo.infrared.core.biopax.v3.Protein;
 import org.bioinfo.infrared.core.biopax.v3.Term;
 import org.bioinfo.infrared.lib.api.BioPaxDBAdaptor;
+import org.bioinfo.infrared.lib.impl.DBAdaptorFactory;
+import org.bioinfo.infrared.lib.impl.hibernate.HibernateDBAdaptorFactory;
 
 public class DotServer {
 
@@ -32,12 +34,18 @@ public class DotServer {
 	private String splitSep = "\\n";
 	
 	//private BioPaxServer dbAdaptor = null;
+	
 	BioPaxDBAdaptor dbAdaptor; // = dbAdaptorFactory.getBioPaxDBAdaptor(this.species);
 
 	Map<Integer, Boolean> map = new HashMap<Integer, Boolean>();
 	
 	public DotServer() {
-		dbAdaptor = dbAdaptorFactory.getBioPaxDBAdaptor(this.species);
+		this("hsa");
+	}
+	
+	public DotServer(String species) {
+		DBAdaptorFactory dbAdaptorFactory = new HibernateDBAdaptorFactory();
+		dbAdaptor = dbAdaptorFactory.getBioPaxDBAdaptor(species);
 	}
 	
 	//=========================================================================
@@ -50,7 +58,7 @@ public class DotServer {
 		
 		add(input);
 		
-		dbAdaptor.getSession().clear();
+//		dbAdaptor.getSession().clear();
 		return dot;
 	}
 	
@@ -60,7 +68,7 @@ public class DotServer {
 		
 		add(input);
 		
-		dbAdaptor.getSession().clear();
+//		dbAdaptor.getSession().clear();
 		return dot;
 	}
 

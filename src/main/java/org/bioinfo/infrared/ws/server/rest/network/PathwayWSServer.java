@@ -2,6 +2,7 @@ package org.bioinfo.infrared.ws.server.rest.network;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -42,7 +43,7 @@ public class PathwayWSServer extends GenericRestWSServer {
 	@Path("/list")
 	public Response getAllPathways(@QueryParam("subpathways") String subpathways, @QueryParam("search") String search) {
 		try {
-			boolean onlyTopLevel = true;
+			boolean onlyTopLevel = false;
 			if (subpathways!=null) {
 				onlyTopLevel=!Boolean.parseBoolean(subpathways);
 			}
@@ -60,11 +61,10 @@ public class PathwayWSServer extends GenericRestWSServer {
 	@Path("/{pathwayId}/info")
 	public Response getPathwayInfo(@PathParam("pathwayId") String query) {
 		try {
-			
 			StringBuilder sb = new StringBuilder();
 			BioPaxDBAdaptor dbAdaptor = dbAdaptorFactory.getBioPaxDBAdaptor(this.species);
 			Pathway pathway = dbAdaptor.getPathway(query, "Reactome");
-			return generateResponse("", pathway);
+			return generateResponse("", Arrays.asList(pathway));
 		} catch (Exception e) {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
@@ -73,6 +73,7 @@ public class PathwayWSServer extends GenericRestWSServer {
 	
 	@GET
 	@Path("/{pathwayId}/image")
+	@Produces("image/jpeg")
 	public Response getPathwayImage(@PathParam("pathwayId") String query) {
 		try {
 			
@@ -109,7 +110,7 @@ public class PathwayWSServer extends GenericRestWSServer {
 							String out = "var response = (" +  new Gson().toJson(IOUtils.readLines(imgFile)) + ")";
 							return Response.ok(out).build();
 						} else {
-							return Response.ok(imgFile, contentType).build();
+							return Response.ok(imgFile, contentType).header("content-disposition","attachment; filename ="+query+"_image."+outFormat).build();
 						}					
 					} else {
 						System.out.println("-----------------------> image DO NOT exist !!!");

@@ -1,12 +1,11 @@
 package org.bioinfo.infrared.ws.server.rest.genomic;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
-import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -14,6 +13,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
@@ -25,7 +25,7 @@ import org.bioinfo.infrared.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
 
 import com.sun.jersey.api.client.ClientResponse.Status;
-
+import com.sun.jersey.multipart.FormDataParam;
 
 @Path("/{version}/{species}/genomic/variant")
 @Produces("text/plain")
@@ -62,44 +62,47 @@ public class VariantWSServer extends GenericRestWSServer {
 	}
 	
 	@POST
+	@Consumes({MediaType.MULTIPART_FORM_DATA, MediaType.APPLICATION_FORM_URLENCODED})//MediaType.MULTIPART_FORM_DATA, 
 	@Path("/consequence_type")
-	public Response getConsequenceTypeByPositionByPost(@FormParam("positionId") String postQuery){
+	public Response getConsequenceTypeByPositionByPost(@FormDataParam("of") String outputFormat, @FormDataParam("variants") String postQuery) {
 		String features = "true";
 		String variation = "true"; 
 		String regulatory = "true";
 		String diseases = "true";
-		System.out.println("postQuery: "+postQuery);
-		postQuery = postQuery.replace("?", "%");
+//		System.out.println("VariantWSServer ==> postQuery: "+postQuery);
+//		postQuery = postQuery.replace("?", "%");
+//		
+//		String query = Arrays.asList(postQuery.split("%")).get(0);
+//		String queryParams =  Arrays.asList(postQuery.split("%")).get(1);
+//		if (queryParams.toLowerCase().contains("features=false")){
+//			features = "false";
+//		}
+//		if (queryParams.toLowerCase().contains("regulatory=false")){
+//			regulatory = "false";
+//		}
+//		if (queryParams.toLowerCase().contains("variation=false")){
+//			variation = "false";
+//		}
+//		if (queryParams.toLowerCase().contains("disease=false")){
+//			diseases = "false";
+//		}
 		
-		String query = Arrays.asList(postQuery.split("%")).get(0);
-		String queryParams =  Arrays.asList(postQuery.split("%")).get(1);
-		if (queryParams.toLowerCase().contains("features=false")){
-			features = "false";
-		}
-		if (queryParams.toLowerCase().contains("regulatory=false")){
-			regulatory = "false";
-		}
-		if (queryParams.toLowerCase().contains("variation=false")){
-			variation = "false";
-		}
-		if (queryParams.toLowerCase().contains("disease=false")){
-			diseases = "false";
-		}
-		
-		return getConsequenceTypeByPosition(query, features, variation, regulatory, diseases);
+		return getConsequenceTypeByPosition(postQuery, features, variation, regulatory, diseases);
 	}
 	
 	
 	private Response getConsequenceTypeByPosition(String query, String features, String variation, String regulatory, String diseases){
 		try {
-			if (query.length() > 100){
+			
+			System.out.println("variants: "+query);
+			if(query.length() > 100){
 				logger.debug("VARIANT TOOL WS: " + query.substring(0, 99) + "....");
 			}
 			else{
 				logger.debug("VARIANT TOOL WS: " + query);
 			}
-			
 			List<GenomicVariant> variants = GenomicVariant.parseVariants(query);
+			System.out.println("number of variants: "+variants.size());
 //			GenomicVariantEffect gv = new GenomicVariantEffect(this.species);
 			GenomicVariantEffectDBAdaptor gv = dbAdaptorFactory.getGenomicVariantEffectDBAdaptor(species);
 //			if (features.equalsIgnoreCase("true")){
@@ -133,6 +136,7 @@ public class VariantWSServer extends GenericRestWSServer {
 //			return generateResponse(query, gv.getConsequenceType(variants, CACHE_TRANSCRIPT.get(this.species)));
 			return generateResponse(query, gv.getAllConsequenceTypeByVariantList(variants));
 		} catch (Exception e) {
+			e.printStackTrace();
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
 	}
