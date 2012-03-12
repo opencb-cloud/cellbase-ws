@@ -252,6 +252,19 @@ public class RegionWSServer extends GenericRestWSServer {
 		}
 	}
 	
+	
+	@GET
+	@Path("/{chrRegionId}/conservedregion")
+	public Response getConservedRegionByRegion(@PathParam("chrRegionId") String chregionId) {
+		try {
+			List<Region> regions = Region.parseRegions(chregionId);
+			MirnaDBAdaptor adaptor = dbAdaptorFactory.getMirnaDBAdaptor(this.species);
+			return this.generateResponse(chregionId, adaptor.getAllMiRnaTargetsByRegionList(regions));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		}
+	}
 
 	
 	

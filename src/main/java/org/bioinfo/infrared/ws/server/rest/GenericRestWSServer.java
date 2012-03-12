@@ -271,7 +271,7 @@ public class GenericRestWSServer implements IWSServer {
 		return createResponse(response, mediaType);
 	}
 
-	private Response createResponse(String response, MediaType mediaType) throws IOException {
+	protected Response createResponse(String response, MediaType mediaType) throws IOException {
 		logger.debug("\tQuery Params");
 		logger.debug("\t\t - FileFormat: " + fileFormat);
 		logger.debug("\t\t - ContentFormat: " + outputFormat);
@@ -362,7 +362,7 @@ public class GenericRestWSServer implements IWSServer {
 		return response;
 	}
 
-	private String convertToJson(String response) {
+	protected String convertToJson(String response) {
 		String jsonpQueryParam = (uriInfo.getQueryParameters().get("callbackParam") != null) ? uriInfo.getQueryParameters().get("callbackParam").get(0) : "callbackParam";	
 		response = "var " + jsonpQueryParam+ " = (" + response +")";
 		return response;
