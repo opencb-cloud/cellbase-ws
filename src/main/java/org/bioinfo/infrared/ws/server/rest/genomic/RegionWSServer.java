@@ -15,6 +15,8 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import org.bioinfo.commons.utils.StringUtils;
+import org.bioinfo.infrared.core.cellbase.ConservedRegion;
 import org.bioinfo.infrared.core.cellbase.RegulatoryRegion;
 import org.bioinfo.infrared.lib.api.CytobandDBAdaptor;
 import org.bioinfo.infrared.lib.api.ExonDBAdaptor;
@@ -40,6 +42,9 @@ public class RegionWSServer extends GenericRestWSServer {
 	
 	public RegionWSServer(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo) throws VersionException, IOException {
 		super(version, species, uriInfo);
+	}
+	private RegulatoryRegionDBAdaptor getRegulatoryRegionDBAdaptor(){
+		return dbAdaptorFactory.getRegulatoryRegionDBAdaptor(this.species);
 	}
 	
 	
@@ -255,15 +260,22 @@ public class RegionWSServer extends GenericRestWSServer {
 	
 	@GET
 	@Path("/{chrRegionId}/conservedregion")
-	public Response getConservedRegionByRegion(@PathParam("chrRegionId") String chregionId) {
+	public Response getConservedRegionByRegion(@PathParam("chrRegionId") String query) {
 		try {
-			List<Region> regions = Region.parseRegions(chregionId);
-			MirnaDBAdaptor adaptor = dbAdaptorFactory.getMirnaDBAdaptor(this.species);
-			return this.generateResponse(chregionId, adaptor.getAllMiRnaTargetsByRegionList(regions));
+			List<Region> regions = Region.parseRegions(query);
+			List<List<ConservedRegion>> ConservedRegionList = getRegulatoryRegionDBAdaptor().getAllConservedRegionByRegionList(regions);
+			return this.generateResponse(query, ConservedRegionList);
 		} catch (Exception e) {
-			e.printStackTrace();
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
+//		try {
+//			List<Region> regions = Region.parseRegions(chregionId);
+//			MirnaDBAdaptor adaptor = dbAdaptorFactory.getMirnaDBAdaptor(this.species);
+//			return this.generateResponse(chregionId, adaptor.getAllMiRnaTargetsByRegionList(regions));
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+//		}
 	}
 
 	
