@@ -64,7 +64,7 @@ public class VariantWSServer extends GenericRestWSServer {
 	@POST
 	@Consumes({MediaType.MULTIPART_FORM_DATA, MediaType.APPLICATION_FORM_URLENCODED})//MediaType.MULTIPART_FORM_DATA, 
 	@Path("/consequence_type")
-	public Response getConsequenceTypeByPositionByPost(@FormDataParam("of") String outputFormat, @FormDataParam("variants") String postQuery) {
+	public Response getConsequenceTypeByPositionByPost(@FormDataParam("of") String outputFormat, @FormDataParam("variants") String postQuery, @FormDataParam("exclude") String excludedFeatures) {
 		String features = "true";
 		String variation = "true"; 
 		String regulatory = "true";

@@ -85,7 +85,8 @@ public class RegionWSServer extends GenericRestWSServer {
 		try {
 			if (hasHistogramQueryParam()){
 				long t1 = System.currentTimeMillis();
-				Response resp = generateResponse(chregionId, getHistogramByFeatures(dbAdaptor.getAllByRegionList(regions)));
+//				Response resp = generateResponse(chregionId, getHistogramByFeatures(dbAdaptor.getAllByRegionList(regions)));
+				Response resp = generateResponse(chregionId, dbAdaptor.getAllIntervalFrequencies(regions.get(0), histogramIntervalSize));
 				logger.info("Old histogram: "+(System.currentTimeMillis()-t1)+",  resp: "+resp.toString());
 				return resp;
 			}
@@ -226,7 +227,8 @@ public class RegionWSServer extends GenericRestWSServer {
 			}
 			
 			if (hasHistogramQueryParam()){
-				return generateResponse(chregionId, getHistogramByFeatures(results));
+//				return generateResponse(chregionId, getHistogramByFeatures(results));
+				return generateResponse(chregionId, adaptor.getAllRegulatoryRegionIntervalFrequencies(regions.get(0), histogramIntervalSize));
 			}
 			else{
 				return generateResponse(chregionId, results);

@@ -27,6 +27,7 @@ import com.sun.jersey.api.client.ClientResponse.Status;
 @Path("/{version}/{species}/feature/snp")
 @Produces("text/plain")
 public class SnpWSServer extends GenericRestWSServer {
+	
 	public SnpWSServer(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo) throws VersionException, IOException {
 		super(version, species, uriInfo);
 	}
