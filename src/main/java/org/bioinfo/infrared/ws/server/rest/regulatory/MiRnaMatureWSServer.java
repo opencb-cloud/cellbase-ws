@@ -2,6 +2,7 @@ package org.bioinfo.infrared.ws.server.rest.regulatory;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.ws.rs.DefaultValue;
@@ -16,8 +17,14 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
 import org.bioinfo.commons.utils.StringUtils;
+import org.bioinfo.infrared.core.cellbase.Gene;
+import org.bioinfo.infrared.core.cellbase.MirnaDisease;
+import org.bioinfo.infrared.core.cellbase.MirnaGene;
+import org.bioinfo.infrared.core.cellbase.MirnaMature;
+import org.bioinfo.infrared.core.cellbase.Transcript;
 import org.bioinfo.infrared.lib.api.GeneDBAdaptor;
 import org.bioinfo.infrared.lib.api.MirnaDBAdaptor;
+import org.bioinfo.infrared.lib.api.TranscriptDBAdaptor;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
 
 
@@ -29,6 +36,16 @@ public class MiRnaMatureWSServer extends RegulatoryWSServer {
 		super(version, species, uriInfo);
 	}
 
+	private GeneDBAdaptor getGeneDBAdaptor(){
+		return dbAdaptorFactory.getGeneDBAdaptor(this.species);
+	}
+	private MirnaDBAdaptor getMirnaDBAdaptor(){
+		return dbAdaptorFactory.getMirnaDBAdaptor(this.species);
+	}
+	private TranscriptDBAdaptor getTranscriptDBAdaptor(){
+		return dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
+	}
+	
 	@GET
 	@Path("/{mirnaId}/info")
 	public Response getMiRnaMatureInfo(@PathParam("mirnaId") String query) {
@@ -48,8 +65,36 @@ public class MiRnaMatureWSServer extends RegulatoryWSServer {
 	@Path("/{mirnaId}/fullinfo")
 	public Response getMiRnaMatureFullInfo(@PathParam("mirnaId") String query) {
 		try {
-			GeneDBAdaptor adaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species);
-			return  generateResponse(query, adaptor.getAllByMiRnaMatureList(StringUtils.toList(query, ",")));
+			
+			
+			List<List<MirnaMature>> mirnaMature = getMirnaDBAdaptor().getAllMiRnaMaturesByNameList(StringUtils.toList(query, ","));
+			List<List<MirnaGene>> mirnaGenes = getMirnaDBAdaptor().getAllMiRnaGenesByMiRnaMatureList(StringUtils.toList(query, ","));
+			
+			List<List<Gene>> genes = getGeneDBAdaptor().getAllByMiRnaMatureList(StringUtils.toList(query, ","));
+			List<List<Transcript>> transcripts = getTranscriptDBAdaptor().getAllByMirnaMatureList(StringUtils.toList(query, ","));
+			
+			List<List<Gene>> targetGenes = getGeneDBAdaptor().getAllTargetsByMiRnaMatureList(StringUtils.toList(query, ","));
+			List<List<MirnaDisease>> mirnaDiseases = getMirnaDBAdaptor().getAllMiRnaDiseasesByMiRnaMatureList(StringUtils.toList(query, ""));
+			
+			StringBuilder response = new StringBuilder();
+			response.append("[");
+			for (int i = 0; i < genes.size(); i++) {
+				response.append("{");
+				response.append("\"mirna\":{");
+				response.append("\"mirnaMature\":"+gson.toJson(mirnaMature.get(i))+",");
+				response.append("\"mirnaGenes\":"+gson.toJson(mirnaGenes.get(i))+"");
+				response.append("},");
+				response.append("\"genes\":"+gson.toJson(genes.get(i))+",");
+				response.append("\"transcripts\":"+gson.toJson(transcripts.get(i))+",");
+				response.append("\"targetGenes\":"+gson.toJson(targetGenes.get(i))+",");
+				response.append("\"mirnaDiseases\":"+gson.toJson(mirnaDiseases.get(i))+"");
+				response.append("},");
+			}
+			response.append("]");
+			//Remove the last comma
+			response.replace(response.length()-2, response.length()-1, "");
+			
+			return  generateResponse(query,Arrays.asList(response));
 		} catch (Exception e) {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}

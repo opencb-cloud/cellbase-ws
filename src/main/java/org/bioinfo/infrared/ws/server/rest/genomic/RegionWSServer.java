@@ -15,14 +15,21 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import org.bioinfo.infrared.core.cellbase.ConservedRegion;
+import org.bioinfo.infrared.core.cellbase.CpGIsland;
+import org.bioinfo.infrared.core.cellbase.MutationPhenotypeAnnotation;
 import org.bioinfo.infrared.core.cellbase.RegulatoryRegion;
+import org.bioinfo.infrared.core.cellbase.StructuralVariation;
+import org.bioinfo.infrared.lib.api.CpGIslandDBAdaptor;
 import org.bioinfo.infrared.lib.api.CytobandDBAdaptor;
 import org.bioinfo.infrared.lib.api.ExonDBAdaptor;
 import org.bioinfo.infrared.lib.api.GeneDBAdaptor;
 import org.bioinfo.infrared.lib.api.GenomeSequenceDBAdaptor;
 import org.bioinfo.infrared.lib.api.MirnaDBAdaptor;
+import org.bioinfo.infrared.lib.api.MutationDBAdaptor;
 import org.bioinfo.infrared.lib.api.RegulatoryRegionDBAdaptor;
 import org.bioinfo.infrared.lib.api.SnpDBAdaptor;
+import org.bioinfo.infrared.lib.api.StructuralVariationDBAdaptor;
 import org.bioinfo.infrared.lib.api.TfbsDBAdaptor;
 import org.bioinfo.infrared.lib.api.TranscriptDBAdaptor;
 import org.bioinfo.infrared.lib.common.GenomeSequenceFeature;
@@ -41,7 +48,18 @@ public class RegionWSServer extends GenericRestWSServer {
 	public RegionWSServer(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo) throws VersionException, IOException {
 		super(version, species, uriInfo);
 	}
-	
+	private RegulatoryRegionDBAdaptor getRegulatoryRegionDBAdaptor(){
+		return dbAdaptorFactory.getRegulatoryRegionDBAdaptor(this.species);
+	}
+	private MutationDBAdaptor getMutationDBAdaptor(){
+		return dbAdaptorFactory.getMutationDBAdaptor(this.species);
+	}
+	private CpGIslandDBAdaptor getCpGIslandDBAdaptor(){
+		return dbAdaptorFactory.getCpGIslandDBAdaptor(this.species);
+	}
+	private StructuralVariationDBAdaptor getStructuralVariationDBAdaptor(){
+		return dbAdaptorFactory.getStructuralVariationDBAdaptor(this.species);
+	}
 	
 	private String getHistogramParameter() {
 		MultivaluedMap<String, String> parameters = uriInfo.getQueryParameters();
@@ -254,8 +272,62 @@ public class RegionWSServer extends GenericRestWSServer {
 		}
 	}
 	
-
 	
+	@GET
+	@Path("/{chrRegionId}/conservedregion")
+	public Response getConservedRegionByRegion(@PathParam("chrRegionId") String query) {
+		try {
+			List<Region> regions = Region.parseRegions(query);
+			List<List<ConservedRegion>> ConservedRegionList = getRegulatoryRegionDBAdaptor().getAllConservedRegionByRegionList(regions);
+			return this.generateResponse(query, ConservedRegionList);
+		} catch (Exception e) {
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		}
+//		try {
+//			List<Region> regions = Region.parseRegions(chregionId);
+//			MirnaDBAdaptor adaptor = dbAdaptorFactory.getMirnaDBAdaptor(this.species);
+//			return this.generateResponse(chregionId, adaptor.getAllMiRnaTargetsByRegionList(regions));
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+//		}
+	}
+
+	@GET
+	@Path("/{chrRegionId}/mutation")
+	public Response getMutationByRegion(@PathParam("chrRegionId") String query) {
+		try {
+			List<Region> regions = Region.parseRegions(query);
+			List<List<MutationPhenotypeAnnotation>> mutationList = getMutationDBAdaptor().getAllByRegionList(regions);
+			return this.generateResponse(query, mutationList);
+		} catch (Exception e) {
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		}
+	}
+
+	@GET
+	@Path("/{chrRegionId}/cpgisland")
+	public Response getCpgIslandByRegion(@PathParam("chrRegionId") String query) {
+		try {
+			List<Region> regions = Region.parseRegions(query);
+			List<List<CpGIsland>> cpGIslandList = getCpGIslandDBAdaptor().getAllByRegionList(regions);
+			return this.generateResponse(query, cpGIslandList);
+		} catch (Exception e) {
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		}
+	}
+	
+	@GET
+	@Path("/{chrRegionId}/structuralvariation")
+	public Response getStructuralVariationByRegion(@PathParam("chrRegionId") String query) {
+		try {
+			List<Region> regions = Region.parseRegions(query);
+			List<List<StructuralVariation>> structuralVariationList = getStructuralVariationDBAdaptor().getAllByRegionList(regions);
+			return this.generateResponse(query, structuralVariationList);
+		} catch (Exception e) {
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		}
+	}
 	
 	
 	private  List<?>  getHistogramByFeatures(List<?> list){
