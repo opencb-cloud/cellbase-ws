@@ -6,6 +6,7 @@ import java.util.List;
 import org.bioinfo.infrared.core.cellbase.Gene;
 import org.bioinfo.infrared.core.cellbase.RegulatoryRegion;
 
+@Deprecated
 public class Histogram {
 	public int intervalSize;
 	private List<?> objects;
