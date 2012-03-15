@@ -53,17 +53,12 @@ public class RegionWSServer extends GenericRestWSServer {
 		super(version, species, uriInfo);
 	}
 	
-	private	RegulatoryRegionDBAdaptor regulatoryRegionDBAdaptor =  dbAdaptorFactory.getRegulatoryRegionDBAdaptor(this.species);
-	
-	private MutationDBAdaptor mutationDBAdaptor =  dbAdaptorFactory.getMutationDBAdaptor(this.species);
-	
-	private CpGIslandDBAdaptor cpGIslandDBAdaptor =  dbAdaptorFactory.getCpGIslandDBAdaptor(this.species);
-	
-	private	StructuralVariationDBAdaptor structuralVariationDBAdaptor = dbAdaptorFactory.getStructuralVariationDBAdaptor(this.species);
-	
-	private MirnaDBAdaptor mirnaDBAdaptor = dbAdaptorFactory.getMirnaDBAdaptor(this.species);
-	
-	private TfbsDBAdaptor tfbsDBAdaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species);
+//	private	RegulatoryRegionDBAdaptor regulatoryRegionDBAdaptor =  dbAdaptorFactory.getRegulatoryRegionDBAdaptor(this.species);
+//	private MutationDBAdaptor mutationDBAdaptor =  dbAdaptorFactory.getMutationDBAdaptor(this.species);
+//	private CpGIslandDBAdaptor cpGIslandDBAdaptor =  dbAdaptorFactory.getCpGIslandDBAdaptor(this.species);
+//	private	StructuralVariationDBAdaptor structuralVariationDBAdaptor = dbAdaptorFactory.getStructuralVariationDBAdaptor(this.species);
+//	private MirnaDBAdaptor mirnaDBAdaptor = dbAdaptorFactory.getMirnaDBAdaptor(this.species);
+//	private TfbsDBAdaptor tfbsDBAdaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species);
 	
 	private String getHistogramParameter() {
 		MultivaluedMap<String, String> parameters = uriInfo.getQueryParameters();
@@ -218,6 +213,7 @@ public class RegionWSServer extends GenericRestWSServer {
 	@Path("/{chrRegionId}/tfbs")
 	public Response getTfByRegion(@PathParam("chrRegionId") String query) {
 		try {
+			TfbsDBAdaptor tfbsDBAdaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species);
 			List<Region> regions = Region.parseRegions(query);
 			
 			if (hasHistogramQueryParam()){
@@ -286,7 +282,7 @@ public class RegionWSServer extends GenericRestWSServer {
 	@Path("/{chrRegionId}/mirnatarget")
 	public Response getMirnaTargetByRegion(@PathParam("chrRegionId") String query) {
 		try {
-			
+			MirnaDBAdaptor mirnaDBAdaptor = dbAdaptorFactory.getMirnaDBAdaptor(this.species);
 			List<Region> regions = Region.parseRegions(query);
 			
 			if (hasHistogramQueryParam()){
@@ -310,6 +306,7 @@ public class RegionWSServer extends GenericRestWSServer {
 	@Path("/{chrRegionId}/conservedregion")
 	public Response getConservedRegionByRegion(@PathParam("chrRegionId") String query) {
 		try {
+			RegulatoryRegionDBAdaptor regulatoryRegionDBAdaptor =  dbAdaptorFactory.getRegulatoryRegionDBAdaptor(this.species);
 			List<Region> regions = Region.parseRegions(query);
 			
 			if (hasHistogramQueryParam()){
@@ -338,7 +335,7 @@ public class RegionWSServer extends GenericRestWSServer {
 	@Path("/{chrRegionId}/mutation")
 	public Response getMutationByRegion(@PathParam("chrRegionId") String query) {
 		try {
-			
+			MutationDBAdaptor mutationDBAdaptor =  dbAdaptorFactory.getMutationDBAdaptor(this.species);
 			List<Region> regions = Region.parseRegions(query);
 			
 			if (hasHistogramQueryParam()){
@@ -359,7 +356,7 @@ public class RegionWSServer extends GenericRestWSServer {
 	@Path("/{chrRegionId}/cpgisland")
 	public Response getCpgIslandByRegion(@PathParam("chrRegionId") String query) {
 		try {
-			
+			CpGIslandDBAdaptor cpGIslandDBAdaptor =  dbAdaptorFactory.getCpGIslandDBAdaptor(this.species);
 			List<Region> regions = Region.parseRegions(query);
 			
 			if (hasHistogramQueryParam()){
@@ -379,7 +376,7 @@ public class RegionWSServer extends GenericRestWSServer {
 	@Path("/{chrRegionId}/structuralvariation")
 	public Response getStructuralVariationByRegion(@PathParam("chrRegionId") String query) {
 		try {
-			
+			StructuralVariationDBAdaptor structuralVariationDBAdaptor = dbAdaptorFactory.getStructuralVariationDBAdaptor(this.species);
 			List<Region> regions = Region.parseRegions(query);
 			
 			if (hasHistogramQueryParam()){
