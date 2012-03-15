@@ -249,28 +249,25 @@ public class RegionWSServer extends GenericRestWSServer {
 	
 	@GET
 	@Path("/{chrRegionId}/regulatory")
-	public Response getRegulatoryByRegion(@DefaultValue("")@QueryParam("type")String type, @PathParam("chrRegionId") String chregionId) {
+	public Response getRegulatoryByRegion(@PathParam("chrRegionId") String chregionId, @DefaultValue("") @QueryParam("type") String type) {
 		try {
+			RegulatoryRegionDBAdaptor adaptor = dbAdaptorFactory.getRegulatoryRegionDBAdaptor(this.species);
 			/** type ["open chromatin", "Polymerase", "HISTONE", "Transcription Factor"] **/
 			List<Region> regions = Region.parseRegions(chregionId);
-			RegulatoryRegionDBAdaptor adaptor = dbAdaptorFactory.getRegulatoryRegionDBAdaptor(this.species);
 			
-			List<List<RegulatoryRegion>> results;
-			if (type.equals("")){
-				results =  adaptor.getAllByRegionList(regions);
-			}
-			else{
-				results = adaptor.getAllByRegionList(regions, Arrays.asList(type.split(",")));
-			}
-			
-			if (hasHistogramQueryParam()){
+			if(hasHistogramQueryParam()) {
 //				return generateResponse(chregionId, getHistogramByFeatures(results));
-				return generateResponse(chregionId, adaptor.getAllRegulatoryRegionIntervalFrequencies(regions.get(0), getHistogramIntervalSize()));
+				return generateResponse(chregionId, adaptor.getAllRegulatoryRegionIntervalFrequencies(regions.get(0), getHistogramIntervalSize(), type));
 			}
 			else{
+				List<List<RegulatoryRegion>> results;
+				if(type.equals("")){
+					results =  adaptor.getAllByRegionList(regions);
+				}else {
+					results = adaptor.getAllByRegionList(regions, Arrays.asList(type.split(",")));
+				}
 				return generateResponse(chregionId, results);
 			}
-			
 			
 		} catch (Exception e) {
 			e.printStackTrace();
