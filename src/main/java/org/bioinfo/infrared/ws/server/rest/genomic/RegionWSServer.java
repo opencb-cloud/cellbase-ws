@@ -17,9 +17,11 @@ import javax.ws.rs.core.UriInfo;
 
 import org.bioinfo.infrared.core.cellbase.ConservedRegion;
 import org.bioinfo.infrared.core.cellbase.CpGIsland;
+import org.bioinfo.infrared.core.cellbase.MirnaTarget;
 import org.bioinfo.infrared.core.cellbase.MutationPhenotypeAnnotation;
 import org.bioinfo.infrared.core.cellbase.RegulatoryRegion;
 import org.bioinfo.infrared.core.cellbase.StructuralVariation;
+import org.bioinfo.infrared.core.cellbase.Tfbs;
 import org.bioinfo.infrared.lib.api.CpGIslandDBAdaptor;
 import org.bioinfo.infrared.lib.api.CytobandDBAdaptor;
 import org.bioinfo.infrared.lib.api.ExonDBAdaptor;
@@ -33,6 +35,7 @@ import org.bioinfo.infrared.lib.api.StructuralVariationDBAdaptor;
 import org.bioinfo.infrared.lib.api.TfbsDBAdaptor;
 import org.bioinfo.infrared.lib.api.TranscriptDBAdaptor;
 import org.bioinfo.infrared.lib.common.GenomeSequenceFeature;
+import org.bioinfo.infrared.lib.common.IntervalFeatureFrequency;
 import org.bioinfo.infrared.lib.common.Region;
 import org.bioinfo.infrared.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
@@ -43,23 +46,24 @@ import com.sun.jersey.api.client.ClientResponse.Status;
 @Path("/{version}/{species}/genomic/region")
 @Produces("text/plain")
 public class RegionWSServer extends GenericRestWSServer {
-	private int histogramIntervalSize = 1000000;
+//	private int histogramIntervalSize = 1000000;
+	private int histogramIntervalSize = 200000;
 	
 	public RegionWSServer(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo) throws VersionException, IOException {
 		super(version, species, uriInfo);
 	}
-	private RegulatoryRegionDBAdaptor getRegulatoryRegionDBAdaptor(){
-		return dbAdaptorFactory.getRegulatoryRegionDBAdaptor(this.species);
-	}
-	private MutationDBAdaptor getMutationDBAdaptor(){
-		return dbAdaptorFactory.getMutationDBAdaptor(this.species);
-	}
-	private CpGIslandDBAdaptor getCpGIslandDBAdaptor(){
-		return dbAdaptorFactory.getCpGIslandDBAdaptor(this.species);
-	}
-	private StructuralVariationDBAdaptor getStructuralVariationDBAdaptor(){
-		return dbAdaptorFactory.getStructuralVariationDBAdaptor(this.species);
-	}
+	
+	private	RegulatoryRegionDBAdaptor regulatoryRegionDBAdaptor =  dbAdaptorFactory.getRegulatoryRegionDBAdaptor(this.species);
+	
+	private MutationDBAdaptor mutationDBAdaptor =  dbAdaptorFactory.getMutationDBAdaptor(this.species);
+	
+	private CpGIslandDBAdaptor cpGIslandDBAdaptor =  dbAdaptorFactory.getCpGIslandDBAdaptor(this.species);
+	
+	private	StructuralVariationDBAdaptor structuralVariationDBAdaptor = dbAdaptorFactory.getStructuralVariationDBAdaptor(this.species);
+	
+	private MirnaDBAdaptor mirnaDBAdaptor = dbAdaptorFactory.getMirnaDBAdaptor(this.species);
+	
+	private TfbsDBAdaptor tfbsDBAdaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species);
 	
 	private String getHistogramParameter() {
 		MultivaluedMap<String, String> parameters = uriInfo.getQueryParameters();
@@ -72,6 +76,7 @@ public class RegionWSServer extends GenericRestWSServer {
 			int value = this.histogramIntervalSize;
 			try{
 				value =  Integer.parseInt(parameters.get("interval").get(0));
+				System.out.println("PAKO:"+value);
 				return value;
 			}
 			catch(Exception exp){
@@ -104,7 +109,7 @@ public class RegionWSServer extends GenericRestWSServer {
 			if (hasHistogramQueryParam()){
 				long t1 = System.currentTimeMillis();
 //				Response resp = generateResponse(chregionId, getHistogramByFeatures(dbAdaptor.getAllByRegionList(regions)));
-				Response resp = generateResponse(chregionId, dbAdaptor.getAllIntervalFrequencies(regions.get(0), histogramIntervalSize));
+				Response resp = generateResponse(chregionId, dbAdaptor.getAllIntervalFrequencies(regions.get(0), getHistogramIntervalSize()));
 				logger.info("Old histogram: "+(System.currentTimeMillis()-t1)+",  resp: "+resp.toString());
 				return resp;
 			}
@@ -151,7 +156,16 @@ public class RegionWSServer extends GenericRestWSServer {
 		SnpDBAdaptor dbAdaptor = dbAdaptorFactory.getSnpDBAdaptor(this.species);
 		List<Region> regions = Region.parseRegions(chregionId);
 		try {
-			return generateResponse(chregionId, dbAdaptor.getAllByRegionList(regions));
+			if (hasHistogramQueryParam()){
+				long t1 = System.currentTimeMillis();
+//				Response resp = generateResponse(chregionId, getHistogramByFeatures(dbAdaptor.getAllByRegionList(regions)));
+				Response resp = generateResponse(chregionId, dbAdaptor.getAllIntervalFrequencies(regions.get(0), getHistogramIntervalSize()));
+				logger.info("Old histogram: "+(System.currentTimeMillis()-t1)+",  resp: "+resp.toString());
+				return resp;
+			}else{
+				return generateResponse(chregionId, dbAdaptor.getAllByRegionList(regions));
+			}
+		
 		} catch (IOException e) {
 			e.printStackTrace();
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
@@ -202,11 +216,20 @@ public class RegionWSServer extends GenericRestWSServer {
 	
 	@GET
 	@Path("/{chrRegionId}/tfbs")
-	public Response getTfByRegion(@PathParam("chrRegionId") String chregionId) {
+	public Response getTfByRegion(@PathParam("chrRegionId") String query) {
 		try {
-			List<Region> regions = Region.parseRegions(chregionId);
-			TfbsDBAdaptor adaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species);
-			return this.generateResponse(chregionId, adaptor.getAllByRegionList(regions));
+			List<Region> regions = Region.parseRegions(query);
+			
+			if (hasHistogramQueryParam()){
+				List<IntervalFeatureFrequency> intervalList = tfbsDBAdaptor.getAllTfIntervalFrequencies(regions.get(0), getHistogramIntervalSize()); 
+				return  generateResponse(query, intervalList);
+			}else{
+				List<List<Tfbs>> tfList = tfbsDBAdaptor.getAllByRegionList(regions);
+				return this.generateResponse(query, tfList);
+			}
+			
+			
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
@@ -246,7 +269,7 @@ public class RegionWSServer extends GenericRestWSServer {
 			
 			if (hasHistogramQueryParam()){
 //				return generateResponse(chregionId, getHistogramByFeatures(results));
-				return generateResponse(chregionId, adaptor.getAllRegulatoryRegionIntervalFrequencies(regions.get(0), histogramIntervalSize));
+				return generateResponse(chregionId, adaptor.getAllRegulatoryRegionIntervalFrequencies(regions.get(0), getHistogramIntervalSize()));
 			}
 			else{
 				return generateResponse(chregionId, results);
@@ -261,11 +284,21 @@ public class RegionWSServer extends GenericRestWSServer {
 	
 	@GET
 	@Path("/{chrRegionId}/mirnatarget")
-	public Response getMirnaTargetByRegion(@PathParam("chrRegionId") String chregionId) {
+	public Response getMirnaTargetByRegion(@PathParam("chrRegionId") String query) {
 		try {
-			List<Region> regions = Region.parseRegions(chregionId);
-			MirnaDBAdaptor adaptor = dbAdaptorFactory.getMirnaDBAdaptor(this.species);
-			return this.generateResponse(chregionId, adaptor.getAllMiRnaTargetsByRegionList(regions));
+			
+			List<Region> regions = Region.parseRegions(query);
+			
+			if (hasHistogramQueryParam()){
+				System.out.println("PAKO:"+"si");
+				List<IntervalFeatureFrequency> intervalList = mirnaDBAdaptor.getAllMirnaTargetsIntervalFrequencies(regions.get(0), getHistogramIntervalSize()); 
+				return  generateResponse(query, intervalList);
+			}else{
+				System.out.println("PAKO:"+"NO");
+				List<List<MirnaTarget>> mirnaTargetList = mirnaDBAdaptor.getAllMiRnaTargetsByRegionList(regions);
+				return this.generateResponse(query, mirnaTargetList);
+			}
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
@@ -278,8 +311,16 @@ public class RegionWSServer extends GenericRestWSServer {
 	public Response getConservedRegionByRegion(@PathParam("chrRegionId") String query) {
 		try {
 			List<Region> regions = Region.parseRegions(query);
-			List<List<ConservedRegion>> ConservedRegionList = getRegulatoryRegionDBAdaptor().getAllConservedRegionByRegionList(regions);
-			return this.generateResponse(query, ConservedRegionList);
+			
+			if (hasHistogramQueryParam()){
+				List<IntervalFeatureFrequency> intervalList = regulatoryRegionDBAdaptor.getAllConservedRegionIntervalFrequencies(regions.get(0), getHistogramIntervalSize()); 
+				return  generateResponse(query, intervalList);
+			}else{
+				List<List<ConservedRegion>> ConservedRegionList = regulatoryRegionDBAdaptor.getAllConservedRegionByRegionList(regions);
+				return this.generateResponse(query, ConservedRegionList);
+			}
+			
+			
 		} catch (Exception e) {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
@@ -297,9 +338,18 @@ public class RegionWSServer extends GenericRestWSServer {
 	@Path("/{chrRegionId}/mutation")
 	public Response getMutationByRegion(@PathParam("chrRegionId") String query) {
 		try {
+			
 			List<Region> regions = Region.parseRegions(query);
-			List<List<MutationPhenotypeAnnotation>> mutationList = getMutationDBAdaptor().getAllByRegionList(regions);
-			return this.generateResponse(query, mutationList);
+			
+			if (hasHistogramQueryParam()){
+				List<IntervalFeatureFrequency> intervalList = mutationDBAdaptor.getAllIntervalFrequencies(regions.get(0), getHistogramIntervalSize()); 
+				return  generateResponse(query, intervalList);
+			}else{
+				List<List<MutationPhenotypeAnnotation>> mutationList = mutationDBAdaptor.getAllByRegionList(regions);
+				return this.generateResponse(query, mutationList);
+			}
+			
+			
 		} catch (Exception e) {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
@@ -309,9 +359,17 @@ public class RegionWSServer extends GenericRestWSServer {
 	@Path("/{chrRegionId}/cpgisland")
 	public Response getCpgIslandByRegion(@PathParam("chrRegionId") String query) {
 		try {
+			
 			List<Region> regions = Region.parseRegions(query);
-			List<List<CpGIsland>> cpGIslandList = getCpGIslandDBAdaptor().getAllByRegionList(regions);
-			return this.generateResponse(query, cpGIslandList);
+			
+			if (hasHistogramQueryParam()){
+				List<IntervalFeatureFrequency> intervalList = cpGIslandDBAdaptor.getAllIntervalFrequencies(regions.get(0), getHistogramIntervalSize()); 
+				return  generateResponse(query, intervalList);
+			}else{
+				List<List<CpGIsland>> cpGIslandList = cpGIslandDBAdaptor.getAllByRegionList(regions);
+				return this.generateResponse(query, cpGIslandList);
+			}
+			
 		} catch (Exception e) {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
@@ -321,9 +379,17 @@ public class RegionWSServer extends GenericRestWSServer {
 	@Path("/{chrRegionId}/structuralvariation")
 	public Response getStructuralVariationByRegion(@PathParam("chrRegionId") String query) {
 		try {
+			
 			List<Region> regions = Region.parseRegions(query);
-			List<List<StructuralVariation>> structuralVariationList = getStructuralVariationDBAdaptor().getAllByRegionList(regions);
-			return this.generateResponse(query, structuralVariationList);
+			
+			if (hasHistogramQueryParam()){
+				List<IntervalFeatureFrequency> intervalList = structuralVariationDBAdaptor.getAllIntervalFrequencies(regions.get(0), getHistogramIntervalSize()); 
+				return  generateResponse(query, intervalList);
+			}else{
+				List<List<StructuralVariation>> structuralVariationList = structuralVariationDBAdaptor.getAllByRegionList(regions);
+				return this.generateResponse(query, structuralVariationList);
+			}
+			
 		} catch (Exception e) {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
