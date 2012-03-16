@@ -151,11 +151,11 @@ public class RegionWSServer extends GenericRestWSServer {
 		SnpDBAdaptor dbAdaptor = dbAdaptorFactory.getSnpDBAdaptor(this.species);
 		List<Region> regions = Region.parseRegions(chregionId);
 		try {
-			if (hasHistogramQueryParam()){
-				long t1 = System.currentTimeMillis();
+			if(hasHistogramQueryParam()){
+//				long t1 = System.currentTimeMillis();
 //				Response resp = generateResponse(chregionId, getHistogramByFeatures(dbAdaptor.getAllByRegionList(regions)));
 				Response resp = generateResponse(chregionId, dbAdaptor.getAllIntervalFrequencies(regions.get(0), getHistogramIntervalSize()));
-				logger.info("Old histogram: "+(System.currentTimeMillis()-t1)+",  resp: "+resp.toString());
+//				logger.info("Old histogram: "+(System.currentTimeMillis()-t1)+",  resp: "+resp.toString());
 				return resp;
 			}else{
 				return generateResponse(chregionId, dbAdaptor.getAllByRegionList(regions));
