@@ -28,14 +28,12 @@ import com.sun.jersey.api.client.ClientResponse.Status;
 @Produces("text/plain")
 public class ExonWSServer extends GenericRestWSServer {
 	
+	private ExonDBAdaptor exonDBAdaptor;
+	
 	public ExonWSServer(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo) throws VersionException, IOException {
 		super(version, species, uriInfo);
 	}
 	
-	@Deprecated
-	private ExonDBAdaptor getExonDBAdaptor(){
-		return dbAdaptorFactory.getExonDBAdaptor(this.species);
-	}
 	
 	@GET
 	@Path("/{exonId}/info")
@@ -54,7 +52,8 @@ public class ExonWSServer extends GenericRestWSServer {
 	@Path("/{snpId}/bysnp")
 	public Response getAllBySnpIdList(@PathParam("snpId") String query) {
 		try {
-			return generateResponse(query, Arrays.asList(this.getExonDBAdaptor().getAllBySnpIdList(StringUtils.toList(query, ","))));
+			exonDBAdaptor = dbAdaptorFactory.getExonDBAdaptor(this.species);
+			return generateResponse(query, Arrays.asList(exonDBAdaptor.getAllBySnpIdList(StringUtils.toList(query, ","))));
 		} catch (IOException e) {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
@@ -83,17 +82,27 @@ public class ExonWSServer extends GenericRestWSServer {
 	}
 	
 	
+//	@GET
+//	@Path("/{exonId}/sequence")
+//	public Response getSequencesByIdList(@DefaultValue("1")@QueryParam("strand")String strand, @PathParam("exonId") String query) {
+//		try {
+//			if(strand.equals("-1")){
+//				return generateResponse(query, Arrays.asList(this.getExonDBAdaptor().getAllSequencesByIdList(StringUtils.toList(query, ","), -1)));
+//			}
+//			else{
+//				return generateResponse(query, Arrays.asList(this.getExonDBAdaptor().getAllSequencesByIdList(StringUtils.toList(query, ","))));
+//				
+//			}
+//		} catch (IOException e) {
+//			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+//		}
+//	}
 	@GET
 	@Path("/{exonId}/sequence")
-	public Response getSequencesByIdList(@DefaultValue("1")@QueryParam("strand")String strand, @PathParam("exonId") String query) {
+	public Response getSequencesByIdList(@PathParam("exonId") String query) {
 		try {
-			if(strand.equals("-1")){
-				return generateResponse(query, Arrays.asList(this.getExonDBAdaptor().getAllSequencesByIdList(StringUtils.toList(query, ","), -1)));
-			}
-			else{
-				return generateResponse(query, Arrays.asList(this.getExonDBAdaptor().getAllSequencesByIdList(StringUtils.toList(query, ","))));
-				
-			}
+			exonDBAdaptor = dbAdaptorFactory.getExonDBAdaptor(this.species);
+			return generateResponse(query, Arrays.asList(exonDBAdaptor.getAllSequencesByIdList(StringUtils.toList(query, ","))));
 		} catch (IOException e) {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
@@ -103,7 +112,8 @@ public class ExonWSServer extends GenericRestWSServer {
 	@Path("/{exonId}/region")
 	public Response getRegionsByIdList(@PathParam("exonId") String query) {
 		try {
-			return generateResponse(query, Arrays.asList(this.getExonDBAdaptor().getAllRegionsByIdList(StringUtils.toList(query, ","))));
+			exonDBAdaptor = dbAdaptorFactory.getExonDBAdaptor(this.species);
+			return generateResponse(query, Arrays.asList(exonDBAdaptor.getAllRegionsByIdList(StringUtils.toList(query, ","))));
 		} catch (IOException e) {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
