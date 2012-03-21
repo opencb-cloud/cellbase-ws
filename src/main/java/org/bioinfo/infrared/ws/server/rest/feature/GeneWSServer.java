@@ -75,7 +75,7 @@ public class GeneWSServer extends GenericRestWSServer {
 	@Path("/{geneId}/fullinfo")
 	public Response getFullInfoByEnsemblId(@PathParam("geneId") String query, @DefaultValue("") @QueryParam("sources") String sources) {
 		try {
-			List<Gene> genes = getGeneDBAdaptor().getAllByEnsemblIdList(StringUtils.toList(query, ","));
+			List<Gene> genes = getGeneDBAdaptor().getAllByNameList(StringUtils.toList(query, ",")).get(0);
 			List<List<Transcript>> transcriptList = getTranscriptDBAdaptor().getByEnsemblGeneIdList(StringUtils.toList(query, ","));
 			List<List<Xref>> goLists = getXRefDBAdaptor().getAllByDBName(StringUtils.toList(query, ","),"go");
 			List<List<Xref>> interproLists = getXRefDBAdaptor().getAllByDBName(StringUtils.toList(query, ","),"interpro");
