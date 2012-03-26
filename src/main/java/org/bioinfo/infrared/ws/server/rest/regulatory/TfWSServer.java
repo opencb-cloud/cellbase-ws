@@ -19,6 +19,8 @@ import javax.ws.rs.core.UriInfo;
 import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.infrared.core.cellbase.Gene;
 import org.bioinfo.infrared.core.cellbase.Protein;
+import org.bioinfo.infrared.core.cellbase.ProteinFeature;
+import org.bioinfo.infrared.core.cellbase.ProteinXref;
 import org.bioinfo.infrared.core.cellbase.Pwm;
 import org.bioinfo.infrared.core.cellbase.Transcript;
 import org.bioinfo.infrared.lib.api.GeneDBAdaptor;
@@ -88,7 +90,8 @@ public class TfWSServer extends RegulatoryWSServer {
 			List<List<Gene>> targetGeneList = getGeneDBAdaptor().getAllByTfList(StringUtils.toList(query, ","));
 			List<List<Pwm>> pwmGeneList =  getTfbsDBAdaptor().getAllPwmByTfGeneNameList(StringUtils.toList(query, ","));
 			
-			
+			List<List<ProteinXref>> proteinXrefList = getProteinDBAdaptor().getAllProteinXrefsByProteinNameList(externalNameList);
+			List<List<ProteinFeature>> proteinFeature = getProteinDBAdaptor().getAllProteinFeaturesByProteinXrefList(externalNameList);
 			
 			StringBuilder response = new StringBuilder();
 			response.append("[");
@@ -98,7 +101,9 @@ public class TfWSServer extends RegulatoryWSServer {
 				response.append("\"gene\":"+gson.toJson(genes.get(i).get(0))+",");
 				response.append("\"transcripts\":"+gson.toJson(transcriptList.get(i))+",");
 				response.append("\"pwm\":"+gson.toJson(pwmGeneList.get(i))+",");
-				response.append("\"targetGenes\":"+gson.toJson(targetGeneList.get(i))+"");
+				response.append("\"targetGenes\":"+gson.toJson(targetGeneList.get(i))+",");
+				response.append("\"protein_xref\":"+gson.toJson(proteinXrefList.get(i))+",");
+				response.append("\"protein_feature\":"+gson.toJson(proteinFeature.get(i))+"");
 				response.append("},");
 			}
 			response.append("]");
