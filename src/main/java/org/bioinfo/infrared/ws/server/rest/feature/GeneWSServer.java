@@ -76,13 +76,17 @@ public class GeneWSServer extends GenericRestWSServer {
 	public Response getFullInfoByEnsemblId(@PathParam("geneId") String query, @DefaultValue("") @QueryParam("sources") String sources) {
 		try {
 			List<Gene> genes = getGeneDBAdaptor().getAllByNameList(StringUtils.toList(query, ",")).get(0);
+			List<String> geneEnsemblStableIdList = new ArrayList<String>(genes.size());
+			for(Gene g: genes) {
+				geneEnsemblStableIdList.add(g.getStableId());
+			}
 			List<List<Transcript>> transcriptList = getTranscriptDBAdaptor().getByEnsemblGeneIdList(StringUtils.toList(query, ","));
 			List<List<Xref>> goLists = getXRefDBAdaptor().getAllByDBName(StringUtils.toList(query, ","),"go");
 			List<List<Xref>> interproLists = getXRefDBAdaptor().getAllByDBName(StringUtils.toList(query, ","),"interpro");
 			List<List<Xref>> reactomeLists = getXRefDBAdaptor().getAllByDBName(StringUtils.toList(query, ","),"reactome");
 			StringBuilder response = new StringBuilder();
 			response.append("[");
-			for (int i = 0; i < genes.size(); i++) {		
+			for (int i = 0; i < 1; i++) {		
 				response.append("{");
 				response.append("\"stableId\":"+"\""+genes.get(i).getStableId()+"\",");
 				response.append("\"externalName\":"+"\""+genes.get(i).getExternalName()+"\",");
