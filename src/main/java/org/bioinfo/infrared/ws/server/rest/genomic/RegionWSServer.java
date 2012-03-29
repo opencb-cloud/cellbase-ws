@@ -17,6 +17,7 @@ import javax.ws.rs.core.UriInfo;
 
 import org.bioinfo.infrared.core.cellbase.ConservedRegion;
 import org.bioinfo.infrared.core.cellbase.CpGIsland;
+import org.bioinfo.infrared.core.cellbase.GenomeSequence;
 import org.bioinfo.infrared.core.cellbase.MirnaTarget;
 import org.bioinfo.infrared.core.cellbase.MutationPhenotypeAnnotation;
 import org.bioinfo.infrared.core.cellbase.RegulatoryRegion;
@@ -34,7 +35,6 @@ import org.bioinfo.infrared.lib.api.SnpDBAdaptor;
 import org.bioinfo.infrared.lib.api.StructuralVariationDBAdaptor;
 import org.bioinfo.infrared.lib.api.TfbsDBAdaptor;
 import org.bioinfo.infrared.lib.api.TranscriptDBAdaptor;
-import org.bioinfo.infrared.lib.common.GenomeSequenceFeature;
 import org.bioinfo.infrared.lib.common.IntervalFeatureFrequency;
 import org.bioinfo.infrared.lib.common.Region;
 import org.bioinfo.infrared.ws.server.rest.GenericRestWSServer;
@@ -71,7 +71,7 @@ public class RegionWSServer extends GenericRestWSServer {
 			int value = this.histogramIntervalSize;
 			try{
 				value =  Integer.parseInt(parameters.get("interval").get(0));
-				System.out.println("PAKO:"+value);
+				logger.debug("Interval: "+value);
 				return value;
 			}
 			catch(Exception exp){
@@ -183,11 +183,18 @@ public class RegionWSServer extends GenericRestWSServer {
 	
 	@GET
 	@Path("/{chrRegionId}/sequence")
-	public Response getSequenceByRegion(@PathParam("chrRegionId") String chregionId) {
+	public Response getSequenceByRegion(@PathParam("chrRegionId") String chregionId, @DefaultValue("1") @QueryParam("strand") String strandParam) {
 		try {
 			List<Region> regions = Region.parseRegions(chregionId);
 			GenomeSequenceDBAdaptor dbAdaptor =  dbAdaptorFactory.getGenomeSequenceDBAdaptor(this.species);
-			return this.generateResponse(chregionId, dbAdaptor.getByRegionList(regions));
+			int strand = 1;
+			try {
+				strand = Integer.parseInt(strandParam);
+			}catch(Exception e) {
+				strand = 1;
+				logger.warn("RegionWSServer: method getSequence could not conver strand to integer");
+			}
+			return this.generateResponse(chregionId, dbAdaptor.getByRegionList(regions, strand));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
@@ -196,11 +203,12 @@ public class RegionWSServer extends GenericRestWSServer {
 	
 	@GET
 	@Path("/{chrRegionId}/reverse")
+	@Deprecated
 	public Response getReverseSequenceByRegion(@PathParam("chrRegionId") String chregionId) {
 		try {
 			List<Region> regions = Region.parseRegions(chregionId);
 			GenomeSequenceDBAdaptor dbAdaptor =  dbAdaptorFactory.getGenomeSequenceDBAdaptor(this.species);
-			List<GenomeSequenceFeature> result = dbAdaptor.getByRegionList(regions, -1);
+			List<GenomeSequence> result = dbAdaptor.getByRegionList(regions, -1);
 			return this.generateResponse(chregionId, result);
 		} catch (Exception e) {
 			e.printStackTrace();

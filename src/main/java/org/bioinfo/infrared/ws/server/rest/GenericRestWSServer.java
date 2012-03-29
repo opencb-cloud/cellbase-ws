@@ -98,6 +98,16 @@ public class GenericRestWSServer implements IWSServer {
 		this.version = version;
 	}
 
+	public GenericRestWSServer(@PathParam("version") String version, @Context UriInfo uriInfo) throws VersionException, IOException {
+		this.version = version;
+		this.species = "";
+		this.uriInfo = uriInfo;
+
+		if(version != null && species != null) {
+			init(version, species, uriInfo);
+		}
+	}
+	
 	public GenericRestWSServer(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo) throws VersionException, IOException {
 		this.version = version;
 		this.species = species;
@@ -117,6 +127,7 @@ public class GenericRestWSServer implements IWSServer {
 		gson = new GsonBuilder().serializeNulls().setExclusionStrategies(new FeatureExclusionStrategy()).create();
 //		gsonBuilder = new GsonBuilder();
 
+		System.out.println("logggggger");
 		logger = new Logger();
 		logger.setLevel(Logger.DEBUG_LEVEL);
 
