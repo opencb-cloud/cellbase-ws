@@ -56,6 +56,14 @@ public class UtilsWSServer extends GenericRestWSServer {
 //					req.addParameter((String) key, request.getParameter((String) key));
 //				}	
 //			}
+			String[] params = url.split("\\?");
+			if(params != null && params.length > 0) {
+				String[] urlParams = params[1].split("[&=]");
+				for(int i=0; i<urlParams.length; i+= 2) {
+					req.addParameter((String) urlParams[i], urlParams[i+1]);
+				}
+			}
+			
 			System.out.println("1");
 			String data = req.doCall();
 			System.out.println("2");
