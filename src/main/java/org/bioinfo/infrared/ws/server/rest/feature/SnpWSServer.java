@@ -1,8 +1,10 @@
 package org.bioinfo.infrared.ws.server.rest.feature;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -15,7 +17,12 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.bioinfo.commons.utils.StringUtils;
+import org.bioinfo.infrared.core.cellbase.ConsequenceType;
 import org.bioinfo.infrared.core.cellbase.Snp;
+import org.bioinfo.infrared.core.cellbase.SnpPhenotypeAnnotation;
+import org.bioinfo.infrared.core.cellbase.SnpPopulationFrequency;
+import org.bioinfo.infrared.core.cellbase.SnpToTranscript;
+import org.bioinfo.infrared.core.cellbase.Transcript;
 import org.bioinfo.infrared.lib.api.SnpDBAdaptor;
 import org.bioinfo.infrared.lib.api.TfbsDBAdaptor;
 import org.bioinfo.infrared.lib.api.TranscriptDBAdaptor;
@@ -32,9 +39,9 @@ public class SnpWSServer extends GenericRestWSServer {
 		super(version, species, uriInfo);
 	}
 
-	private SnpDBAdaptor getSnpDBAdaptor(){
-		return dbAdaptorFactory.getSnpDBAdaptor(this.species);
-	}
+//	private SnpDBAdaptor getSnpDBAdaptor(){
+//		return dbAdaptorFactory.getSnpDBAdaptor(this.species);
+//	}
 
 	@GET
 	@Path("/{snpId}/info")
@@ -65,27 +72,58 @@ public class SnpWSServer extends GenericRestWSServer {
 	@Path("/{snpId}/fullinfo")
 	public Response getFullInfoById(@PathParam("snpId") String query) {
 		try {
-			List<List<Snp>> snpLists = getSnpDBAdaptor().getAllBySnpIdList(StringUtils.toList(query, ","));
-
+			SnpDBAdaptor snpDBAdaptor = dbAdaptorFactory.getSnpDBAdaptor(this.species);
+			
+			
+			List<List<Snp>> snpLists = snpDBAdaptor.getAllBySnpIdList(StringUtils.toList(query, ","));
+			List<List<SnpToTranscript>> snpToTranscript = snpDBAdaptor.getAllSnpToTranscriptList(StringUtils.toList(query, ","));
+			List<List<SnpPopulationFrequency>> snpPopulation = snpDBAdaptor.getAllSnpPopulationFrequencyList(StringUtils.toList(query, ","));
+			List<List<SnpPhenotypeAnnotation>> snpPhenotype = snpDBAdaptor.getAllSnpPhenotypeAnnotationList(StringUtils.toList(query, ","));
+			
+//			List<List<Transcript>> transcripts = new ArrayList<List<Transcript>>(StringUtils.toList(query, ",").size());
+//			for (int i = 0; i < snpToTranscript.size(); i++) {
+//				List<Transcript> transcript = new ArrayList<Transcript>();
+//				for (int j = 0; j < snpToTranscript.get(i).size(); j++) {
+//					transcript.add(snpToTranscript.get(i).get(j).getTranscript());
+//				}
+//				transcripts.add(transcript);
+//			}
+			
+			
+			
 			StringBuilder response = new StringBuilder();
 			response.append("[");
-			for(List<Snp> snps : snpLists){
+			for (int i = 0; i < snpLists.size(); i++) {
 				response.append("[");
-				for (int i = 0; i < snps.size(); i++) {		
+				for (int j = 0; j < snpLists.get(i).size(); j++) {
 					response.append("{");
-					response.append("\"name\":"+"\""+snps.get(i).getName()+"\",");
-					response.append("\"chromosome\":"+"\""+snps.get(i).getChromosome()+"\",");
-					response.append("\"start\":"+snps.get(i).getStart()+",");
-					response.append("\"end\":"+snps.get(i).getEnd()+",");
-					response.append("\"strand\":"+"\""+snps.get(i).getStrand()+"\",");
-					response.append("\"mapWeight\":"+snps.get(i).getEnd()+",");
-					response.append("\"alleleString\":"+"\""+snps.get(i).getAlleleString()+"\",");
-					response.append("\"ancestralAllele\":"+"\""+snps.get(i).getAncestralAllele()+"\",");
-					response.append("\"source\":"+"\""+snps.get(i).getSource()+"\",");
-					response.append("\"displaySoConsequence\":"+"\""+snps.get(i).getDisplaySoConsequence()+"\",");
-					response.append("\"soConsequenceType\":"+"\""+snps.get(i).getSoConsequenceType()+"\",");
-					response.append("\"displayConsequence\":"+"\""+snps.get(i).getDisplayConsequence()+"\",");
-					response.append("\"sequence\":"+"\""+snps.get(i).getSequence()+"\"");
+					response.append("\"name\":"+"\""+snpLists.get(i).get(j).getName()+"\",");
+					response.append("\"chromosome\":"+"\""+snpLists.get(i).get(j).getChromosome()+"\",");
+					response.append("\"start\":"+snpLists.get(i).get(j).getStart()+",");
+					response.append("\"end\":"+snpLists.get(i).get(j).getEnd()+",");
+					response.append("\"strand\":"+"\""+snpLists.get(i).get(j).getStrand()+"\",");
+					response.append("\"mapWeight\":"+snpLists.get(i).get(j).getEnd()+",");
+					response.append("\"alleleString\":"+"\""+snpLists.get(i).get(j).getAlleleString()+"\",");
+					response.append("\"ancestralAllele\":"+"\""+snpLists.get(i).get(j).getAncestralAllele()+"\",");
+					response.append("\"source\":"+"\""+snpLists.get(i).get(j).getSource()+"\",");
+					response.append("\"displaySoConsequence\":"+"\""+snpLists.get(i).get(j).getDisplaySoConsequence()+"\",");
+					response.append("\"soConsequenceType\":"+"\""+snpLists.get(i).get(j).getSoConsequenceType()+"\",");
+					response.append("\"displayConsequence\":"+"\""+snpLists.get(i).get(j).getDisplayConsequence()+"\",");
+					response.append("\"sequence\":"+"\""+snpLists.get(i).get(j).getSequence()+"\",");
+					response.append("\"population\":"+gson.toJson(snpPopulation.get(i))+",");
+					
+					String aux = gson.toJson(snpToTranscript.get(i));
+					System.out.println(aux);
+					for (int k = 0; k < snpToTranscript.get(i).size(); k++) {
+						aux = aux.replace("\"snpToTranscriptId\":"+snpToTranscript.get(i).get(k).getSnpToTranscriptId(), "\"transcript\":"+gson.toJson(snpToTranscript.get(i).get(k).getTranscript())+", \"consequenceType\":"+gson.toJson(snpToTranscript.get(i).get(k).getConsequenceType()));
+					}
+					response.append("\"snptotranscript\":"+aux+",");
+					System.out.println(aux);
+//					response.append("\"snptotranscript\":"+gson.toJson(snpToTranscript.get(i))+",");
+//					response.append("\"transcript\":"+gson.toJson(transcripts.get(i))+",");
+					
+					
+					response.append("\"phenotype\":"+gson.toJson(snpPhenotype.get(i))+"");
 					response.append("},");
 				}
 				response.append("],");
