@@ -113,15 +113,12 @@ public class SnpWSServer extends GenericRestWSServer {
 					response.append("\"population\":"+gson.toJson(snpPopulation.get(i))+",");
 					
 					String aux = gson.toJson(snpToTranscript.get(i));
-					System.out.println(aux);
+//					System.out.println(aux);
 					for (int k = 0; k < snpToTranscript.get(i).size(); k++) {
 						aux = aux.replace("\"snpToTranscriptId\":"+snpToTranscript.get(i).get(k).getSnpToTranscriptId(), "\"transcript\":"+gson.toJson(snpToTranscript.get(i).get(k).getTranscript())+", \"consequenceType\":"+gson.toJson(snpToTranscript.get(i).get(k).getConsequenceType()));
 					}
 					response.append("\"snptotranscript\":"+aux+",");
-					System.out.println(aux);
-//					response.append("\"snptotranscript\":"+gson.toJson(snpToTranscript.get(i))+",");
-//					response.append("\"transcript\":"+gson.toJson(transcripts.get(i))+",");
-					
+//					System.out.println(aux);
 					
 					response.append("\"phenotype\":"+gson.toJson(snpPhenotype.get(i))+"");
 					response.append("},");
