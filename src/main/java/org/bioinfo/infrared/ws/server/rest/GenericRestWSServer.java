@@ -251,6 +251,8 @@ public class GenericRestWSServer implements IWSServer {
 					response = convertToJsonText(response);
 				}else {
 					mediaType = MediaType.TEXT_PLAIN_TYPE;
+					// CONCATENAR el nombre de la query
+					// String[] query.split(",");
 					response = StringWriter.serialize(features);
 				}
 			}
