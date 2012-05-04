@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.zip.ZipOutputStream;
 
-import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -28,9 +27,9 @@ import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.infrared.dao.utils.HibernateUtil;
 import org.bioinfo.infrared.lib.impl.DBAdaptorFactory;
 import org.bioinfo.infrared.lib.impl.hibernate.HibernateDBAdaptorFactory;
-import org.bioinfo.infrared.lib.io.output.JsonWriter;
 import org.bioinfo.infrared.lib.io.output.StringWriter;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
+import org.bioinfo.infrared.ws.server.rest.utils.Species;
 import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.classic.Session;
@@ -61,7 +60,7 @@ public class GenericRestWSServer implements IWSServer {
 
 	// output content format: txt or text, json, jsonp, xml, das
 	protected String outputFormat;
-	
+
 	// in file output produces a zip file, in text outputs generates a gzipped output
 	protected String outputCompress;
 
@@ -76,7 +75,7 @@ public class GenericRestWSServer implements IWSServer {
 
 	//	private MediaType mediaType;
 	protected Gson gson; 
-	private GsonBuilder gsonBuilder;
+//	private GsonBuilder gsonBuilder;
 	protected Logger logger;
 
 
@@ -94,28 +93,30 @@ public class GenericRestWSServer implements IWSServer {
 	private static final String TAB = "tab";
 
 
+	@Deprecated
 	public GenericRestWSServer(@PathParam("version") String version) {
 		this.version = version;
 	}
 
+	@Deprecated
 	public GenericRestWSServer(@PathParam("version") String version, @Context UriInfo uriInfo) throws VersionException, IOException {
 		this.version = version;
 		this.species = "";
 		this.uriInfo = uriInfo;
 
-		if(version != null && species != null) {
-			init(version, species, uriInfo);
-		}
+		init(version, this.species, uriInfo);
+//		if(version != null && this.species != null) {
+//		}
 	}
-	
+
 	public GenericRestWSServer(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo) throws VersionException, IOException {
 		this.version = version;
 		this.species = species;
 		this.uriInfo = uriInfo;
 
-		if(version != null && species != null) {
-			init(version, species, uriInfo);
-		}
+		init(version, species, uriInfo);
+//		if(version != null && species != null) {
+//		}
 	}
 
 	protected void init(String version, String species, UriInfo uriInfo) throws VersionException, IOException {
@@ -125,16 +126,20 @@ public class GenericRestWSServer implements IWSServer {
 
 		// mediaType = MediaType.valueOf("text/plain");
 		gson = new GsonBuilder().serializeNulls().setExclusionStrategies(new FeatureExclusionStrategy()).create();
-//		gsonBuilder = new GsonBuilder();
+		//		gsonBuilder = new GsonBuilder();
 
-		System.out.println("logggggger");
 		logger = new Logger();
 		logger.setLevel(Logger.DEBUG_LEVEL);
+		logger.debug("GenericrestWSServer init method");
 
 		// this code MUST be run before the checking 
 		parseCommonQueryParameters(uriInfo.getQueryParameters());
 	}
 
+	/**
+	 * This method parse common query parameters from the URL
+	 * @param multivaluedMap
+	 */
 	private void parseCommonQueryParameters(MultivaluedMap<String, String> multivaluedMap) {
 		if(multivaluedMap.get("result_separator") != null) {
 			if(multivaluedMap.get("result_separator").get(0).equalsIgnoreCase(NEW_LINE)) {
@@ -166,7 +171,7 @@ public class GenericRestWSServer implements IWSServer {
 
 		fileFormat = (multivaluedMap.get("fileformat") != null) ? multivaluedMap.get("fileformat").get(0) : "";
 		outputFormat = (multivaluedMap.get("of") != null) ? multivaluedMap.get("of").get(0) : "txt";
-//		outputFormat = (multivaluedMap.get("contentformat") != null) ? multivaluedMap.get("contentformat").get(0) : "txt";
+		//		outputFormat = (multivaluedMap.get("contentformat") != null) ? multivaluedMap.get("contentformat").get(0) : "txt";
 		filename = (multivaluedMap.get("filename") != null) ? multivaluedMap.get("filename").get(0) : "result";
 		outputRowNames = (multivaluedMap.get("outputrownames") != null) ? multivaluedMap.get("outputrownames").get(0) : "false";
 		outputHeader = (multivaluedMap.get("outputheader") != null) ? multivaluedMap.get("outputheader").get(0) : "false";
@@ -174,15 +179,6 @@ public class GenericRestWSServer implements IWSServer {
 
 		user = (multivaluedMap.get("user") != null) ? multivaluedMap.get("user").get(0) : "anonymous";
 		password = (multivaluedMap.get("password") != null) ? multivaluedMap.get("password").get(0) : "";
-	}
-
-	//This method are for nice printing help URL
-	protected List<String> getPathsNicePrint(){
-		return new ArrayList<String>();
-	}
-
-	protected List<String> getExamplesNicePrint(){
-		return new ArrayList<String>();
 	}
 
 
@@ -203,18 +199,49 @@ public class GenericRestWSServer implements IWSServer {
 	@GET
 	@Path("/help")
 	public String help() {
-		return "No help avalaible";
+		return "No help available";
 	}
 
 	@GET
 	@Path("/species")
-	public String getSpecies() {
-		StringBuilder stringBuilder = new StringBuilder();
-		stringBuilder.append("#short").append("\t").append("common").append("\t").append("scientific").append("\n");
-		stringBuilder.append("hsa").append("\t").append("human").append("\t").append("Homo sapiens").append("\n");
-		stringBuilder.append("mus").append("\t").append("mouse").append("\t").append("Mus musculus").append("\n");
-		stringBuilder.append("rno").append("\t").append("rat").append("\t").append("Rattus norvegicus");
-		return stringBuilder.toString();
+	public Response getSpecies() {
+		List<Species> speciesList = new ArrayList<Species>(11);
+		speciesList.add(new Species("hsa", "human", "Homo sapiens", "GRCh37"));
+		speciesList.add(new Species("mmu", "mouse", "Mus musculus", "NCBIM37"));
+		speciesList.add(new Species("rno", "rat", "Rattus norvegicus", ""));
+		speciesList.add(new Species("cfa", "dog", "Canis familiaris", ""));
+		speciesList.add(new Species("ssc", "pig", "Sus scrofa", ""));
+		speciesList.add(new Species("dre", "zebrafish", "Danio rerio", "Zv9"));
+		speciesList.add(new Species("dme", "fruitfly", "Drosophila melanogaster", ""));
+		speciesList.add(new Species("aga", "mosquito", "Anopheles gambiae", "GRCh37"));
+		speciesList.add(new Species("cel", "worm", "Caenorhabditis elegans", ""));
+		speciesList.add(new Species("fpa", "", "Plasmodium falciparum", ""));
+		speciesList.add(new Species("sce", "yeast", "Saccharomyces cerevisiae", ""));
+		
+		MediaType mediaType = MediaType.valueOf("application/javascript");
+		if(uriInfo.getQueryParameters().get("of") != null && uriInfo.getQueryParameters().get("of").get(0).equalsIgnoreCase("json")) {
+			return createOkResponse(gson.toJson(speciesList), mediaType);
+		}else {
+			StringBuilder stringBuilder = new StringBuilder();
+			for(Species sp: speciesList) {
+				stringBuilder.append(sp.toString()).append("\n");
+			}
+			mediaType = MediaType.valueOf("text/plain");
+			return createOkResponse(stringBuilder.toString(), mediaType);
+		}
+		
+//		stringBuilder.append("#short").append("\t").append("common").append("\t").append("scientific").append("\t").append("assembly").append("\n");
+//		stringBuilder.append("hsa").append("\t").append("human").append("\t").append("Homo sapiens").append("\t").append("GRCh37").append("\n");
+//		stringBuilder.append("mus").append("\t").append("mouse").append("\t").append("Mus musculus").append("\t").append("NCBIM37").append("\n");
+//		stringBuilder.append("rno").append("\t").append("rat").append("\t").append("Rattus norvegicus").append("\t").append("").append("\n");
+//		stringBuilder.append("cfa").append("\t").append("dog").append("\t").append("Canis familiaris").append("\t").append("").append("\n");
+//		stringBuilder.append("ssc").append("\t").append("pig").append("\t").append("Sus scrofa").append("\t").append("").append("\n");
+//		stringBuilder.append("dre").append("\t").append("zebrafish").append("\t").append("Danio rerio").append("\t").append("Zv9").append("\n");
+//		stringBuilder.append("dme").append("\t").append("fruitfly").append("\t").append("Drosophila melanogaster").append("\t").append("").append("\n");
+//		stringBuilder.append("aga").append("\t").append("mosquito").append("\t").append("Anopheles gambiae").append("\t").append("").append("\n");
+//		stringBuilder.append("cel").append("\t").append("worm").append("\t").append("Caenorhabditis elegans").append("\t").append("").append("\n");
+//		stringBuilder.append("pfa").append("\t").append("").append("\t").append("Plasmodium falciparum").append("\t").append("").append("\n");
+//		stringBuilder.append("sce").append("\t").append("yeast").append("\t").append("Saccharomyces cerevisiae").append("\t").append("");
 	}
 
 
@@ -232,53 +259,53 @@ public class GenericRestWSServer implements IWSServer {
 
 	@SuppressWarnings("unchecked")
 	protected Response generateResponse(String queryString, List features) throws IOException {
-		logger.info("-------------");
-		if (queryString.length()>99){
-			logger.debug("\t\t - Response: " + queryString.substring(0,100) + ".....");
-		}
-		else{
-			logger.debug("\t\t - Response: " + queryString);
-		}
+		logger.debug("CellBase - GenerateResponse, QueryString: " + ((queryString.length() > 50) ? queryString.substring(0, 49)+"..." : queryString));			
 
-		//		logger.info(features.toString());
+		// default mediaType
 		MediaType mediaType = MediaType.valueOf("text/plain");
 
-		String response = "";
+		String response = "outputformat 'of' parameter not valid: "+outputFormat;
 		if (outputFormat != null) {
-			if(outputFormat.equalsIgnoreCase("txt") || outputFormat.equalsIgnoreCase("text") || outputFormat.equalsIgnoreCase("jsontext")) {
-				if(outputFormat.equalsIgnoreCase("jsontext")) {
-					mediaType = MediaType.valueOf("text/javascript");
-					response = convertToJsonText(response);
-				}else {
-					mediaType = MediaType.TEXT_PLAIN_TYPE;
+			//			if((outputFormat.equalsIgnoreCase("json") || outputFormat.equalsIgnoreCase("jsonp"))) {
+			if(outputFormat.equalsIgnoreCase("json")) {
+				//				mediaType = MediaType.APPLICATION_JSON_TYPE;
+				mediaType = MediaType.valueOf("application/javascript");
+				response = gson.toJson(features);
+				//				if(features != null && features.size() > 0) {
+				//					response = gson.toJson(features);
+				//					o:
+				//					JsonWriter jsonWriter = new JsonWriter(new FeatureExclusionStrategy());
+				//					response = jsonWriter.serialize(features);
+				//				}
+
+				//				if(outputFormat.equals("jsonp")) {
+				//					mediaType = MediaType.valueOf("application/javascript");
+				//					response = convertToJson(response);
+				//				}
+			}else {
+				if(outputFormat.equalsIgnoreCase("txt") || outputFormat.equalsIgnoreCase("text")) {	// || outputFormat.equalsIgnoreCase("jsontext")
+					//				if(outputFormat.equalsIgnoreCase("jsontext")) {
+					//					mediaType = MediaType.valueOf("application/javascript");
+					//					response = convertToJsonText(response);
+					//				}else {
+					//					mediaType = MediaType.TEXT_PLAIN_TYPE;
+
 					// CONCATENAR el nombre de la query
 					// String[] query.split(",");
+					mediaType = MediaType.valueOf("text/plain");
 					response = StringWriter.serialize(features);
-				}
-			}
-
-			if((outputFormat.equalsIgnoreCase("json") || outputFormat.equalsIgnoreCase("jsonp"))) {
-				mediaType = MediaType.APPLICATION_JSON_TYPE;
-				if(features != null && features.size() > 0) {
-					response = gson.toJson(features);
-//					JsonWriter jsonWriter = new JsonWriter(new FeatureExclusionStrategy());
-//					response = jsonWriter.serialize(features);
+					//				}
 				}
 
-				if(outputFormat.equals("jsonp")) {
-					mediaType = MediaType.valueOf("text/javascript");
-					response = convertToJson(response);
+				if(outputFormat.equalsIgnoreCase("xml") ) {
+					mediaType = MediaType.TEXT_XML_TYPE;
+					response = ListUtils.toString(features, resultSeparator);
 				}
-			}
 
-			if(outputFormat.equalsIgnoreCase("xml") ) {
-				mediaType = MediaType.TEXT_XML_TYPE;
-				response = ListUtils.toString(features, resultSeparator);
-			}
-
-			if(outputFormat.equalsIgnoreCase("das") ) {
-				mediaType = MediaType.TEXT_XML_TYPE;
-				response = ListUtils.toString(features, resultSeparator);
+				if(outputFormat.equalsIgnoreCase("das") ) {
+					mediaType = MediaType.TEXT_XML_TYPE;
+					response = ListUtils.toString(features, resultSeparator);
+				}
 			}
 		}
 
@@ -286,26 +313,15 @@ public class GenericRestWSServer implements IWSServer {
 	}
 
 	protected Response createResponse(String response, MediaType mediaType) throws IOException {
-		logger.debug("\tQuery Params");
-		logger.debug("\t\t - FileFormat: " + fileFormat);
-		logger.debug("\t\t - ContentFormat: " + outputFormat);
-		logger.debug("\t\t - Compress: " + outputCompress);
-		logger.debug("\t\t -------------------------------");
-		logger.debug("\t\t - Inferred media type: " + mediaType.toString());
-
-		if (response.length()>99){
-			logger.debug("\t\t -Response: " + response.substring(0,100) + ".....");
-		}
-		else{
-			logger.debug("\t\t -Response: " + response);
-		}
+		logger.debug("CellBase - CreateResponse, QueryParams: FileFormat => " + fileFormat+", OutputFormat => " + outputFormat+", Compress => " + outputCompress);
+		logger.debug("CellBase - CreateResponse, Inferred media type: " + mediaType.toString());
+		logger.debug("CellBase - CreateResponse, Response: " + ((response.length() > 50) ? response.substring(0, 49)+"..." : response));
 
 		if(fileFormat == null || fileFormat.equalsIgnoreCase("")) {
 			if(outputCompress != null && outputCompress.equalsIgnoreCase("true") && !outputFormat.equalsIgnoreCase("jsonp")&& !outputFormat.equalsIgnoreCase("jsontext")) {
 				response = Arrays.toString(StringUtils.gzipToBytes(response)).replace(" " , "");
 			}
 		}else {
-
 			mediaType = MediaType.APPLICATION_OCTET_STREAM_TYPE;
 			logger.debug("\t\t - Creating byte stream ");
 
@@ -316,8 +332,7 @@ public class GenericRestWSServer implements IWSServer {
 				ZipOutputStream zipstream = new ZipOutputStream(bos);
 				zipstream.setLevel(9);
 
-				logger.debug("\t\t - zipping.... ");
-				logger.debug("\t\tFinal media Type: " + mediaType.toString());
+				logger.debug("CellBase - CreateResponse, zipping... Final media Type: " + mediaType.toString());
 
 				//				return Response.ok(zipstream, mediaType).header("content-disposition","attachment; filename = "+ filename + ".zip").build();
 				return this.createOkResponse(zipstream, mediaType, filename+".zip");
@@ -337,12 +352,9 @@ public class GenericRestWSServer implements IWSServer {
 					//					return Response.ok(streamResponse, mediaType).header("content-disposition","attachment; filename = "+ filename + ".txt").build();
 					return this.createOkResponse(streamResponse, mediaType, filename+".txt");
 				}
-
 			}
 		}
-		logger.debug("");
-		logger.debug("\t\tFinal media Type: " + mediaType.toString());
-		logger.debug(" ------------ ");
+		logger.debug("CellBase - CreateResponse, Final media Type: " + mediaType.toString());
 		//		return Response.ok(response, mediaType).build();
 		return this.createOkResponse(response, mediaType);
 	}
@@ -370,16 +382,29 @@ public class GenericRestWSServer implements IWSServer {
 	}
 
 
+	
+	@Deprecated
 	private String convertToJsonText(String response) {
 		String jsonpQueryParam = (uriInfo.getQueryParameters().get("callbackParam") != null) ? uriInfo.getQueryParameters().get("callbackParam").get(0) : "callbackParam";
 		response = "var " + jsonpQueryParam+ " = \"" + response +"\"";
 		return response;
 	}
 
+	@Deprecated
 	protected String convertToJson(String response) {
 		String jsonpQueryParam = (uriInfo.getQueryParameters().get("callbackParam") != null) ? uriInfo.getQueryParameters().get("callbackParam").get(0) : "callbackParam";	
 		response = "var " + jsonpQueryParam+ " = (" + response +")";
 		return response;
+	}
+
+	@Deprecated
+	protected List<String> getPathsNicePrint(){
+		return new ArrayList<String>();
+	}
+
+	@Deprecated
+	protected List<String> getExamplesNicePrint(){
+		return new ArrayList<String>();
 	}
 
 }

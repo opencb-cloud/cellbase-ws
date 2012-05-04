@@ -5,12 +5,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
@@ -46,8 +44,7 @@ public class ExonWSServer extends GenericRestWSServer {
 		}
 	}
 	
-	
-	
+	@SuppressWarnings("unchecked")
 	@GET
 	@Path("/{snpId}/bysnp")
 	public Response getAllBySnpIdList(@PathParam("snpId") String query) {
@@ -97,6 +94,8 @@ public class ExonWSServer extends GenericRestWSServer {
 //			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 //		}
 //	}
+	
+	@SuppressWarnings("unchecked")
 	@GET
 	@Path("/{exonId}/sequence")
 	public Response getSequencesByIdList(@PathParam("exonId") String query) {
@@ -108,6 +107,7 @@ public class ExonWSServer extends GenericRestWSServer {
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	@GET
 	@Path("/{exonId}/region")
 	public Response getRegionsByIdList(@PathParam("exonId") String query) {
