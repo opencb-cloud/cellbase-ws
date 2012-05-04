@@ -58,13 +58,11 @@ public class GeneWSServer extends GenericRestWSServer {
 		return dbAdaptorFactory.getXRefDBAdaptor(this.species);
 	}
 
-	@SuppressWarnings("unchecked")
 	@GET
 	@Path("/{geneId}/info")
 	public Response getByEnsemblId(@PathParam("geneId") String query) {
 		try {
 			return generateResponse(query, this.getGeneDBAdaptor().getAllByNameList(StringUtils.toList(query, ",")));
-
 			//	return generateResponse(query, Arrays.asList(this.getGeneDBAdaptor().getAllByEnsemblIdList(StringUtils.toList(query, ","))));
 		} catch (Exception e) {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
@@ -200,9 +198,9 @@ public class GeneWSServer extends GenericRestWSServer {
 			GeneDBAdaptor geneAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species);
 			List<List<Gene>> geneList = geneAdaptor.getAllByNameList(StringUtils.toList(query, ","));
 
-			List ensemblIds = new ArrayList<String>();
-			for (List<Gene> list : geneList) {
-				for (Gene gene : list) {
+			List<String> ensemblIds = new ArrayList<String>();
+			for(List<Gene> list : geneList) {
+				for(Gene gene : list) {
 					ensemblIds.add(gene.getStableId());
 				}
 			}
@@ -212,6 +210,5 @@ public class GeneWSServer extends GenericRestWSServer {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
 	}
-
 
 }

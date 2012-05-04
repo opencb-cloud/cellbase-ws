@@ -1,10 +1,8 @@
 package org.bioinfo.infrared.ws.server.rest.feature;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -17,12 +15,10 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.bioinfo.commons.utils.StringUtils;
-import org.bioinfo.infrared.core.cellbase.ConsequenceType;
 import org.bioinfo.infrared.core.cellbase.Snp;
 import org.bioinfo.infrared.core.cellbase.SnpPhenotypeAnnotation;
 import org.bioinfo.infrared.core.cellbase.SnpPopulationFrequency;
 import org.bioinfo.infrared.core.cellbase.SnpToTranscript;
-import org.bioinfo.infrared.core.cellbase.Transcript;
 import org.bioinfo.infrared.lib.api.SnpDBAdaptor;
 import org.bioinfo.infrared.lib.api.TfbsDBAdaptor;
 import org.bioinfo.infrared.lib.api.TranscriptDBAdaptor;
@@ -88,8 +84,6 @@ public class SnpWSServer extends GenericRestWSServer {
 //				}
 //				transcripts.add(transcript);
 //			}
-			
-			
 			
 			StringBuilder response = new StringBuilder();
 			response.append("[");
@@ -190,6 +184,5 @@ public class SnpWSServer extends GenericRestWSServer {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
 	}
-
 
 }

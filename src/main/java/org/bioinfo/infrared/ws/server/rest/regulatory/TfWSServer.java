@@ -12,7 +12,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
@@ -36,11 +35,11 @@ import com.sun.jersey.api.client.ClientResponse.Status;
 @Produces("text/plain")
 public class TfWSServer extends RegulatoryWSServer {
 
-	
 	public TfWSServer(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo) throws VersionException, IOException {
 		super(version, species, uriInfo);
 	}
 
+	
 	private GeneDBAdaptor getGeneDBAdaptor(){
 		return dbAdaptorFactory.getGeneDBAdaptor(this.species);
 	}
@@ -166,7 +165,7 @@ public class TfWSServer extends RegulatoryWSServer {
 			else{
 				results = adaptor.getAllAnnotationByCellTypeList(StringUtils.toList(celltype, ","));
 			}
-			List lista = new ArrayList<String>();			
+			List<String> lista = new ArrayList<String>();			
 			
 			for (Object result : results) {
 				lista.add(((Object [])result)[0].toString()+"\t" + ((Object [])result)[1].toString());
