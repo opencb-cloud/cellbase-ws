@@ -100,6 +100,7 @@ public class VariantWSServer extends GenericRestWSServer {
 
 	private Response getConsequenceTypeByPosition(String variants, String excludes) {
 		try {
+			System.out.println("PAKO: "+ variants);
 			List<GenomicVariant> genomicVariantList = GenomicVariant.parseVariants(variants);
 			if(genomicVariantList != null && excludes != null) {
 				logger.debug("number of variants: "+ genomicVariantList.size());
