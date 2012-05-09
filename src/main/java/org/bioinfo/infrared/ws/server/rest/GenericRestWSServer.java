@@ -208,34 +208,39 @@ public class GenericRestWSServer implements IWSServer {
 	@GET
 	@Path("/{species}")
 	public Response getCategories(@PathParam("species") String species) {
-		List<Species> speciesList = getSpeciesList();
-		for(int i=0; i < speciesList.size(); i++){
-			//This only allows to show the information if species is in 3 letters format
-			if(species.equalsIgnoreCase(speciesList.get(i).getSpecies())){
-				return createOkResponse("feature\ngenomic\nnetwork\nregulatory");
-			}
+		if(isSpecieAvailable(species)){
+			return createOkResponse("feature\ngenomic\nnetwork\nregulatory");
 		}
-		return createOkResponse("No category available");
+		return getSpecies();
 	}
 	
 	@GET
 	@Path("/{species}/{category}")
-	public Response getFeature(@PathParam("species") String species,@PathParam("category") String category) {
-		if("feature".equalsIgnoreCase(category)){
-			return createOkResponse("exon\ngene\nkaryotype\nprotein\nsnp\ntranscript");
+	public Response getCategory(@PathParam("species") String species, @PathParam("category") String category) {
+		if(isSpecieAvailable(species)){
+			if("feature".equalsIgnoreCase(category)){
+				return createOkResponse("exon\ngene\nkaryotype\nprotein\nsnp\ntranscript");
+			}
+			if("genomic".equalsIgnoreCase(category)){
+				return createOkResponse("position\nregion\nvariant");
+			}
+			if("network".equalsIgnoreCase(category)){
+				return createOkResponse("pathway");
+			}
+			if("regulatory".equalsIgnoreCase(category)){
+				return createOkResponse("mirna_gene\nmirna_mature\ntf");
+			}
+			return createOkResponse("feature\ngenomic\nnetwork\nregulatory");
+		}else{
+			return getSpecies();
 		}
-		if("genomic".equalsIgnoreCase(category)){
-			return createOkResponse("exon\ngene\nkaryotype\nprotein\nsnp\ntranscript");
-		}
-		if("network".equalsIgnoreCase(category)){
-			return createOkResponse("exon\ngene\nkaryotype\nprotein\nsnp\ntranscript");
-		}
-		if("regulatory".equalsIgnoreCase(category)){
-			return createOkResponse("exon\ngene\nkaryotype\nprotein\nsnp\ntranscript");
-		}
-		return getCategories(species);
 	}
 	
+	@GET
+	@Path("/{species}/{category}/{subcategory}")
+	public Response getSubcategory(@PathParam("species") String species, @PathParam("category") String category, @PathParam("subcategory") String subcategory) {
+		return getCategory(species,category);
+	}
 	
 	@GET
 	@Path("/species")
@@ -255,6 +260,16 @@ public class GenericRestWSServer implements IWSServer {
 		}
 	}
 
+	private boolean isSpecieAvailable(String species) {
+		List<Species> speciesList = getSpeciesList();
+		for(int i=0; i < speciesList.size(); i++){
+			//This only allows to show the information if species is in 3 letters format
+			if(species.equalsIgnoreCase(speciesList.get(i).getSpecies())){
+				return true;
+			}
+		}
+		return false;
+	}
 	private List<Species> getSpeciesList() {
 		List<Species> speciesList = new ArrayList<Species>(11);
 		speciesList.add(new Species("hsa", "human", "Homo sapiens", "GRCh37"));
