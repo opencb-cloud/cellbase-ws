@@ -266,7 +266,7 @@ public class GenericRestWSServer implements IWSServer {
 		speciesList.add(new Species("dme", "fruitfly", "Drosophila melanogaster", ""));
 		speciesList.add(new Species("aga", "mosquito", "Anopheles gambiae", "GRCh37"));
 		speciesList.add(new Species("cel", "worm", "Caenorhabditis elegans", ""));
-		speciesList.add(new Species("fpa", "", "Plasmodium falciparum", ""));
+		speciesList.add(new Species("pfa", "", "Plasmodium falciparum", ""));
 		speciesList.add(new Species("sce", "yeast", "Saccharomyces cerevisiae", ""));
 		
 		return speciesList;
