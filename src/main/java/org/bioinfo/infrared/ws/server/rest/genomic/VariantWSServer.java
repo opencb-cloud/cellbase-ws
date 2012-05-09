@@ -62,7 +62,7 @@ public class VariantWSServer extends GenericRestWSServer {
 			return getConsequenceTypeByPosition(query, excludeSOTerms);
 		} catch (Exception e) {
 			e.printStackTrace();
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			return createErrorResponse(uriInfo.getPath(), "getConsequenceTypeByPositionByGet", e.toString());
 		}
 	}
 

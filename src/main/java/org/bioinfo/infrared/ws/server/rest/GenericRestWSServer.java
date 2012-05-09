@@ -24,6 +24,7 @@ import org.bioinfo.commons.Config;
 import org.bioinfo.commons.log.Logger;
 import org.bioinfo.commons.utils.ListUtils;
 import org.bioinfo.commons.utils.StringUtils;
+import org.bioinfo.http.HttpUtils;
 import org.bioinfo.infrared.dao.utils.HibernateUtil;
 import org.bioinfo.infrared.lib.impl.DBAdaptorFactory;
 import org.bioinfo.infrared.lib.impl.hibernate.HibernateDBAdaptorFactory;
@@ -198,8 +199,8 @@ public class GenericRestWSServer implements IWSServer {
 
 	@GET
 	@Path("/help")
-	public String help() {
-		return "No help available";
+	public Response help() {
+		return createOkResponse("No help available");
 	}
 
 	@GET
@@ -360,8 +361,18 @@ public class GenericRestWSServer implements IWSServer {
 	}
 
 
-	protected Response createErrorResponse(String errorMessage) {
-		return Response.ok("An error occurred: "+errorMessage, MediaType.valueOf("text/plain")).header("Access-Control-Allow-Origin", "*").build();
+	
+	protected Response createErrorResponse(String uri, String method, String errorMessage) {
+		StringBuilder message = new StringBuilder();
+		message.append("URI: "+uri).append("\n");
+		message.append("Method: "+method).append("\n");
+		message.append("Message: "+errorMessage).append("\n");
+		HttpUtils.send("correo.cipf.es", "fsalavert@cipf.es", "babelomics@cipf.es", "Infrared error notice", message.toString());
+		String error = "An error occurred: "+errorMessage;
+		if(outputFormat.equalsIgnoreCase("json")){
+			error = "{\"error\":\""+errorMessage+"\"}";
+		}	
+		return Response.ok(error, MediaType.valueOf("text/plain")).header("Access-Control-Allow-Origin", "*").build();
 	}
 
 	protected Response createOkResponse(Object obj){                

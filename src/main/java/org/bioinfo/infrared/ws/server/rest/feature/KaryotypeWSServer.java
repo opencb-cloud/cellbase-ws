@@ -35,9 +35,10 @@ public class KaryotypeWSServer extends GenericRestWSServer {
 			return generateResponse(chromosome, dbAdaptor.getAllByChromosomeList(StringUtils.toList(chromosome, ",")));
 		} catch (Exception e) {
 			e.printStackTrace();
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			return createErrorResponse(uriInfo.getAbsolutePath().toString(), "getByChromosomeName", e.toString());
 		}
 	}
+	
 	
 	@GET
 	@Path("/chromosome")
@@ -47,10 +48,11 @@ public class KaryotypeWSServer extends GenericRestWSServer {
 			return generateResponse("", dbAdaptor.getAllChromosomeNames());
 		} catch (Exception e) {
 			e.printStackTrace();
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			return createErrorResponse(uriInfo.getAbsolutePath().toString(), "getChromosomes", e.toString());
 		}
 	}
 
+	
 	@GET
 	@Path("/{chromosomeName}/chromosome")
 	public Response getChromosomes(@PathParam("chromosomeName") String query) {
@@ -61,5 +63,17 @@ public class KaryotypeWSServer extends GenericRestWSServer {
 //			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 //		}
 	}
-
+	
+	
+	
+	
+	@GET
+	public Response getHelp() {
+		return help();
+	}
+	@GET
+	@Path("/help")
+	public Response help() {
+		return createOkResponse("Usage:");
+	}
 }
