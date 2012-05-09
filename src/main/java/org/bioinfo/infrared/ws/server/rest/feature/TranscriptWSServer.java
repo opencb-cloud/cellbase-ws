@@ -190,14 +190,18 @@ public class TranscriptWSServer extends GenericRestWSServer {
 	@Path("/help")
 	public Response help() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("Resources/actions\n\n");
+		sb.append("Input:\n");
+		sb.append("all id formats are accepted.\n\n\n");
+		sb.append("Resources:\n");
 		sb.append("- info: Get transcript information: name, position, biotype.\n");
 		sb.append(" Output columns: Ensembl ID, external name, external name source, biotype, status, chromosome, start, end, strand, coding region start, coding region end, cdna coding start, cdna coding end, description.\n\n");
 		sb.append("- gene: Get the corresponding gene for this transcript.\n");
 		sb.append(" Output columns: Ensembl gene, external name, external name source, biotype, status, chromosome, start, end, strand, source, description.\n\n");
 		sb.append("- sequence: Get transcript sequence.\n\n");
 		sb.append("- exon: Get transcript's exons.\n");
-		sb.append(" Output columns: Ensembl ID, chromosome, start, end, strand.\n\n");
+		sb.append(" Output columns: Ensembl ID, chromosome, start, end, strand.\n\n\n");
+		sb.append("Documentation:\n");
+		sb.append("http://docs.bioinfo.cipf.es/projects/cellbase/wiki/Feature_rest_ws_api#Transcript");
 		
 		return createOkResponse(sb.toString());
 	}

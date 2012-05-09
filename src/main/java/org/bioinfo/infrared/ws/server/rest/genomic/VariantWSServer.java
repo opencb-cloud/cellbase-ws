@@ -185,9 +185,13 @@ public class VariantWSServer extends GenericRestWSServer {
 	@Path("/help")
 	public Response help() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("Resources/actions\n\n");
+		sb.append("Input:\n");
+		sb.append("Variant format: chr:position:new allele (i.e.: 1:150044250:G)\n\n\n");
+		sb.append("Resources:\n");
 		sb.append("- consequence_type: Suppose that we have obtained some variants from a resequencing analysis and we want to obtain the consequence type of a variant over the transcripts\n");
-		sb.append(" Output columns: chromosome, start, end, feature ID, feature name, consequence type, biotype, feature chromosome, feature start, feature end, feature strand, snp ID, ancestral allele, alternative allele, gene Ensembl ID, Ensembl transcript ID, gene name, SO consequence type ID, SO consequence type name, consequence type description, consequence type category, aminoacid change, codon change.\n\n");
+		sb.append(" Output columns: chromosome, start, end, feature ID, feature name, consequence type, biotype, feature chromosome, feature start, feature end, feature strand, snp ID, ancestral allele, alternative allele, gene Ensembl ID, Ensembl transcript ID, gene name, SO consequence type ID, SO consequence type name, consequence type description, consequence type category, aminoacid change, codon change.\n\n\n");
+		sb.append("Documentation:\n");
+		sb.append("http://docs.bioinfo.cipf.es/projects/cellbase/wiki/Genomic_rest_ws_api#Variant");
 		
 		return createOkResponse(sb.toString());
 	}

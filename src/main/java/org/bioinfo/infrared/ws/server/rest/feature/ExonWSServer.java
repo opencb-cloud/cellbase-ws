@@ -145,12 +145,16 @@ public class ExonWSServer extends GenericRestWSServer {
 	@Path("/help")
 	public Response help() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("Resources/actions\n\n");
+		sb.append("Input:\n");
+		sb.append("all id formats are accepted.\n\n\n");
+		sb.append("Resources:\n");
 		sb.append("- info: Get exon information: name and location.\n");
 		sb.append(" Output columns: Ensembl ID, chromosome, start, end, strand.\n\n");
 		sb.append("- sequence: Get exon sequence.\n\n");
 		sb.append("- trancript: Get all transcripts which contain this exon.\n");
-		sb.append(" Output columns: Ensembl ID, external name, external name source, biotype, status, chromosome, start, end, strand, coding region start, coding region end, cdna coding start, cdna coding end, description.\n\n");
+		sb.append(" Output columns: Ensembl ID, external name, external name source, biotype, status, chromosome, start, end, strand, coding region start, coding region end, cdna coding start, cdna coding end, description.\n\n\n");
+		sb.append("Documentation:\n");
+		sb.append("http://docs.bioinfo.cipf.es/projects/cellbase/wiki/Feature_rest_ws_api#Exon");
 		
 		return createOkResponse(sb.toString());
 	}
