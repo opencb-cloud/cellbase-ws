@@ -210,5 +210,29 @@ public class GeneWSServer extends GenericRestWSServer {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
 	}
+	
+	@GET
+	public Response getHelp() {
+		return help();
+	}
+	
+	@GET
+	@Path("/help")
+	public Response help() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("Resources/actions\n\n");
+		sb.append("\t- info: Get gene information: name, position, biotype.\n");
+		sb.append("\t Output columns: Ensembl gene, external name, external name source, biotype, status, chromosome, start, end, strand, source, description.\n\n");
+		sb.append("\t- transcript: Get all transcripts for this gene.\n");
+		sb.append("\t Output columns: Ensembl ID, external name, external name source, biotype, status, chromosome, start, end, strand, coding region start, coding region end, cdna coding start, cdna coding end, description.\n\n");
+		sb.append("\t- tfbs: Get transcription factor binding sites (TFBSs) that map to the promoter region of this gene.\n");
+		sb.append("\t Output columns: TF name, target gene name, chromosome, start, end, cell type, sequence, score.\n\n");
+		sb.append("\t- mirna_target: Get all microRNA target sites for this gene.\n");
+		sb.append("\t Output columns: miRBase ID, gene target name, chromosome, start, end, strand, pubmed ID, source.\n\n");
+		sb.append("\t- protein_feature: Get protein information related to this gene.\n");
+		sb.append("\t Output columns: feature type, aa start, aa end, original, variation, identifier, description.\n\n");
+		
+		return createOkResponse(sb.toString());
+	}
 
 }

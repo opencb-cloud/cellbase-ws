@@ -96,4 +96,22 @@ public class ProteinWSServer extends GenericRestWSServer {
 		return null;
 	}
 	
+	@GET
+	public Response getHelp() {
+		return help();
+	}
+	
+	@GET
+	@Path("/help")
+	public Response help() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("Resources/actions\n\n");
+		sb.append("\t- info: Get protein information: name, UniProt ID and description.\n");
+		sb.append("\t Output columns: UniProt accession, protein name, full name, gene name, organism.\n\n");
+		sb.append("\t- feature: Get particular features for the protein sequence: natural variants in the aminoacid sequence, mutagenesis sites, etc.\n");
+		sb.append("\t Output columns: feature type, aa start, aa end, original, variation, identifier, description.\n\n");
+		
+		return createOkResponse(sb.toString());
+	}
+	
 }

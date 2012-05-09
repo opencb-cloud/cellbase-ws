@@ -184,5 +184,26 @@ public class SnpWSServer extends GenericRestWSServer {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
 	}
+	
+	@GET
+	public Response getHelp() {
+		return help();
+	}
+	
+	@GET
+	@Path("/help")
+	public Response help() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("Resources/actions\n\n");
+		sb.append("\t- info: Get SNP information: name, position, consequence type, adjacent nucleotides, ...\n");
+		sb.append("\t Output columns: rsID, chromosome, position, Ensembl consequence type, SO consequence type, sequence.\n\n");
+		sb.append("\t- consequence_type: Get SNP effect on the transcript\n");
+		sb.append("\t Output columns: chromosome, start, end, feature ID, feature name, consequence type, biotype, feature chromosome, feature start, feature end, feature strand, snp ID, ancestral allele, alternative allele, gene Ensembl ID, Ensembl transcript ID, gene name, SO consequence type ID, SO consequence type name, consequence type description, consequence type category, aminoacid change, codon change.\n\n");
+		sb.append("\t- population_frequency: Get the allelic and genotypic frequencies for this SNP acroos populations.\n\n");
+		sb.append("\t- phenotype: Get the phenotypes that have been previously associated to this SNP.\n\n");
+		sb.append("\t- xref: Get the external references for this SNP.\n");
+		
+		return createOkResponse(sb.toString());
+	}
 
 }

@@ -198,8 +198,8 @@ public class GenericRestWSServer implements IWSServer {
 
 	@GET
 	@Path("/help")
-	public String help() {
-		return "No help available";
+	public Response help() {
+		return createOkResponse("No help available");
 	}
 
 	@GET
