@@ -27,6 +27,7 @@ public class ProteinWSServer extends GenericRestWSServer {
 		super(version, species, uriInfo);
 	}
 
+	
 	@GET
 	@Path("/{proteinId}/info")
 	public Response getByEnsemblId(@PathParam("proteinId") String query) {
@@ -34,15 +35,18 @@ public class ProteinWSServer extends GenericRestWSServer {
 			ProteinDBAdaptor adaptor = dbAdaptorFactory.getProteinDBAdaptor(this.species);
 			return generateResponse(query, adaptor.getAllByGeneNameList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			e.printStackTrace();
+			return createErrorResponse(uriInfo.getAbsolutePath().toString(), "getByEnsemblId", e.toString());
 		}
 	}
 
+	
 	@GET
 	@Path("/{proteinId}/fullinfo")
 	public Response getFullInfoByEnsemblId(@PathParam("proteinId") String query, @DefaultValue("") @QueryParam("sources") String sources) {
 		return null;
 	}
+	
 	
 	@GET
 	@Path("/{proteinId}/gene")
@@ -50,11 +54,13 @@ public class ProteinWSServer extends GenericRestWSServer {
 		return null;
 	}
 	
+	
 	@GET
 	@Path("/{proteinId}/transcript")
 	public Response getTranscript(@PathParam("proteinId") String query) {
 		return null;
 	}
+	
 	
 	@GET
 	@Path("/{proteinId}/feature")
@@ -63,15 +69,18 @@ public class ProteinWSServer extends GenericRestWSServer {
 			ProteinDBAdaptor adaptor = dbAdaptorFactory.getProteinDBAdaptor(this.species);
 			return generateResponse(query, adaptor.getAllProteinFeaturesByProteinXrefList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			e.printStackTrace();
+			return createErrorResponse(uriInfo.getAbsolutePath().toString(), "getFeatures", e.toString());
 		}
 	}
+	
 	
 	@GET
 	@Path("/{proteinId}/association")
 	public Response getInteraction(@PathParam("proteinId") String query, @DefaultValue("") @QueryParam("type") String type) {
 		return null;
 	}
+	
 	
 	@GET
 	@Path("/{proteinId}/xref")
@@ -80,15 +89,18 @@ public class ProteinWSServer extends GenericRestWSServer {
 			ProteinDBAdaptor adaptor = dbAdaptorFactory.getProteinDBAdaptor(this.species);
 			return generateResponse(proteinId, adaptor.getAllProteinXrefsByProteinNameList(StringUtils.toList(proteinId, ",")));
 		} catch (Exception e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			e.printStackTrace();
+			return createErrorResponse(uriInfo.getAbsolutePath().toString(), "getXrefs", e.toString());
 		}
 	}
+	
 	
 	@GET
 	@Path("/{proteinId}/reference")
 	public Response getReference(@PathParam("proteinId") String query) {
 		return null;
 	}
+	
 	
 	@GET
 	@Path("/{proteinId}/sequence")
@@ -100,7 +112,7 @@ public class ProteinWSServer extends GenericRestWSServer {
 	public Response getHelp() {
 		return help();
 	}
-	
+
 	@GET
 	@Path("/help")
 	public Response help() {

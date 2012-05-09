@@ -26,55 +26,59 @@ import com.sun.jersey.api.client.ClientResponse.Status;
 @Produces("text/plain")
 public class ExonWSServer extends GenericRestWSServer {
 	
-	private ExonDBAdaptor exonDBAdaptor;
-	
 	public ExonWSServer(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo) throws VersionException, IOException {
 		super(version, species, uriInfo);
 	}
 	
 	
+	
 	@GET
 	@Path("/{exonId}/info")
 	public Response getByEnsemblId(@PathParam("exonId") String query) {
-		ExonDBAdaptor adaptor = dbAdaptorFactory.getExonDBAdaptor(this.species);
 		try {
-			return  generateResponse(query,adaptor.getAllByEnsemblIdList(StringUtils.toList(query, ",")));
+			ExonDBAdaptor exonDBAdaptor = dbAdaptorFactory.getExonDBAdaptor(this.species);
+			return  generateResponse(query,exonDBAdaptor.getAllByEnsemblIdList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			e.printStackTrace();
+			return createErrorResponse(uriInfo.getAbsolutePath().toString(), "getByEnsemblId", e.toString());
 		}
 	}
+	
 	
 	@SuppressWarnings("unchecked")
 	@GET
 	@Path("/{snpId}/bysnp")
 	public Response getAllBySnpIdList(@PathParam("snpId") String query) {
 		try {
-			exonDBAdaptor = dbAdaptorFactory.getExonDBAdaptor(this.species);
+			ExonDBAdaptor exonDBAdaptor = dbAdaptorFactory.getExonDBAdaptor(this.species);
 			return generateResponse(query, Arrays.asList(exonDBAdaptor.getAllBySnpIdList(StringUtils.toList(query, ","))));
-		} catch (IOException e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return createErrorResponse(uriInfo.getAbsolutePath().toString(), "getAllBySnpIdList", e.toString());
 		}
 	}
+	
 	
 	@GET
 	@Path("/{exonId}/aminos")
 	public Response getAminoByExon(@PathParam("exonId") String query) {
 		try{
-		ExonDBAdaptor adaptor = dbAdaptorFactory.getExonDBAdaptor(this.species);
-		List<Exon> exons = adaptor.getAllByEnsemblIdList(StringUtils.toList(query, ","));
+		ExonDBAdaptor exonDBAdaptor = dbAdaptorFactory.getExonDBAdaptor(this.species);
+		List<Exon> exons = exonDBAdaptor.getAllByEnsemblIdList(StringUtils.toList(query, ","));
 		
 		List<String> sequence = new ArrayList<String>();
 			for (Exon exon : exons) {
 				if(exon.getStrand().equals("-1")){
-					sequence = adaptor.getAllSequencesByIdList(StringUtils.toList(query, ","), -1);
+					sequence = exonDBAdaptor.getAllSequencesByIdList(StringUtils.toList(query, ","), -1);
 				}
 				else{
-					sequence = adaptor.getAllSequencesByIdList(StringUtils.toList(query, ","), 1);
+					sequence = exonDBAdaptor.getAllSequencesByIdList(StringUtils.toList(query, ","), 1);
 				}
 			}
 			return generateResponse(query, sequence);
-		} catch (IOException e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return createErrorResponse(uriInfo.getAbsolutePath().toString(), "getAminoByExon", e.toString());
 		}
 	}
 	
@@ -95,27 +99,31 @@ public class ExonWSServer extends GenericRestWSServer {
 //		}
 //	}
 	
+	
 	@SuppressWarnings("unchecked")
 	@GET
 	@Path("/{exonId}/sequence")
 	public Response getSequencesByIdList(@PathParam("exonId") String query) {
 		try {
-			exonDBAdaptor = dbAdaptorFactory.getExonDBAdaptor(this.species);
+			ExonDBAdaptor exonDBAdaptor = dbAdaptorFactory.getExonDBAdaptor(this.species);
 			return generateResponse(query, Arrays.asList(exonDBAdaptor.getAllSequencesByIdList(StringUtils.toList(query, ","))));
-		} catch (IOException e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return createErrorResponse(uriInfo.getAbsolutePath().toString(), "getSequencesByIdList", e.toString());
 		}
 	}
+	
 	
 	@SuppressWarnings("unchecked")
 	@GET
 	@Path("/{exonId}/region")
 	public Response getRegionsByIdList(@PathParam("exonId") String query) {
 		try {
-			exonDBAdaptor = dbAdaptorFactory.getExonDBAdaptor(this.species);
+			ExonDBAdaptor exonDBAdaptor = dbAdaptorFactory.getExonDBAdaptor(this.species);
 			return generateResponse(query, Arrays.asList(exonDBAdaptor.getAllRegionsByIdList(StringUtils.toList(query, ","))));
-		} catch (IOException e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return createErrorResponse(uriInfo.getAbsolutePath().toString(), "getRegionsByIdList", e.toString());
 		}
 	}
 	
@@ -123,14 +131,26 @@ public class ExonWSServer extends GenericRestWSServer {
 	@GET
 	@Path("/{exonId}/transcript")
 	public Response getTranscriptsByEnsemblId(@PathParam("exonId") String query) {
-		TranscriptDBAdaptor adaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
+		TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
 		try {
-			return generateResponse(query, adaptor.getAllByEnsemblExonId(StringUtils.toList(query, ",")));
-		} catch (IOException e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			return generateResponse(query, transcriptDBAdaptor.getAllByEnsemblExonId(StringUtils.toList(query, ",")));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return createErrorResponse(uriInfo.getAbsolutePath().toString(), "getTranscriptsByEnsemblId", e.toString());
 		}
 	}
 	
-
+	
+	
+	
+	@GET
+	public Response getHelp() {
+		return help();
+	}
+	@GET
+	@Path("/help")
+	public Response help() {
+		return createOkResponse("Usage:");
+	}
 
 }

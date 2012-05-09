@@ -36,30 +36,17 @@ public class TranscriptWSServer extends GenericRestWSServer {
 	public TranscriptWSServer(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo) throws VersionException, IOException {
 		super(version, species, uriInfo);
 	}
-	private GeneDBAdaptor getGeneDBAdaptor(){
-		return dbAdaptorFactory.getGeneDBAdaptor(this.species);
-	}
-	private TranscriptDBAdaptor getTranscriptDBAdaptor(){
-		return dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
-	}
-	private ExonDBAdaptor getExonDBAdaptor(){
-		return dbAdaptorFactory.getExonDBAdaptor(this.species);
-	}
-	private SnpDBAdaptor getSnpDBAdaptor(){
-		return dbAdaptorFactory.getSnpDBAdaptor(this.species);
-	}
-	private XRefsDBAdaptor getXRefDBAdaptor(){
-		return dbAdaptorFactory.getXRefDBAdaptor(this.species);
-	}
 	
 	@SuppressWarnings("unchecked")
 	@GET
 	@Path("/{transcriptId}/info")
 	public Response getByEnsemblId(@PathParam("transcriptId") String query) {
 		try {
-			return generateResponse(query, Arrays.asList(getTranscriptDBAdaptor().getAllByEnsemblIdList(StringUtils.toList(query, ","))));
-		} catch (IOException e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
+			return generateResponse(query, Arrays.asList(transcriptDBAdaptor.getAllByEnsemblIdList(StringUtils.toList(query, ","))));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return createErrorResponse(uriInfo.getAbsolutePath().toString(), "getByEnsemblId", e.toString());
 		}
 	}
 
@@ -69,9 +56,11 @@ public class TranscriptWSServer extends GenericRestWSServer {
 	@Path("/{transcriptId}/all")
 	public Response getAll() {
 		try {
-			return generateResponse(new String(), Arrays.asList(getTranscriptDBAdaptor().getAll()));
-		} catch (IOException e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
+			return generateResponse(new String(), Arrays.asList(transcriptDBAdaptor.getAll()));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return createErrorResponse(uriInfo.getAbsolutePath().toString(), "getAll", e.toString());
 		}
 	}
 
@@ -81,23 +70,27 @@ public class TranscriptWSServer extends GenericRestWSServer {
 	@Path("/{transcriptId}/sequence")
 	public Response getSequencesByIdList(@PathParam("transcriptId") String query) {
 		try {
-			return generateResponse(query, Arrays.asList(getTranscriptDBAdaptor().getAllSequencesByIdList(StringUtils.toList(query, ","))));
-		} catch (IOException e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
+			return generateResponse(query, Arrays.asList(transcriptDBAdaptor.getAllSequencesByIdList(StringUtils.toList(query, ","))));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return createErrorResponse(uriInfo.getAbsolutePath().toString(), "getSequencesByIdList", e.toString());
 		}
 	}
+	
 	
 	@SuppressWarnings("unchecked")
 	@GET
 	@Path("/{transcriptId}/region")
 	public Response getRegionsByIdList(@PathParam("transcriptId") String query) {
 		try {
-			return generateResponse(query, Arrays.asList(getTranscriptDBAdaptor().getAllRegionsByIdList(StringUtils.toList(query, ","))));
-		} catch (IOException e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
+			return generateResponse(query, Arrays.asList(transcriptDBAdaptor.getAllRegionsByIdList(StringUtils.toList(query, ","))));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return createErrorResponse(uriInfo.getAbsolutePath().toString(), "getRegionsByIdList", e.toString());
 		}
 	}
-	
 	
 	
 	@GET
@@ -105,13 +98,20 @@ public class TranscriptWSServer extends GenericRestWSServer {
 	public Response getFullInfoByEnsemblId(@PathParam("transcriptId") String query) {
 		
 		try {
-			List<Transcript> transcripts = getTranscriptDBAdaptor().getAllByEnsemblIdList(StringUtils.toList(query, ","));
-			List<Gene> genes = getGeneDBAdaptor().getAllByEnsemblTranscriptIdList(StringUtils.toList(query, ","));
-			List<List<Exon>> exonLists = getExonDBAdaptor().getByEnsemblTranscriptIdList(StringUtils.toList(query, ","));
-			List<List<Snp>> snpLists = getSnpDBAdaptor().getAllByEnsemblTranscriptIdList(StringUtils.toList(query, ","));
-			List<List<Xref>> goLists = getXRefDBAdaptor().getAllByDBName(StringUtils.toList(query, ","),"go");
-			List<List<Xref>> interproLists = getXRefDBAdaptor().getAllByDBName(StringUtils.toList(query, ","),"interpro");
-			List<List<Xref>> reactomeLists = getXRefDBAdaptor().getAllByDBName(StringUtils.toList(query, ","),"reactome");
+			TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
+			GeneDBAdaptor geneDBAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species);
+			ExonDBAdaptor exonDBAdaptor = dbAdaptorFactory.getExonDBAdaptor(this.species);
+			SnpDBAdaptor snpDBAdaptor = dbAdaptorFactory.getSnpDBAdaptor(this.species);
+			XRefsDBAdaptor xRefsDBAdaptor = dbAdaptorFactory.getXRefDBAdaptor(this.species);
+			
+			
+			List<Transcript> transcripts = transcriptDBAdaptor.getAllByEnsemblIdList(StringUtils.toList(query, ","));
+			List<Gene> genes = geneDBAdaptor.getAllByEnsemblTranscriptIdList(StringUtils.toList(query, ","));
+			List<List<Exon>> exonLists = exonDBAdaptor.getByEnsemblTranscriptIdList(StringUtils.toList(query, ","));
+			List<List<Snp>> snpLists = snpDBAdaptor.getAllByEnsemblTranscriptIdList(StringUtils.toList(query, ","));
+			List<List<Xref>> goLists = xRefsDBAdaptor.getAllByDBName(StringUtils.toList(query, ","),"go");
+			List<List<Xref>> interproLists = xRefsDBAdaptor.getAllByDBName(StringUtils.toList(query, ","),"interpro");
+			List<List<Xref>> reactomeLists = xRefsDBAdaptor.getAllByDBName(StringUtils.toList(query, ","),"reactome");
 			
 			StringBuilder response = new StringBuilder();
 			response.append("[");
@@ -145,9 +145,11 @@ public class TranscriptWSServer extends GenericRestWSServer {
 			response.replace(response.length()-2, response.length()-1, "");
 			return  generateResponse(query,Arrays.asList(response));
 		} catch (Exception e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			e.printStackTrace();
+			return createErrorResponse(uriInfo.getAbsolutePath().toString(), "getFullInfoByEnsemblId", e.toString());
 		}
 	}
+	
 	
 	@GET
 	@Path("/{transcriptId}/gene")
@@ -161,18 +163,19 @@ public class TranscriptWSServer extends GenericRestWSServer {
 	}
 	
 
-
 	@GET
 	@Path("/{transcriptId}/exon")
 	public Response getExonsByEnsemblId2(@PathParam("transcriptId") String query) {
-		ExonDBAdaptor dbAdaptor = dbAdaptorFactory.getExonDBAdaptor(this.species);
 		try {
+			ExonDBAdaptor dbAdaptor = dbAdaptorFactory.getExonDBAdaptor(this.species);
 			return  generateResponse(query, dbAdaptor.getByEnsemblTranscriptIdList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			e.printStackTrace();
+			return createErrorResponse(uriInfo.getAbsolutePath().toString(), "getExonsByEnsemblId2", e.toString());
 		}
 	
 	}
+	
 	
 	@GET
 	@Path("/{geneId}/exon2transcript")

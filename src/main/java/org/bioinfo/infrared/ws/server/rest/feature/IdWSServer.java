@@ -27,6 +27,7 @@ public class IdWSServer extends GenericRestWSServer {
 		super(version, species, uriInfo);
 	}
 	
+	
 	@GET
 	@Path("/{id}/xref")
 	public Response getByEnsemblId(@PathParam("id") String query, @DefaultValue("") @QueryParam("dbname") String dbName) {
@@ -39,9 +40,22 @@ public class IdWSServer extends GenericRestWSServer {
 				return generateResponse(query, x.getAllByDBNameList(StringUtils.toList(query, ","), (StringUtils.toList(dbName, ","))));
 			}
 		} catch (Exception e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			e.printStackTrace();
+			return createErrorResponse(uriInfo.getAbsolutePath().toString(), "getByEnsemblId", e.toString());
 		}
 	}
 
+	
+	
+	
+	@GET
+	public Response getHelp() {
+		return help();
+	}
+	@GET
+	@Path("/help")
+	public Response help() {
+		return createOkResponse("Usage:");
+	}
 
 }
