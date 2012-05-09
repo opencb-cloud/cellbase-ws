@@ -23,6 +23,7 @@ import javax.ws.rs.core.UriInfo;
 import org.bioinfo.infrared.core.cellbase.Transcript;
 import org.bioinfo.infrared.lib.api.GenomicVariantEffectDBAdaptor;
 import org.bioinfo.infrared.lib.common.GenomicVariant;
+import org.bioinfo.infrared.lib.common.GenomicVariantConsequenceType;
 import org.bioinfo.infrared.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
 
@@ -108,13 +109,17 @@ public class VariantWSServer extends GenericRestWSServer {
 				String[] excludeArray = excludes.split(",");
 				Set<String> excludeSet = new HashSet<String>(Arrays.asList(excludeArray));
 				//				return generateResponse(variants, gv.getAllConsequenceTypeByVariantList(genomicVariantList));
-				return generateResponse(variants, gv.getAllConsequenceTypeByVariantList(genomicVariantList, excludeSet));
+				List<GenomicVariantConsequenceType> genomicVariantConsequenceTypes = gv.getAllConsequenceTypeByVariantList(genomicVariantList, excludeSet);
+				System.out.println("VariantWSServer: genomicVariantConsequenceTypes => "+genomicVariantConsequenceTypes);
+				return generateResponse(variants, genomicVariantConsequenceTypes);
+//				return generateResponse(variants, gv.getAllConsequenceTypeByVariantList(genomicVariantList, excludeSet));
 			} else {
 				logger.error("");
 				return Response.status(Status.BAD_REQUEST).build();
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+			System.out.println("VariantWSServer: response.status => "+Response.status(Status.INTERNAL_SERVER_ERROR));
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
 	}
