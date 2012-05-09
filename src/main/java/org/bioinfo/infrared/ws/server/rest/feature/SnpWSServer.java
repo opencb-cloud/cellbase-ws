@@ -35,10 +35,6 @@ public class SnpWSServer extends GenericRestWSServer {
 		super(version, species, uriInfo);
 	}
 
-//	private SnpDBAdaptor getSnpDBAdaptor(){
-//		return dbAdaptorFactory.getSnpDBAdaptor(this.species);
-//	}
-
 	@GET
 	@Path("/{snpId}/info")
 	public Response getByEnsemblId(@PathParam("snpId") String query) {
@@ -46,7 +42,8 @@ public class SnpWSServer extends GenericRestWSServer {
 			SnpDBAdaptor adapter = dbAdaptorFactory.getSnpDBAdaptor(this.species);
 			return  generateResponse(query, adapter.getAllBySnpIdList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			e.printStackTrace();
+			return createErrorResponse("getByEnsemblId", e.toString());
 		}
 	}
 
@@ -126,17 +123,17 @@ public class SnpWSServer extends GenericRestWSServer {
 			response.replace(response.length()-2, response.length()-1, "");
 			return  generateResponse(query,Arrays.asList(response));
 		} catch (Exception e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			e.printStackTrace();
+			return createErrorResponse("getFullInfoById", e.toString());
 		}
 	}	
-
 	
 	@GET
 	@Path("/{snpId}/consequence_type")
 	public Response getConsequenceTypeByGetMethod(@PathParam("snpId") String snpId) {
 		return getConsequenceType(snpId);
 	}
-
+	
 	@POST
 	@Path("/consequence_type")
 	public Response getConsequenceTypeByPostMethod(@QueryParam("id") String snpId) {
@@ -148,10 +145,10 @@ public class SnpWSServer extends GenericRestWSServer {
 			SnpDBAdaptor snpDBAdaptor = dbAdaptorFactory.getSnpDBAdaptor(species, version);
 			return generateResponse(snpId, snpDBAdaptor.getAllConsequenceTypesBySnpIdList(StringUtils.toList(snpId, ",")));
 		} catch (Exception e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			e.printStackTrace();
+			return createErrorResponse("getConsequenceTypeByPostMethod", e.toString());
 		}
 	}
-
 	
 	@GET
 	@Path("/{snpId}/population_frequency")
@@ -159,29 +156,33 @@ public class SnpWSServer extends GenericRestWSServer {
 		try {
 			return null;
 		} catch (Exception e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			e.printStackTrace();
+			return createErrorResponse("getPopulationFrequency", e.toString());
 		}
 	}
-
+	
+	@SuppressWarnings("unchecked")
 	@GET
 	@Path("/snpId}/phenotype")
 	public Response getPhenotype(@PathParam("geneId") String query) {
 		try {
-			TranscriptDBAdaptor dbAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
-			return  generateResponse(query, Arrays.asList(dbAdaptor.getByEnsemblGeneIdList(StringUtils.toList(query, ","))));
+			TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
+			return  generateResponse(query, Arrays.asList(transcriptDBAdaptor.getByEnsemblGeneIdList(StringUtils.toList(query, ","))));
 		} catch (Exception e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			e.printStackTrace();
+			return createErrorResponse("getPhenotype", e.toString());
 		}
 	}
-
+	
 	@GET
 	@Path("/snpId}/xref")
 	public Response getXrefs(@PathParam("geneId") String query) {
 		try {
-			TfbsDBAdaptor adaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species);
-			return  generateResponse(query, adaptor.getAllByTargetGeneNameList(StringUtils.toList(query, ",")));
+			TfbsDBAdaptor tfbsDBAdaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species);
+			return  generateResponse(query, tfbsDBAdaptor.getAllByTargetGeneNameList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			e.printStackTrace();
+			return createErrorResponse("getXrefs", e.toString());
 		}
 	}
 	

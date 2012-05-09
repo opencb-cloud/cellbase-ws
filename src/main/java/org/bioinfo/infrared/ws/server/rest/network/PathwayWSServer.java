@@ -49,11 +49,12 @@ public class PathwayWSServer extends GenericRestWSServer {
 			}
 			
 			StringBuilder sb = new StringBuilder();
-			BioPaxDBAdaptor dbAdaptor = dbAdaptorFactory.getBioPaxDBAdaptor(this.species);
-			List<Pathway> pathways = dbAdaptor.getPathways("Reactome", search, onlyTopLevel);
+			BioPaxDBAdaptor bioPaxDBAdaptor = dbAdaptorFactory.getBioPaxDBAdaptor(this.species);
+			List<Pathway> pathways = bioPaxDBAdaptor.getPathways("Reactome", search, onlyTopLevel);
 			return generateResponse("", pathways);
 		} catch (Exception e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			e.printStackTrace();
+			return createErrorResponse("getAllPathways", e.toString());
 		}
 	}
 
@@ -66,7 +67,8 @@ public class PathwayWSServer extends GenericRestWSServer {
 			Pathway pathway = dbAdaptor.getPathway(query, "Reactome");
 			return generateResponse("", Arrays.asList(pathway));
 		} catch (Exception e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			e.printStackTrace();
+			return createErrorResponse("getPathwayInfo", e.toString());
 		}
 	}
 
@@ -123,7 +125,8 @@ public class PathwayWSServer extends GenericRestWSServer {
 				return Response.ok("Could not find pathway '" + query + "'", MediaType.valueOf("text/plain")).build(); 
 			}
 		} catch (Exception e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			e.printStackTrace();
+			return createErrorResponse("getPathwayImage", e.toString());
 		}
 	}
 	
@@ -135,7 +138,8 @@ public class PathwayWSServer extends GenericRestWSServer {
 			TfbsDBAdaptor adaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species);
 			return null;
 		} catch (Exception e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			e.printStackTrace();
+			return createErrorResponse("getPathwayAnnotation", e.toString());
 		}
 	}
 
@@ -146,20 +150,21 @@ public class PathwayWSServer extends GenericRestWSServer {
 			TfbsDBAdaptor adaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species);
 			return generateResponse(query, adaptor.getAllByTfGeneNameList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			e.printStackTrace();
+			return createErrorResponse("getAllElements", e.toString());
 		}
 	}
 
 
 	@GET
 	@Path("/{pathwayId}/gene")
-	public Response getAllGenes
-	(@PathParam("pathwayId") String query) {
+	public Response getAllGenes(@PathParam("pathwayId") String query) {
 		try {
 			TfbsDBAdaptor adaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species);
 			return generateResponse(query, adaptor.getAllByTfGeneNameList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			e.printStackTrace();
+			return createErrorResponse("getAllGenes", e.toString());
 		}
 	}
 
@@ -170,7 +175,8 @@ public class PathwayWSServer extends GenericRestWSServer {
 			TfbsDBAdaptor adaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species);
 			return generateResponse(query, adaptor.getAllByTfGeneNameList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			e.printStackTrace();
+			return createErrorResponse("getAllByTfbs", e.toString());
 		}
 	}
 	

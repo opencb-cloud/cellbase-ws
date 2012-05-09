@@ -62,7 +62,7 @@ public class VariantWSServer extends GenericRestWSServer {
 			return getConsequenceTypeByPosition(query, excludeSOTerms);
 		} catch (Exception e) {
 			e.printStackTrace();
-			return createErrorResponse(uriInfo.getPath(), "getConsequenceTypeByPositionByGet", e.toString());
+			return createErrorResponse("getConsequenceTypeByPositionByGet", e.toString());
 		}
 	}
 
@@ -120,7 +120,7 @@ public class VariantWSServer extends GenericRestWSServer {
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.out.println("VariantWSServer: response.status => "+Response.status(Status.INTERNAL_SERVER_ERROR));
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			return createErrorResponse("getConsequenceTypeByPositionByGet", e.toString());
 		}
 	}
 
@@ -172,7 +172,7 @@ public class VariantWSServer extends GenericRestWSServer {
 			return generateResponse(query, gv.getAllConsequenceTypeByVariantList(variants));
 		} catch (Exception e) {
 			e.printStackTrace();
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			return createErrorResponse("getConsequenceTypeByPosition", e.toString());
 		}
 	}
 	

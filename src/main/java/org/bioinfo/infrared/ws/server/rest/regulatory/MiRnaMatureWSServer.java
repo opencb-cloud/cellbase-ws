@@ -36,16 +36,6 @@ public class MiRnaMatureWSServer extends RegulatoryWSServer {
 		super(version, species, uriInfo);
 	}
 
-	private GeneDBAdaptor getGeneDBAdaptor(){
-		return dbAdaptorFactory.getGeneDBAdaptor(this.species);
-	}
-	private MirnaDBAdaptor getMirnaDBAdaptor(){
-		return dbAdaptorFactory.getMirnaDBAdaptor(this.species);
-	}
-	private TranscriptDBAdaptor getTranscriptDBAdaptor(){
-		return dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
-	}
-	
 	@GET
 	@Path("/{mirnaId}/info")
 	public Response getMiRnaMatureInfo(@PathParam("mirnaId") String query) {
@@ -57,7 +47,8 @@ public class MiRnaMatureWSServer extends RegulatoryWSServer {
 			logger.debug("En getMiRnaMatureInfo: "+query);
 			return generateResponse(query, mirnaDBAdaptor.getAllMiRnaMaturesByNameList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			e.printStackTrace();
+			return createErrorResponse("getMiRnaMatureInfo", e.toString());
 		}
 	}
 		
@@ -65,16 +56,18 @@ public class MiRnaMatureWSServer extends RegulatoryWSServer {
 	@Path("/{mirnaId}/fullinfo")
 	public Response getMiRnaMatureFullInfo(@PathParam("mirnaId") String query) {
 		try {
+			MirnaDBAdaptor mirnaDBAdaptor = dbAdaptorFactory.getMirnaDBAdaptor(this.species);
+			GeneDBAdaptor geneDBAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species);
+			TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
 			
+			List<List<MirnaMature>> mirnaMature = mirnaDBAdaptor.getAllMiRnaMaturesByNameList(StringUtils.toList(query, ","));
+			List<List<MirnaGene>> mirnaGenes = mirnaDBAdaptor.getAllMiRnaGenesByMiRnaMatureList(StringUtils.toList(query, ","));
 			
-			List<List<MirnaMature>> mirnaMature = getMirnaDBAdaptor().getAllMiRnaMaturesByNameList(StringUtils.toList(query, ","));
-			List<List<MirnaGene>> mirnaGenes = getMirnaDBAdaptor().getAllMiRnaGenesByMiRnaMatureList(StringUtils.toList(query, ","));
+			List<List<Gene>> genes = geneDBAdaptor.getAllByMiRnaMatureList(StringUtils.toList(query, ","));
+			List<List<Transcript>> transcripts = transcriptDBAdaptor.getAllByMirnaMatureList(StringUtils.toList(query, ","));
 			
-			List<List<Gene>> genes = getGeneDBAdaptor().getAllByMiRnaMatureList(StringUtils.toList(query, ","));
-			List<List<Transcript>> transcripts = getTranscriptDBAdaptor().getAllByMirnaMatureList(StringUtils.toList(query, ","));
-			
-			List<List<Gene>> targetGenes = getGeneDBAdaptor().getAllTargetsByMiRnaMatureList(StringUtils.toList(query, ","));
-			List<List<MirnaDisease>> mirnaDiseases = getMirnaDBAdaptor().getAllMiRnaDiseasesByMiRnaMatureList(StringUtils.toList(query, ""));
+			List<List<Gene>> targetGenes = geneDBAdaptor.getAllTargetsByMiRnaMatureList(StringUtils.toList(query, ","));
+			List<List<MirnaDisease>> mirnaDiseases = mirnaDBAdaptor.getAllMiRnaDiseasesByMiRnaMatureList(StringUtils.toList(query, ""));
 			
 			StringBuilder response = new StringBuilder();
 			response.append("[");
@@ -96,7 +89,8 @@ public class MiRnaMatureWSServer extends RegulatoryWSServer {
 			
 			return  generateResponse(query,Arrays.asList(response));
 		} catch (Exception e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			e.printStackTrace();
+			return createErrorResponse("getMiRnaMatureFullInfo", e.toString());
 		}
 	}
 	
@@ -107,7 +101,8 @@ public class MiRnaMatureWSServer extends RegulatoryWSServer {
 			GeneDBAdaptor adaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species);
 			return  generateResponse(query, adaptor.getAllByMiRnaMatureList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			e.printStackTrace();
+			return createErrorResponse("getEnsemblGene", e.toString());
 		}
 	}
 	
@@ -119,7 +114,8 @@ public class MiRnaMatureWSServer extends RegulatoryWSServer {
 			return generateResponse(query, mirnaDBAdaptor.getAllMiRnaGenesByMiRnaMatureList(StringUtils.toList(query, ",")));
 //			return  generateResponse(query, mirnaDBAdaptor.getAllByMiRnaList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			e.printStackTrace();
+			return createErrorResponse("getMiRnaGene", e.toString());
 		}
 	}
 	
@@ -130,7 +126,8 @@ public class MiRnaMatureWSServer extends RegulatoryWSServer {
 			GeneDBAdaptor adaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species);
 			return  generateResponse(query, adaptor.getAllTargetsByMiRnaMatureList(StringUtils.toList(query, ","))); // Renombrar a getAllTargetGenesByMiRnaList
 		} catch (Exception e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			e.printStackTrace();
+			return createErrorResponse("getEnsemblTargetGenes", e.toString());
 		}
 	}
 
@@ -141,7 +138,8 @@ public class MiRnaMatureWSServer extends RegulatoryWSServer {
 			MirnaDBAdaptor adaptor = dbAdaptorFactory.getMirnaDBAdaptor(this.species);
 			return  generateResponse(query, adaptor.getAllMiRnaTargetsByMiRnaMatureList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			e.printStackTrace();
+			return createErrorResponse("getMirnaTargets", e.toString());
 		}
 	}
 
@@ -152,7 +150,8 @@ public class MiRnaMatureWSServer extends RegulatoryWSServer {
 			MirnaDBAdaptor mirnaDBAdaptor = dbAdaptorFactory.getMirnaDBAdaptor(this.species);
 			return  generateResponse(query, mirnaDBAdaptor.getAllMiRnaDiseasesByMiRnaMatureList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			e.printStackTrace();
+			return createErrorResponse("getMinaDisease", e.toString());
 		}
 	}
 	
@@ -178,7 +177,8 @@ public class MiRnaMatureWSServer extends RegulatoryWSServer {
 
 			return generateResponse(new String(), lista);
 		} catch (Exception e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			e.printStackTrace();
+			return createErrorResponse("getAnnotation", e.toString());
 		}
 	}
 	

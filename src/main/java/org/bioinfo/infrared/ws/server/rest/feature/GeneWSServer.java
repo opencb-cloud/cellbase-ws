@@ -42,30 +42,16 @@ public class GeneWSServer extends GenericRestWSServer {
 		super(version, species, uriInfo);
 	}
 
-	private GeneDBAdaptor getGeneDBAdaptor(){
-		return dbAdaptorFactory.getGeneDBAdaptor(this.species);
-	}
-	private TranscriptDBAdaptor getTranscriptDBAdaptor(){
-		return dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
-	}
-	//	private ExonDBAdaptor getExonDBAdaptor(){
-	//		return dbAdaptorFactory.getExonDBAdaptor(this.species);
-	//	}
-	//	private SnpDBAdaptor getSnpDBAdaptor(){
-	//		return dbAdaptorFactory.getSnpDBAdaptor(this.species);
-	//	}
-	private XRefsDBAdaptor getXRefDBAdaptor(){
-		return dbAdaptorFactory.getXRefDBAdaptor(this.species);
-	}
-
 	@GET
 	@Path("/{geneId}/info")
 	public Response getByEnsemblId(@PathParam("geneId") String query) {
 		try {
-			return generateResponse(query, this.getGeneDBAdaptor().getAllByNameList(StringUtils.toList(query, ",")));
+			GeneDBAdaptor geneDBAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species);
+			return generateResponse(query, geneDBAdaptor.getAllByNameList(StringUtils.toList(query, ",")));
 			//	return generateResponse(query, Arrays.asList(this.getGeneDBAdaptor().getAllByEnsemblIdList(StringUtils.toList(query, ","))));
 		} catch (Exception e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			e.printStackTrace();
+			return createErrorResponse("getByEnsemblId", e.toString());
 		}
 	}
 
@@ -73,15 +59,20 @@ public class GeneWSServer extends GenericRestWSServer {
 	@Path("/{geneId}/fullinfo")
 	public Response getFullInfoByEnsemblId(@PathParam("geneId") String query, @DefaultValue("") @QueryParam("sources") String sources) {
 		try {
-			List<Gene> genes = getGeneDBAdaptor().getAllByNameList(StringUtils.toList(query, ",")).get(0);
+			
+			GeneDBAdaptor geneDBAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species);
+			TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
+			XRefsDBAdaptor xRefsDBAdaptor = dbAdaptorFactory.getXRefDBAdaptor(this.species);
+			
+			List<Gene> genes = geneDBAdaptor.getAllByNameList(StringUtils.toList(query, ",")).get(0);
 			List<String> geneEnsemblStableIdList = new ArrayList<String>(genes.size());
 			for(Gene g: genes) {
 				geneEnsemblStableIdList.add(g.getStableId());
 			}
-			List<List<Transcript>> transcriptList = getTranscriptDBAdaptor().getByEnsemblGeneIdList(StringUtils.toList(query, ","));
-			List<List<Xref>> goLists = getXRefDBAdaptor().getAllByDBName(StringUtils.toList(query, ","),"go");
-			List<List<Xref>> interproLists = getXRefDBAdaptor().getAllByDBName(StringUtils.toList(query, ","),"interpro");
-			List<List<Xref>> reactomeLists = getXRefDBAdaptor().getAllByDBName(StringUtils.toList(query, ","),"reactome");
+			List<List<Transcript>> transcriptList = transcriptDBAdaptor.getByEnsemblGeneIdList(StringUtils.toList(query, ","));
+			List<List<Xref>> goLists = xRefsDBAdaptor.getAllByDBName(StringUtils.toList(query, ","),"go");
+			List<List<Xref>> interproLists = xRefsDBAdaptor.getAllByDBName(StringUtils.toList(query, ","),"interpro");
+			List<List<Xref>> reactomeLists = xRefsDBAdaptor.getAllByDBName(StringUtils.toList(query, ","),"reactome");
 			StringBuilder response = new StringBuilder();
 			response.append("[");
 			for (int i = 0; i < 1; i++) {		
@@ -108,7 +99,8 @@ public class GeneWSServer extends GenericRestWSServer {
 			response.replace(response.length()-2, response.length()-1, "");
 			return  generateResponse(query,Arrays.asList(response));
 		} catch (Exception e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			e.printStackTrace();
+			return createErrorResponse("getFullInfoByEnsemblId", e.toString());
 		}
 	}
 
@@ -117,10 +109,11 @@ public class GeneWSServer extends GenericRestWSServer {
 	@Path("/{geneId}/transcript")
 	public Response getTranscriptsByEnsemblId(@PathParam("geneId") String query) {
 		try {
-			TranscriptDBAdaptor dbAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
-			return  generateResponse(query, Arrays.asList(dbAdaptor.getByEnsemblGeneIdList(StringUtils.toList(query, ","))));
+			TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
+			return  generateResponse(query, Arrays.asList(transcriptDBAdaptor.getByEnsemblGeneIdList(StringUtils.toList(query, ","))));
 		} catch (Exception e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			e.printStackTrace();
+			return createErrorResponse("getTranscriptsByEnsemblId", e.toString());
 		}
 	}
 
@@ -128,11 +121,11 @@ public class GeneWSServer extends GenericRestWSServer {
 	@Path("/{geneId}/tfbs")
 	public Response getAllTfbs(@PathParam("geneId") String query) {
 		try {
-			TfbsDBAdaptor adaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species);
-			return  generateResponse(query, adaptor.getAllByTargetGeneNameList(StringUtils.toList(query, ",")));
+			TfbsDBAdaptor tfbsDBAdaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species);
+			return  generateResponse(query, tfbsDBAdaptor.getAllByTargetGeneNameList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
 			e.printStackTrace();
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			return createErrorResponse("getAllTfbs", e.toString());
 		}
 	}
 
@@ -140,36 +133,32 @@ public class GeneWSServer extends GenericRestWSServer {
 	@Path("/{geneId}/mirna_target")
 	public Response getAllMirna(@PathParam("geneId") String query) {
 		try {
-			MirnaDBAdaptor adaptor = dbAdaptorFactory.getMirnaDBAdaptor(this.species);
-			return  generateResponse(query, adaptor.getAllMiRnaTargetsByGeneNameList(StringUtils.toList(query, ",")));
+			MirnaDBAdaptor mirnaDBAdaptor = dbAdaptorFactory.getMirnaDBAdaptor(this.species);
+			return  generateResponse(query, mirnaDBAdaptor.getAllMiRnaTargetsByGeneNameList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
 			e.printStackTrace();
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			return createErrorResponse("getAllMirna", e.toString());
 		}
 	}
 
 	@GET
 	@Path("/{geneId}/mirnatarget")
 	public Response getAllMirnaB(@PathParam("geneId") String query) {
-		try {
-			return  getAllMirna(query);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
-		}
+		return  getAllMirna(query);
 	}
-
+	
 	@GET
 	@Path("/{geneId}/protein_feature")
 	public Response getProteinFeature(@PathParam("geneId") String query) {
 		try {
-			ProteinDBAdaptor dbProteinDBAdaptor = dbAdaptorFactory.getProteinDBAdaptor(this.species);
-			return  generateResponse(query, dbProteinDBAdaptor.getAllProteinFeaturesByGeneNameList(StringUtils.toList(query, ",")));
+			ProteinDBAdaptor proteinDBAdaptor = dbAdaptorFactory.getProteinDBAdaptor(this.species);
+			return  generateResponse(query, proteinDBAdaptor.getAllProteinFeaturesByGeneNameList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			e.printStackTrace();
+			return createErrorResponse("getProteinFeature", e.toString());
 		}
 	}
-
+	
 	@GET
 	@Path("/{geneId}/snp")
 	public Response getSNPByGene(@PathParam("geneId") String query) {
@@ -187,16 +176,17 @@ public class GeneWSServer extends GenericRestWSServer {
 			}
 			return  generateResponse(query, result);
 		} catch (Exception e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			e.printStackTrace();
+			return createErrorResponse("getSNPByGene", e.toString());
 		}
 	}
-
+	
 	@GET
 	@Path("/{geneId}/exon")
 	public Response getExonByGene(@PathParam("geneId") String query) {
 		try {
-			GeneDBAdaptor geneAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species);
-			List<List<Gene>> geneList = geneAdaptor.getAllByNameList(StringUtils.toList(query, ","));
+			GeneDBAdaptor geneDBAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species);
+			List<List<Gene>> geneList = geneDBAdaptor.getAllByNameList(StringUtils.toList(query, ","));
 
 			List<String> ensemblIds = new ArrayList<String>();
 			for(List<Gene> list : geneList) {
@@ -207,7 +197,8 @@ public class GeneWSServer extends GenericRestWSServer {
 			ExonDBAdaptor exonDBAdaptor = dbAdaptorFactory.getExonDBAdaptor(this.species);
 			return  generateResponse(query, exonDBAdaptor.getByEnsemblGeneIdList(ensemblIds));
 		} catch (Exception e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			e.printStackTrace();
+			return createErrorResponse("getExonByGene", e.toString());
 		}
 	}
 	

@@ -23,6 +23,7 @@ import org.bioinfo.infrared.core.cellbase.ProteinXref;
 import org.bioinfo.infrared.core.cellbase.Pwm;
 import org.bioinfo.infrared.core.cellbase.Transcript;
 import org.bioinfo.infrared.lib.api.GeneDBAdaptor;
+import org.bioinfo.infrared.lib.api.MirnaDBAdaptor;
 import org.bioinfo.infrared.lib.api.ProteinDBAdaptor;
 import org.bioinfo.infrared.lib.api.TfbsDBAdaptor;
 import org.bioinfo.infrared.lib.api.TranscriptDBAdaptor;
@@ -40,28 +41,17 @@ public class TfWSServer extends RegulatoryWSServer {
 	}
 
 	
-	private GeneDBAdaptor getGeneDBAdaptor(){
-		return dbAdaptorFactory.getGeneDBAdaptor(this.species);
-	}
-	private ProteinDBAdaptor getProteinDBAdaptor(){
-		return dbAdaptorFactory.getProteinDBAdaptor(this.species);
-	}
-	private TranscriptDBAdaptor getTranscriptDBAdaptor(){
-		return dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
-	}
-	private TfbsDBAdaptor getTfbsDBAdaptor(){
-		return dbAdaptorFactory.getTfbsDBAdaptor(this.species);
-	}
 	
 	@GET
 	@Path("/{tfId}/info") // Devuelve los TFBSs para el TFId que le das
 	public Response getTfInfo(@PathParam("tfId") String query) {
 		try {
-			TfbsDBAdaptor adaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species);
-			return generateResponse(query, adaptor.getAllByTfGeneNameList(StringUtils.toList(query, ",")));
+			TfbsDBAdaptor tfbsDBAdaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species);
+			return generateResponse(query, tfbsDBAdaptor.getAllByTfGeneNameList(StringUtils.toList(query, ",")));
 			
 		} catch (Exception e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			e.printStackTrace();
+			return createErrorResponse("getTfInfo", e.toString());
 		}
 	}
 	
@@ -70,11 +60,13 @@ public class TfWSServer extends RegulatoryWSServer {
 	@Path("/{tfId}/fullinfo") // Devuelve los TFBSs para el TFId que le das
 	public Response getTfFullInfo(@PathParam("tfId") String query) {
 		try {
-			//!!!!!suponemos q viene uno solo
 			
-//			System.out.println("PAKO query: "+query);
+			ProteinDBAdaptor proteinDBAdaptor = dbAdaptorFactory.getProteinDBAdaptor(this.species);
+			GeneDBAdaptor geneDBAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species);
+			TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
+			TfbsDBAdaptor tfbsDBAdaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species);
 			
-			List<List<Gene>> genes = getGeneDBAdaptor().getAllByTfNameList(StringUtils.toList(query, ","));
+			List<List<Gene>> genes = geneDBAdaptor.getAllByTfNameList(StringUtils.toList(query, ","));
 			List<String> ensemblGeneList = new ArrayList<String>();
 			List<String> externalNameList = new ArrayList<String>();
 			for (List<Gene> g : genes) {
@@ -84,13 +76,13 @@ public class TfWSServer extends RegulatoryWSServer {
 				}
 			}
 			
-			List<List<Protein>> proteinList = getProteinDBAdaptor().getAllByGeneNameList(externalNameList);
-			List<List<Transcript>> transcriptList = getTranscriptDBAdaptor().getAllByProteinNameList(externalNameList);
-			List<List<Gene>> targetGeneList = getGeneDBAdaptor().getAllByTfList(StringUtils.toList(query, ","));
-			List<List<Pwm>> pwmGeneList =  getTfbsDBAdaptor().getAllPwmByTfGeneNameList(StringUtils.toList(query, ","));
+			List<List<Protein>> proteinList = proteinDBAdaptor.getAllByGeneNameList(externalNameList);
+			List<List<Transcript>> transcriptList = transcriptDBAdaptor.getAllByProteinNameList(externalNameList);
+			List<List<Gene>> targetGeneList = geneDBAdaptor.getAllByTfList(StringUtils.toList(query, ","));
+			List<List<Pwm>> pwmGeneList =  tfbsDBAdaptor.getAllPwmByTfGeneNameList(StringUtils.toList(query, ","));
 			
-			List<List<ProteinXref>> proteinXrefList = getProteinDBAdaptor().getAllProteinXrefsByProteinNameList(externalNameList);
-			List<List<ProteinFeature>> proteinFeature = getProteinDBAdaptor().getAllProteinFeaturesByProteinXrefList(externalNameList);
+			List<List<ProteinXref>> proteinXrefList = proteinDBAdaptor.getAllProteinXrefsByProteinNameList(externalNameList);
+			List<List<ProteinFeature>> proteinFeature = proteinDBAdaptor.getAllProteinFeaturesByProteinXrefList(externalNameList);
 			
 			StringBuilder response = new StringBuilder();
 			response.append("[");
@@ -112,7 +104,8 @@ public class TfWSServer extends RegulatoryWSServer {
 			return  generateResponse(query,Arrays.asList(response));
 			
 		} catch (Exception e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			e.printStackTrace();
+			return createErrorResponse("getTfFullInfo", e.toString());
 		}
 	}
 	
@@ -124,7 +117,8 @@ public class TfWSServer extends RegulatoryWSServer {
 			return generateResponse(query, adaptor.getAllByTfGeneNameList(StringUtils.toList(query, ",")));
 			
 		} catch (Exception e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			e.printStackTrace();
+			return createErrorResponse("getAllByTfbs", e.toString());
 		}
 	}
 	
@@ -133,10 +127,11 @@ public class TfWSServer extends RegulatoryWSServer {
 	@Path("/{tfId}/gene")
 	public Response getEnsemblGenes(@PathParam("tfId") String query) {
 		try {
-			GeneDBAdaptor adaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species);
-			return  generateResponse(query, adaptor.getAllByTfList(StringUtils.toList(query, ",")));
+			GeneDBAdaptor geneDBAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species);
+			return  generateResponse(query, geneDBAdaptor.getAllByTfList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			e.printStackTrace();
+			return createErrorResponse("getEnsemblGenes", e.toString());
 		}
 	}
 	
@@ -145,10 +140,11 @@ public class TfWSServer extends RegulatoryWSServer {
 	@Path("/{tfId}/pwm")
 	public Response getAllPwms(@PathParam("tfId") String query) {
 		try {
-			TfbsDBAdaptor adaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species);
-			return generateResponse(query, adaptor.getAllPwmByTfGeneNameList(StringUtils.toList(query, ",")));
+			TfbsDBAdaptor tfbsDBAdaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species);
+			return generateResponse(query, tfbsDBAdaptor.getAllPwmByTfGeneNameList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			e.printStackTrace();
+			return createErrorResponse("getAllPwms", e.toString());
 		}
 	}
 	
@@ -157,13 +153,13 @@ public class TfWSServer extends RegulatoryWSServer {
 	@Path("/annotation")
 	public Response getAnnotation(@DefaultValue("")@QueryParam("celltype") String celltype) {
 		try {
-			TfbsDBAdaptor adaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species);
+			TfbsDBAdaptor tfbsDBAdaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species);
 			List<Object> results;
 			if (celltype.equals("")){
-				results = adaptor.getAllAnnotation();
+				results = tfbsDBAdaptor.getAllAnnotation();
 			}
 			else{
-				results = adaptor.getAllAnnotationByCellTypeList(StringUtils.toList(celltype, ","));
+				results = tfbsDBAdaptor.getAllAnnotationByCellTypeList(StringUtils.toList(celltype, ","));
 			}
 			List<String> lista = new ArrayList<String>();			
 			
@@ -173,7 +169,8 @@ public class TfWSServer extends RegulatoryWSServer {
 			return  generateResponse(new String(), lista);
 			
 		} catch (Exception e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			e.printStackTrace();
+			return createErrorResponse("getAnnotation", e.toString());
 		}
 	}
 

@@ -30,8 +30,6 @@ public class ExonWSServer extends GenericRestWSServer {
 		super(version, species, uriInfo);
 	}
 	
-	
-	
 	@GET
 	@Path("/{exonId}/info")
 	public Response getByEnsemblId(@PathParam("exonId") String query) {
@@ -40,10 +38,9 @@ public class ExonWSServer extends GenericRestWSServer {
 			return  generateResponse(query,exonDBAdaptor.getAllByEnsemblIdList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
 			e.printStackTrace();
-			return createErrorResponse(uriInfo.getAbsolutePath().toString(), "getByEnsemblId", e.toString());
+			return createErrorResponse("getByEnsemblId", e.toString());
 		}
 	}
-	
 	
 	@SuppressWarnings("unchecked")
 	@GET
@@ -54,10 +51,9 @@ public class ExonWSServer extends GenericRestWSServer {
 			return generateResponse(query, Arrays.asList(exonDBAdaptor.getAllBySnpIdList(StringUtils.toList(query, ","))));
 		} catch (Exception e) {
 			e.printStackTrace();
-			return createErrorResponse(uriInfo.getAbsolutePath().toString(), "getAllBySnpIdList", e.toString());
+			return createErrorResponse("getAllBySnpIdList", e.toString());
 		}
 	}
-	
 	
 	@GET
 	@Path("/{exonId}/aminos")
@@ -78,10 +74,9 @@ public class ExonWSServer extends GenericRestWSServer {
 			return generateResponse(query, sequence);
 		} catch (Exception e) {
 			e.printStackTrace();
-			return createErrorResponse(uriInfo.getAbsolutePath().toString(), "getAminoByExon", e.toString());
+			return createErrorResponse("getAminoByExon", e.toString());
 		}
 	}
-	
 	
 //	@GET
 //	@Path("/{exonId}/sequence")
@@ -99,7 +94,6 @@ public class ExonWSServer extends GenericRestWSServer {
 //		}
 //	}
 	
-	
 	@SuppressWarnings("unchecked")
 	@GET
 	@Path("/{exonId}/sequence")
@@ -109,10 +103,9 @@ public class ExonWSServer extends GenericRestWSServer {
 			return generateResponse(query, Arrays.asList(exonDBAdaptor.getAllSequencesByIdList(StringUtils.toList(query, ","))));
 		} catch (Exception e) {
 			e.printStackTrace();
-			return createErrorResponse(uriInfo.getAbsolutePath().toString(), "getSequencesByIdList", e.toString());
+			return createErrorResponse("getSequencesByIdList", e.toString());
 		}
 	}
-	
 	
 	@SuppressWarnings("unchecked")
 	@GET
@@ -123,10 +116,9 @@ public class ExonWSServer extends GenericRestWSServer {
 			return generateResponse(query, Arrays.asList(exonDBAdaptor.getAllRegionsByIdList(StringUtils.toList(query, ","))));
 		} catch (Exception e) {
 			e.printStackTrace();
-			return createErrorResponse(uriInfo.getAbsolutePath().toString(), "getRegionsByIdList", e.toString());
+			return createErrorResponse("getRegionsByIdList", e.toString());
 		}
 	}
-	
 	
 	@GET
 	@Path("/{exonId}/transcript")
@@ -136,7 +128,7 @@ public class ExonWSServer extends GenericRestWSServer {
 			return generateResponse(query, transcriptDBAdaptor.getAllByEnsemblExonId(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
 			e.printStackTrace();
-			return createErrorResponse(uriInfo.getAbsolutePath().toString(), "getTranscriptsByEnsemblId", e.toString());
+			return createErrorResponse("getTranscriptsByEnsemblId", e.toString());
 		}
 	}
 	
@@ -158,5 +150,4 @@ public class ExonWSServer extends GenericRestWSServer {
 		
 		return createOkResponse(sb.toString());
 	}
-
 }

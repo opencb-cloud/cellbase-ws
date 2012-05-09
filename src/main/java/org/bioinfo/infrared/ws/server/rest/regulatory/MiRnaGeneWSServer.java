@@ -31,7 +31,8 @@ public class MiRnaGeneWSServer extends RegulatoryWSServer {
 			MirnaDBAdaptor mirnaDBAdaptor = dbAdaptorFactory.getMirnaDBAdaptor(this.species);
 			return generateResponse(query, mirnaDBAdaptor.getAllMiRnaGenesByNameList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			e.printStackTrace();
+			return createErrorResponse("getMiRnaMatureInfo", e.toString());
 		}
 	}
 		
@@ -46,7 +47,8 @@ public class MiRnaGeneWSServer extends RegulatoryWSServer {
 			MirnaDBAdaptor mirnaDBAdaptor = dbAdaptorFactory.getMirnaDBAdaptor(this.species);
 			return generateResponse(query, mirnaDBAdaptor.getAllMiRnaGenesByNameList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			e.printStackTrace();
+			return createErrorResponse("getMiRnaMatureFullInfo", e.toString());
 		}
 	}
 
@@ -57,7 +59,8 @@ public class MiRnaGeneWSServer extends RegulatoryWSServer {
 			MirnaDBAdaptor mirnaDBAdaptor = dbAdaptorFactory.getMirnaDBAdaptor(this.species);
 			return  generateResponse(query, mirnaDBAdaptor.getAllMiRnaTargetsByMiRnaGeneList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			e.printStackTrace();
+			return createErrorResponse("getMirnaTargets", e.toString());
 		}
 	}
 	
@@ -68,7 +71,8 @@ public class MiRnaGeneWSServer extends RegulatoryWSServer {
 			MirnaDBAdaptor mirnaDBAdaptor = dbAdaptorFactory.getMirnaDBAdaptor(this.species);
 			return  generateResponse(query, mirnaDBAdaptor.getAllMiRnaDiseasesByMiRnaGeneList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			e.printStackTrace();
+			return createErrorResponse("getMinaDisease", e.toString());
 		}
 	}
 	
