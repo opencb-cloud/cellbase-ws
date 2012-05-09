@@ -208,15 +208,15 @@ public class GenericRestWSServer implements IWSServer {
 		List<Species> speciesList = new ArrayList<Species>(11);
 		speciesList.add(new Species("hsa", "human", "Homo sapiens", "GRCh37"));
 		speciesList.add(new Species("mmu", "mouse", "Mus musculus", "NCBIM37"));
-		speciesList.add(new Species("rno", "rat", "Rattus norvegicus", ""));
-		speciesList.add(new Species("cfa", "dog", "Canis familiaris", ""));
-		speciesList.add(new Species("ssc", "pig", "Sus scrofa", ""));
+		speciesList.add(new Species("rno", "rat", "Rattus norvegicus", "RGSC 3.4"));
+		speciesList.add(new Species("cfa", "dog", "Canis familiaris", "CanFam 2.0"));
+		speciesList.add(new Species("ssc", "pig", "Sus scrofa", "Sscrofa9"));
 		speciesList.add(new Species("dre", "zebrafish", "Danio rerio", "Zv9"));
-		speciesList.add(new Species("dme", "fruitfly", "Drosophila melanogaster", ""));
-		speciesList.add(new Species("aga", "mosquito", "Anopheles gambiae", "GRCh37"));
-		speciesList.add(new Species("cel", "worm", "Caenorhabditis elegans", ""));
-		speciesList.add(new Species("fpa", "", "Plasmodium falciparum", ""));
-		speciesList.add(new Species("sce", "yeast", "Saccharomyces cerevisiae", ""));
+		speciesList.add(new Species("dme", "fruitfly", "Drosophila melanogaster", "BDGP 5"));
+		speciesList.add(new Species("aga", "mosquito", "Anopheles gambiae", "AgamP3"));
+		speciesList.add(new Species("cel", "worm", "Caenorhabditis elegans", "WS220"));
+		speciesList.add(new Species("pfa", "plasmodium", "Plasmodium falciparum", "2.1.4"));
+		speciesList.add(new Species("sce", "yeast", "Saccharomyces cerevisiae", "EF 4"));
 		
 		MediaType mediaType = MediaType.valueOf("application/javascript");
 		if(uriInfo.getQueryParameters().get("of") != null && uriInfo.getQueryParameters().get("of").get(0).equalsIgnoreCase("json")) {
