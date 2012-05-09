@@ -205,6 +205,12 @@ public class GenericRestWSServer implements IWSServer {
 	}
 
 	@GET
+	@Path("/{species}")
+	public Response getCategories() {
+		return createOkResponse("No category available");
+	}
+	
+	@GET
 	@Path("/species")
 	public Response getSpecies() {
 		List<Species> speciesList = new ArrayList<Species>(11);
