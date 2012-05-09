@@ -26,7 +26,6 @@ public class ProteinWSServer extends GenericRestWSServer {
 	public ProteinWSServer(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo) throws VersionException, IOException {
 		super(version, species, uriInfo);
 	}
-
 	
 	@GET
 	@Path("/{proteinId}/info")
@@ -36,10 +35,9 @@ public class ProteinWSServer extends GenericRestWSServer {
 			return generateResponse(query, adaptor.getAllByGeneNameList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
 			e.printStackTrace();
-			return createErrorResponse(uriInfo.getAbsolutePath().toString(), "getByEnsemblId", e.toString());
+			return createErrorResponse("getByEnsemblId", e.toString());
 		}
 	}
-
 	
 	@GET
 	@Path("/{proteinId}/fullinfo")
@@ -47,20 +45,17 @@ public class ProteinWSServer extends GenericRestWSServer {
 		return null;
 	}
 	
-	
 	@GET
 	@Path("/{proteinId}/gene")
 	public Response getGene(@PathParam("proteinId") String query) {
 		return null;
 	}
 	
-	
 	@GET
 	@Path("/{proteinId}/transcript")
 	public Response getTranscript(@PathParam("proteinId") String query) {
 		return null;
 	}
-	
 	
 	@GET
 	@Path("/{proteinId}/feature")
@@ -70,17 +65,15 @@ public class ProteinWSServer extends GenericRestWSServer {
 			return generateResponse(query, adaptor.getAllProteinFeaturesByProteinXrefList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
 			e.printStackTrace();
-			return createErrorResponse(uriInfo.getAbsolutePath().toString(), "getFeatures", e.toString());
+			return createErrorResponse("getFeatures", e.toString());
 		}
 	}
-	
 	
 	@GET
 	@Path("/{proteinId}/association")
 	public Response getInteraction(@PathParam("proteinId") String query, @DefaultValue("") @QueryParam("type") String type) {
 		return null;
 	}
-	
 	
 	@GET
 	@Path("/{proteinId}/xref")
@@ -90,17 +83,15 @@ public class ProteinWSServer extends GenericRestWSServer {
 			return generateResponse(proteinId, adaptor.getAllProteinXrefsByProteinNameList(StringUtils.toList(proteinId, ",")));
 		} catch (Exception e) {
 			e.printStackTrace();
-			return createErrorResponse(uriInfo.getAbsolutePath().toString(), "getXrefs", e.toString());
+			return createErrorResponse("getXrefs", e.toString());
 		}
 	}
-	
 	
 	@GET
 	@Path("/{proteinId}/reference")
 	public Response getReference(@PathParam("proteinId") String query) {
 		return null;
 	}
-	
 	
 	@GET
 	@Path("/{proteinId}/sequence")

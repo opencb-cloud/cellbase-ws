@@ -46,11 +46,10 @@ public class TranscriptWSServer extends GenericRestWSServer {
 			return generateResponse(query, Arrays.asList(transcriptDBAdaptor.getAllByEnsemblIdList(StringUtils.toList(query, ","))));
 		} catch (Exception e) {
 			e.printStackTrace();
-			return createErrorResponse(uriInfo.getAbsolutePath().toString(), "getByEnsemblId", e.toString());
+			return createErrorResponse("getByEnsemblId", e.toString());
 		}
 	}
 
-	
 	@SuppressWarnings("unchecked")
 	@GET
 	@Path("/{transcriptId}/all")
@@ -60,10 +59,9 @@ public class TranscriptWSServer extends GenericRestWSServer {
 			return generateResponse(new String(), Arrays.asList(transcriptDBAdaptor.getAll()));
 		} catch (Exception e) {
 			e.printStackTrace();
-			return createErrorResponse(uriInfo.getAbsolutePath().toString(), "getAll", e.toString());
+			return createErrorResponse("getAll", e.toString());
 		}
 	}
-
 	
 	@SuppressWarnings("unchecked")
 	@GET
@@ -74,10 +72,9 @@ public class TranscriptWSServer extends GenericRestWSServer {
 			return generateResponse(query, Arrays.asList(transcriptDBAdaptor.getAllSequencesByIdList(StringUtils.toList(query, ","))));
 		} catch (Exception e) {
 			e.printStackTrace();
-			return createErrorResponse(uriInfo.getAbsolutePath().toString(), "getSequencesByIdList", e.toString());
+			return createErrorResponse("getSequencesByIdList", e.toString());
 		}
 	}
-	
 	
 	@SuppressWarnings("unchecked")
 	@GET
@@ -88,10 +85,9 @@ public class TranscriptWSServer extends GenericRestWSServer {
 			return generateResponse(query, Arrays.asList(transcriptDBAdaptor.getAllRegionsByIdList(StringUtils.toList(query, ","))));
 		} catch (Exception e) {
 			e.printStackTrace();
-			return createErrorResponse(uriInfo.getAbsolutePath().toString(), "getRegionsByIdList", e.toString());
+			return createErrorResponse("getRegionsByIdList", e.toString());
 		}
 	}
-	
 	
 	@GET
 	@Path("/{transcriptId}/fullinfo")
@@ -146,10 +142,9 @@ public class TranscriptWSServer extends GenericRestWSServer {
 			return  generateResponse(query,Arrays.asList(response));
 		} catch (Exception e) {
 			e.printStackTrace();
-			return createErrorResponse(uriInfo.getAbsolutePath().toString(), "getFullInfoByEnsemblId", e.toString());
+			return createErrorResponse("getFullInfoByEnsemblId", e.toString());
 		}
 	}
-	
 	
 	@GET
 	@Path("/{transcriptId}/gene")
@@ -161,7 +156,6 @@ public class TranscriptWSServer extends GenericRestWSServer {
 //			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 //		}
 	}
-	
 
 	@GET
 	@Path("/{transcriptId}/exon")
@@ -171,11 +165,9 @@ public class TranscriptWSServer extends GenericRestWSServer {
 			return  generateResponse(query, dbAdaptor.getByEnsemblTranscriptIdList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
 			e.printStackTrace();
-			return createErrorResponse(uriInfo.getAbsolutePath().toString(), "getExonsByEnsemblId2", e.toString());
+			return createErrorResponse("getExonsByEnsemblId2", e.toString());
 		}
-	
 	}
-	
 	
 	@GET
 	@Path("/{geneId}/exon2transcript")

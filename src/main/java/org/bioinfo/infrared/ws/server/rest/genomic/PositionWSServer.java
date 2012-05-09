@@ -73,10 +73,11 @@ public class PositionWSServer extends GenericRestWSServer {
 	public Response getGeneByPosition(@PathParam("geneId") String query) {
 			try {
 				List<Position> positionList = Position.parsePositions(query);
-				GeneDBAdaptor geneAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species);
-				return  generateResponse(query,  geneAdaptor.getAllByPositionList(positionList));
+				GeneDBAdaptor geneDBAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species);
+				return  generateResponse(query,  geneDBAdaptor.getAllByPositionList(positionList));
 			} catch (Exception e) {
-				return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+				e.printStackTrace();
+				return createErrorResponse("getGeneByPosition", e.toString());
 			}
 	}
 	
@@ -85,10 +86,11 @@ public class PositionWSServer extends GenericRestWSServer {
 	public Response getTranscriptByPosition(@PathParam("geneId") String query) {
 			try {
 				List<Position> positionList = Position.parsePositions(query);
-				TranscriptDBAdaptor transcriptAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
-				return  generateResponse(query,  transcriptAdaptor.getAllByPositionList(positionList));
+				TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
+				return  generateResponse(query,  transcriptDBAdaptor.getAllByPositionList(positionList));
 			} catch (Exception e) {
-				return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+				e.printStackTrace();
+				return createErrorResponse("getTranscriptByPosition", e.toString());
 			}
 	}
 	
@@ -100,7 +102,8 @@ public class PositionWSServer extends GenericRestWSServer {
 				SnpDBAdaptor snpAdaptor = dbAdaptorFactory.getSnpDBAdaptor(this.species);
 				return  generateResponse(query,  snpAdaptor.getAllByPositionList(positionList));
 			} catch (Exception e) {
-				return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+				e.printStackTrace();
+				return createErrorResponse("getSNPByPosition", e.toString());
 			}
 	}
 	

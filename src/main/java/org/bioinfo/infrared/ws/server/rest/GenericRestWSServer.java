@@ -362,9 +362,9 @@ public class GenericRestWSServer implements IWSServer {
 
 
 	
-	protected Response createErrorResponse(String uri, String method, String errorMessage) {
+	protected Response createErrorResponse(String method, String errorMessage) {
 		StringBuilder message = new StringBuilder();
-		message.append("URI: "+uri).append("\n");
+		message.append("URI: "+uriInfo.getAbsolutePath().toString()).append("\n");
 		message.append("Method: "+method).append("\n");
 		message.append("Message: "+errorMessage).append("\n");
 		HttpUtils.send("correo.cipf.es", "fsalavert@cipf.es", "babelomics@cipf.es", "Infrared error notice", message.toString());
