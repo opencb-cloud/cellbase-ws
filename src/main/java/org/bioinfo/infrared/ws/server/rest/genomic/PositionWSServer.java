@@ -131,4 +131,22 @@ public class PositionWSServer extends GenericRestWSServer {
 		List<Position> positionList = Position.parsePositions(positionId);
 		return null;
 	}
+	
+	@GET
+	public Response getHelp() {
+		return help();
+	}
+	
+	@GET
+	@Path("/help")
+	public Response help() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("Resources/actions\n\n");
+		sb.append("- gene: Suppose we are interested in a particular position in the genome, for instance Chromosome 1 position 150193064, and we want to know if there is any gene including this position.\n");
+		sb.append(" Output columns: Ensembl gene, external name, external name source, biotype, status, chromosome, start, end, strand, source, description.\n\n");
+		sb.append("- snp: Imagine now that we have a list of positions and we are interested in identifying those that are known SNPs.\n");
+		sb.append(" Output columns: rsID, chromosome, position, Ensembl consequence type, SO consequence type, sequence.\n\n");
+		
+		return createOkResponse(sb.toString());
+	}
 }

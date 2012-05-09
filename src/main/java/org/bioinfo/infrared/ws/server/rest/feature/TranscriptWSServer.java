@@ -199,13 +199,13 @@ public class TranscriptWSServer extends GenericRestWSServer {
 	public Response help() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("Resources/actions\n\n");
-		sb.append("\t- info: Get transcript information: name, position, biotype.\n");
-		sb.append("\t Output columns: Ensembl ID, external name, external name source, biotype, status, chromosome, start, end, strand, coding region start, coding region end, cdna coding start, cdna coding end, description.\n\n");
-		sb.append("\t- gene: Get the corresponding gene for this transcript.\n");
-		sb.append("\t Output columns: Ensembl gene, external name, external name source, biotype, status, chromosome, start, end, strand, source, description.\n\n");
-		sb.append("\t- sequence: Get transcript sequence.\n\n");
-		sb.append("\t- exon: Get transcript's exons.\n");
-		sb.append("\t Output columns: Ensembl ID, chromosome, start, end, strand.\n\n");
+		sb.append("- info: Get transcript information: name, position, biotype.\n");
+		sb.append(" Output columns: Ensembl ID, external name, external name source, biotype, status, chromosome, start, end, strand, coding region start, coding region end, cdna coding start, cdna coding end, description.\n\n");
+		sb.append("- gene: Get the corresponding gene for this transcript.\n");
+		sb.append(" Output columns: Ensembl gene, external name, external name source, biotype, status, chromosome, start, end, strand, source, description.\n\n");
+		sb.append("- sequence: Get transcript sequence.\n\n");
+		sb.append("- exon: Get transcript's exons.\n");
+		sb.append(" Output columns: Ensembl ID, chromosome, start, end, strand.\n\n");
 		
 		return createOkResponse(sb.toString());
 	}

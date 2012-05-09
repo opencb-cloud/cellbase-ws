@@ -71,4 +71,24 @@ public class MiRnaGeneWSServer extends RegulatoryWSServer {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
 	}
+	
+	@GET
+	public Response getHelp() {
+		return help();
+	}
+	
+	@GET
+	@Path("/help")
+	public Response help() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("Resources/actions\n\n");
+		sb.append("- info: Get information about a miRNA gene: name, accession, status and sequence.\n");
+		sb.append(" Output columns: miRBase accession, miRBase ID, status, sequence, source.\n\n");
+		sb.append("- target: Get target sites for this miRNA.\n");
+		sb.append(" Output columns: miRBase ID, gene target name, chromosome, start, end, strand, pubmed ID, source.\n\n");
+		sb.append("- disease: Get all diseases related with this miRNA.\n");
+		sb.append(" Output columns: miRBase ID, disease name, pubmed ID, description.\n\n");
+		
+		return createOkResponse(sb.toString());
+	}
 }

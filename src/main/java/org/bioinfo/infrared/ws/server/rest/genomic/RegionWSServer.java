@@ -394,5 +394,30 @@ public class RegionWSServer extends GenericRestWSServer {
 		Histogram histogram = new Histogram(list, this.getHistogramIntervalSize());
 		return histogram.getIntervals();
 	}
+	
+	@GET
+	public Response getHelp() {
+		return help();
+	}
+	
+	@GET
+	@Path("/help")
+	public Response help() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("Resources/actions\n\n");
+		sb.append("- gene: This resource obtain the genes belonging to one of the regions specified.\n");
+		sb.append(" Output columns: Ensembl ID, external name, external name source, biotype, status, chromosome, start, end, strand, source, description.\n\n");
+		sb.append("- transcript: This resource obtain the transcripts belonging to one of the regions specified.\n");
+		sb.append(" Output columns: Ensembl ID, external name, external name source, biotype, status, chromosome, start, end, strand, coding region start, coding region end, cdna coding start, cdna coding end, description.\n\n");
+		sb.append("- snp: To obtain the SNPs belonging to one of the regions specified write snp\n");
+		sb.append(" Output columns: rsID, chromosome, position, Ensembl consequence type, SO consequence type, sequence.\n\n");
+		sb.append("- sequence: To obtain the genomic sequence of one region write sequence as resource\n\n");
+		sb.append("- tfbs: To obtain the TFBS of one region write sequence as resource\n");
+		sb.append(" Output columns: TF name, target gene name, chromosome, start, end, cell type, sequence, score.\n\n");
+		sb.append("- regulatory: To obtain the regulatory elements of one region write sequence as resource\n");
+		sb.append(" Output columns: name, type, chromosome, start, end, cell type, source.\n\n");
+		
+		return createOkResponse(sb.toString());
+	}
 
 }

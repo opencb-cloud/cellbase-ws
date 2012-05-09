@@ -175,5 +175,21 @@ public class VariantWSServer extends GenericRestWSServer {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
 	}
+	
+	@GET
+	public Response getHelp() {
+		return help();
+	}
+	
+	@GET
+	@Path("/help")
+	public Response help() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("Resources/actions\n\n");
+		sb.append("- consequence_type: Suppose that we have obtained some variants from a resequencing analysis and we want to obtain the consequence type of a variant over the transcripts\n");
+		sb.append(" Output columns: chromosome, start, end, feature ID, feature name, consequence type, biotype, feature chromosome, feature start, feature end, feature strand, snp ID, ancestral allele, alternative allele, gene Ensembl ID, Ensembl transcript ID, gene name, SO consequence type ID, SO consequence type name, consequence type description, consequence type category, aminoacid change, codon change.\n\n");
+		
+		return createOkResponse(sb.toString());
+	}
 
 }

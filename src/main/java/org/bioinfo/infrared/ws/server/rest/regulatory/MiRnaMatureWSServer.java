@@ -181,4 +181,30 @@ public class MiRnaMatureWSServer extends RegulatoryWSServer {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
 	}
+	
+	@GET
+	public Response getHelp() {
+		return help();
+	}
+	
+	@GET
+	@Path("/help")
+	public Response help() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("Resources/actions\n\n");
+		sb.append("- info: Get information about a miRNA mature: name, accession and sequence.\n");
+		sb.append(" Output columns: miRBase accession, miRBase ID, sequence.\n\n");
+		sb.append("- gene: Get the gene associated to this miRNA mature.\n");
+		sb.append(" Output columns: Ensembl gene, external name, external name source, biotype, status, chromosome, start, end, strand, source, description.\n\n");
+		sb.append("- mirna_gene: Get the miRNA gene information associated to this miRNA mature.\n");
+		sb.append(" Output columns: miRBase accession, miRBase ID, status, sequence, source.\n\n");
+		sb.append("- target_gene: Get all genes that are regulated by this miRNA mature.\n");
+		sb.append(" Output columns: Ensembl gene, external name, external name source, biotype, status, chromosome, start, end, strand, source, description.\n\n");
+		sb.append("- target: Get all binding sites associated to this miRNA.\n");
+		sb.append(" Output columns: miRBase ID, gene target name, chromosome, start, end, strand, pubmed ID, source.\n\n");
+		sb.append("- disease: Get all diseases related with this miRNA.\n");
+		sb.append(" Output columns: miRBase ID, disease name, pubmed ID, description.\n\n");
+		
+		return createOkResponse(sb.toString());
+	}
 }
