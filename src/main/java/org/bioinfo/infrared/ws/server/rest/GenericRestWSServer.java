@@ -26,6 +26,7 @@ import org.bioinfo.commons.utils.ListUtils;
 import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.http.HttpUtils;
 import org.bioinfo.infrared.dao.utils.HibernateUtil;
+import org.bioinfo.infrared.lib.api.MirnaDBAdaptor;
 import org.bioinfo.infrared.lib.impl.DBAdaptorFactory;
 import org.bioinfo.infrared.lib.impl.hibernate.HibernateDBAdaptorFactory;
 import org.bioinfo.infrared.lib.io.output.StringWriter;
@@ -413,9 +414,11 @@ public class GenericRestWSServer implements IWSServer {
 		return new ArrayList<String>();
 	}
 
-	@Deprecated
-	protected List<String> getExamplesNicePrint(){
-		return new ArrayList<String>();
+	@GET
+	public Response getHelp() {
+		return getSpecies();
 	}
 
+	
+	
 }
