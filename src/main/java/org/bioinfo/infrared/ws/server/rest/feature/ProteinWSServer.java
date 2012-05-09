@@ -108,11 +108,15 @@ public class ProteinWSServer extends GenericRestWSServer {
 	@Path("/help")
 	public Response help() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("Resources/actions\n\n");
+		sb.append("Input:\n");
+		sb.append("all id formats are accepted.\n\n\n");
+		sb.append("Resources:\n");
 		sb.append("- info: Get protein information: name, UniProt ID and description.\n");
 		sb.append(" Output columns: UniProt accession, protein name, full name, gene name, organism.\n\n");
 		sb.append("- feature: Get particular features for the protein sequence: natural variants in the aminoacid sequence, mutagenesis sites, etc.\n");
-		sb.append(" Output columns: feature type, aa start, aa end, original, variation, identifier, description.\n\n");
+		sb.append(" Output columns: feature type, aa start, aa end, original, variation, identifier, description.\n\n\n");
+		sb.append("Documentation:\n");
+		sb.append("http://docs.bioinfo.cipf.es/projects/cellbase/wiki/Feature_rest_ws_api#Protein");
 		
 		return createOkResponse(sb.toString());
 	}

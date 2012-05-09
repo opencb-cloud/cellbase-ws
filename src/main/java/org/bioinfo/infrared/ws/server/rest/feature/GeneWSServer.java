@@ -211,7 +211,9 @@ public class GeneWSServer extends GenericRestWSServer {
 	@Path("/help")
 	public Response help() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("Resources/actions\n\n");
+		sb.append("Input:\n");
+		sb.append("all id formats are accepted.\n\n\n");
+		sb.append("Resources:\n");
 		sb.append("- info: Get gene information: name, position, biotype.\n");
 		sb.append(" Output columns: Ensembl gene, external name, external name source, biotype, status, chromosome, start, end, strand, source, description.\n\n");
 		sb.append("- transcript: Get all transcripts for this gene.\n");
@@ -221,7 +223,9 @@ public class GeneWSServer extends GenericRestWSServer {
 		sb.append("- mirna_target: Get all microRNA target sites for this gene.\n");
 		sb.append(" Output columns: miRBase ID, gene target name, chromosome, start, end, strand, pubmed ID, source.\n\n");
 		sb.append("- protein_feature: Get protein information related to this gene.\n");
-		sb.append(" Output columns: feature type, aa start, aa end, original, variation, identifier, description.\n\n");
+		sb.append(" Output columns: feature type, aa start, aa end, original, variation, identifier, description.\n\n\n");
+		sb.append("Documentation:\n");
+		sb.append("http://docs.bioinfo.cipf.es/projects/cellbase/wiki/Feature_rest_ws_api#Gene");
 		
 		return createOkResponse(sb.toString());
 	}

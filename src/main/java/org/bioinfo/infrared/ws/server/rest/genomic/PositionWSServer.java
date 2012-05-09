@@ -86,8 +86,13 @@ public class PositionWSServer extends GenericRestWSServer {
 	public Response getTranscriptByPosition(@PathParam("geneId") String query) {
 			try {
 				List<Position> positionList = Position.parsePositions(query);
-				TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
-				return  generateResponse(query,  transcriptDBAdaptor.getAllByPositionList(positionList));
+				if(positionList.get(0) == null){
+					return createErrorResponse("getTranscriptByPosition", "No positions found for this gene ID.");
+				}
+				else{
+					TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
+					return  generateResponse(query,  transcriptDBAdaptor.getAllByPositionList(positionList));
+				}
 			} catch (Exception e) {
 				e.printStackTrace();
 				return createErrorResponse("getTranscriptByPosition", e.toString());
@@ -99,12 +104,24 @@ public class PositionWSServer extends GenericRestWSServer {
 	public Response getSNPByPosition(@PathParam("geneId") String query) {
 			try {
 				List<Position> positionList = Position.parsePositions(query);
-				SnpDBAdaptor snpAdaptor = dbAdaptorFactory.getSnpDBAdaptor(this.species);
-				return  generateResponse(query,  snpAdaptor.getAllByPositionList(positionList));
+				if(positionList.get(0) == null){
+					return createErrorResponse("getTranscriptByPosition", "No positions found for this gene ID.");
+				}
+				else{
+					SnpDBAdaptor snpAdaptor = dbAdaptorFactory.getSnpDBAdaptor(this.species);
+					return  generateResponse(query,  snpAdaptor.getAllByPositionList(positionList));
+				}
 			} catch (Exception e) {
 				e.printStackTrace();
 				return createErrorResponse("getSNPByPosition", e.toString());
 			}
+	}
+	
+	
+	@GET
+	@Path("/{positionId}/consequence_type")
+	public Response getConsequenceTypeByPositionGet(@PathParam("positionId") String positionId) {
+		return getConsequenceTypeByPosition(positionId);
 	}
 	
 	@POST
@@ -113,7 +130,7 @@ public class PositionWSServer extends GenericRestWSServer {
 		return getConsequenceTypeByPosition(positionId);
 	}
 	
-	public Response getConsequenceTypeByPosition(@PathParam("positionId") String positionId) {
+	public Response getConsequenceTypeByPosition(String positionId) {
 		List<Position> positionList = Position.parsePositions(positionId);
 		return null;
 	}
@@ -121,7 +138,7 @@ public class PositionWSServer extends GenericRestWSServer {
 	@GET
 	@Path("/{positionId}/functional")
 	public Response getFunctionalByPositionGet(@PathParam("positionId") String positionId, @DefaultValue("") @QueryParam("source") String source) {
-		return Response.ok("/{positionId}/functional").build();
+		return getFunctionalByPosition(positionId);
 	}
 	
 	@POST
@@ -130,6 +147,7 @@ public class PositionWSServer extends GenericRestWSServer {
 		return getFunctionalByPosition(positionId);
 	}
 	
+	@Deprecated
 	public Response getFunctionalByPosition(@PathParam("positionId") String positionId) {
 		List<Position> positionList = Position.parsePositions(positionId);
 		return null;
@@ -144,11 +162,15 @@ public class PositionWSServer extends GenericRestWSServer {
 	@Path("/help")
 	public Response help() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("Resources/actions\n\n");
+		sb.append("Input:\n");
+		sb.append("Chr. position format: chr:position (i.e.: 3:10056).\n\n\n");
+		sb.append("Resources:\n");
 		sb.append("- gene: Suppose we are interested in a particular position in the genome, for instance Chromosome 1 position 150193064, and we want to know if there is any gene including this position.\n");
 		sb.append(" Output columns: Ensembl gene, external name, external name source, biotype, status, chromosome, start, end, strand, source, description.\n\n");
 		sb.append("- snp: Imagine now that we have a list of positions and we are interested in identifying those that are known SNPs.\n");
-		sb.append(" Output columns: rsID, chromosome, position, Ensembl consequence type, SO consequence type, sequence.\n\n");
+		sb.append(" Output columns: rsID, chromosome, position, Ensembl consequence type, SO consequence type, sequence.\n\n\n");
+		sb.append("Documentation:\n");
+		sb.append("http://docs.bioinfo.cipf.es/projects/cellbase/wiki/Genomic_rest_ws_api#Position");
 		
 		return createOkResponse(sb.toString());
 	}
