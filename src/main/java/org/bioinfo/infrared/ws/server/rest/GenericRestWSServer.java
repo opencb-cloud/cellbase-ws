@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.zip.ZipOutputStream;
 
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -206,13 +207,55 @@ public class GenericRestWSServer implements IWSServer {
 
 	@GET
 	@Path("/{species}")
-	public Response getCategories() {
+	public Response getCategories(@PathParam("species") String species) {
+		List<Species> speciesList = getSpeciesList();
+		for(int i=0; i < speciesList.size(); i++){
+			//This only allows to show the information if species is in 3 letters format
+			if(species.equalsIgnoreCase(speciesList.get(i).getSpecies())){
+				return createOkResponse("feature\ngenomic\nnetwork\nregulatory");
+			}
+		}
 		return createOkResponse("No category available");
 	}
 	
 	@GET
+	@Path("/{species}/{category}")
+	public Response getFeature(@PathParam("species") String species,@PathParam("category") String category) {
+		if("feature".equalsIgnoreCase(category)){
+			return createOkResponse("exon\ngene\nkaryotype\nprotein\nsnp\ntranscript");
+		}
+		if("genomic".equalsIgnoreCase(category)){
+			return createOkResponse("exon\ngene\nkaryotype\nprotein\nsnp\ntranscript");
+		}
+		if("network".equalsIgnoreCase(category)){
+			return createOkResponse("exon\ngene\nkaryotype\nprotein\nsnp\ntranscript");
+		}
+		if("regulatory".equalsIgnoreCase(category)){
+			return createOkResponse("exon\ngene\nkaryotype\nprotein\nsnp\ntranscript");
+		}
+		return getCategories(species);
+	}
+	
+	
+	@GET
 	@Path("/species")
 	public Response getSpecies() {
+		List<Species> speciesList = getSpeciesList();
+		
+		MediaType mediaType = MediaType.valueOf("application/javascript");
+		if(uriInfo.getQueryParameters().get("of") != null && uriInfo.getQueryParameters().get("of").get(0).equalsIgnoreCase("json")) {
+			return createOkResponse(gson.toJson(speciesList), mediaType);
+		}else {
+			StringBuilder stringBuilder = new StringBuilder();
+			for(Species sp: speciesList) {
+				stringBuilder.append(sp.toString()).append("\n");
+			}
+			mediaType = MediaType.valueOf("text/plain");
+			return createOkResponse(stringBuilder.toString(), mediaType);
+		}
+	}
+
+	private List<Species> getSpeciesList() {
 		List<Species> speciesList = new ArrayList<Species>(11);
 		speciesList.add(new Species("hsa", "human", "Homo sapiens", "GRCh37"));
 		speciesList.add(new Species("mmu", "mouse", "Mus musculus", "NCBIM37"));
@@ -226,18 +269,7 @@ public class GenericRestWSServer implements IWSServer {
 		speciesList.add(new Species("fpa", "", "Plasmodium falciparum", ""));
 		speciesList.add(new Species("sce", "yeast", "Saccharomyces cerevisiae", ""));
 		
-		MediaType mediaType = MediaType.valueOf("application/javascript");
-		if(uriInfo.getQueryParameters().get("of") != null && uriInfo.getQueryParameters().get("of").get(0).equalsIgnoreCase("json")) {
-			return createOkResponse(gson.toJson(speciesList), mediaType);
-		}else {
-			StringBuilder stringBuilder = new StringBuilder();
-			for(Species sp: speciesList) {
-				stringBuilder.append(sp.toString()).append("\n");
-			}
-			mediaType = MediaType.valueOf("text/plain");
-			return createOkResponse(stringBuilder.toString(), mediaType);
-		}
-		
+		return speciesList;
 //		stringBuilder.append("#short").append("\t").append("common").append("\t").append("scientific").append("\t").append("assembly").append("\n");
 //		stringBuilder.append("hsa").append("\t").append("human").append("\t").append("Homo sapiens").append("\t").append("GRCh37").append("\n");
 //		stringBuilder.append("mus").append("\t").append("mouse").append("\t").append("Mus musculus").append("\t").append("NCBIM37").append("\n");
@@ -251,7 +283,6 @@ public class GenericRestWSServer implements IWSServer {
 //		stringBuilder.append("pfa").append("\t").append("").append("\t").append("Plasmodium falciparum").append("\t").append("").append("\n");
 //		stringBuilder.append("sce").append("\t").append("yeast").append("\t").append("Saccharomyces cerevisiae").append("\t").append("");
 	}
-
 
 	protected Response generateResponse(Criteria criteria) throws IOException {
 		List result = criteria.list();
