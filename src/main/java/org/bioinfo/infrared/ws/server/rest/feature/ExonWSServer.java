@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -26,8 +27,8 @@ import com.sun.jersey.api.client.ClientResponse.Status;
 @Produces("text/plain")
 public class ExonWSServer extends GenericRestWSServer {
 	
-	public ExonWSServer(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo) throws VersionException, IOException {
-		super(version, species, uriInfo);
+	public ExonWSServer(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo, @Context HttpServletRequest hsr) throws VersionException, IOException {
+		super(version, species, uriInfo, hsr);
 	}
 	
 	@GET
@@ -61,21 +62,16 @@ public class ExonWSServer extends GenericRestWSServer {
 		try{
 			ExonDBAdaptor exonDBAdaptor = dbAdaptorFactory.getExonDBAdaptor(this.species);
 			List<Exon> exons = exonDBAdaptor.getAllByEnsemblIdList(StringUtils.toList(query, ","));
-
-			if(exons != null && exons.isEmpty()){
-				return createOkResponse("");
-			}else{
-				List<String> sequence = new ArrayList<String>();
-				for (Exon exon : exons) {
-					if(exon.getStrand().equals("-1")){
-						sequence = exonDBAdaptor.getAllSequencesByIdList(StringUtils.toList(query, ","), -1);
-					}
-					else{
-						sequence = exonDBAdaptor.getAllSequencesByIdList(StringUtils.toList(query, ","), 1);
-					}
+			List<String> sequence = new ArrayList<String>();
+			for (Exon exon : exons) {
+				if(null != exon && exon.getStrand().equals("-1")){
+					sequence = exonDBAdaptor.getAllSequencesByIdList(StringUtils.toList(query, ","), -1);
 				}
-				return generateResponse(query, sequence);
+				else{
+					sequence = exonDBAdaptor.getAllSequencesByIdList(StringUtils.toList(query, ","), 1);
+				}
 			}
+			return generateResponse(query, sequence);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getAminoByExon", e.toString());

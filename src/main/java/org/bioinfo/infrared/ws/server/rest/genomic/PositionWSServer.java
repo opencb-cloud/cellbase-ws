@@ -3,6 +3,7 @@ package org.bioinfo.infrared.ws.server.rest.genomic;
 import java.io.IOException;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -27,8 +28,8 @@ import com.sun.jersey.api.client.ClientResponse.Status;
 @Produces("text/plain")
 public class PositionWSServer extends GenericRestWSServer {
 
-	public PositionWSServer(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo) throws VersionException, IOException {
-		super(version, species, uriInfo);
+	public PositionWSServer(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo, @Context HttpServletRequest hsr) throws VersionException, IOException {
+		super(version, species, uriInfo, hsr);
 	}
 
 //	@GET
@@ -71,50 +72,40 @@ public class PositionWSServer extends GenericRestWSServer {
 	@GET
 	@Path("/{geneId}/gene")
 	public Response getGeneByPosition(@PathParam("geneId") String query) {
-			try {
-				List<Position> positionList = Position.parsePositions(query);
-				GeneDBAdaptor geneDBAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species);
-				return  generateResponse(query,  geneDBAdaptor.getAllByPositionList(positionList));
-			} catch (Exception e) {
-				e.printStackTrace();
-				return createErrorResponse("getGeneByPosition", e.toString());
-			}
+		try {
+			List<Position> positionList = Position.parsePositions(query);
+			GeneDBAdaptor geneDBAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species);
+			return  generateResponse(query,  geneDBAdaptor.getAllByPositionList(positionList));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return createErrorResponse("getGeneByPosition", e.toString());
+		}
 	}
 	
 	@GET
 	@Path("/{geneId}/transcript")
 	public Response getTranscriptByPosition(@PathParam("geneId") String query) {
-			try {
-				List<Position> positionList = Position.parsePositions(query);
-				if(positionList.get(0) == null){
-					return createErrorResponse("getTranscriptByPosition", "No positions found for this gene ID.");
-				}
-				else{
-					TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
-					return  generateResponse(query,  transcriptDBAdaptor.getAllByPositionList(positionList));
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-				return createErrorResponse("getTranscriptByPosition", e.toString());
-			}
+		try {
+			List<Position> positionList = Position.parsePositions(query);
+			TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
+			return  generateResponse(query,  transcriptDBAdaptor.getAllByPositionList(positionList));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return createErrorResponse("getTranscriptByPosition", e.toString());
+		}
 	}
 	
 	@GET
 	@Path("/{geneId}/snp")
 	public Response getSNPByPosition(@PathParam("geneId") String query) {
-			try {
-				List<Position> positionList = Position.parsePositions(query);
-				if(positionList.get(0) == null){
-					return createErrorResponse("getTranscriptByPosition", "No positions found for this gene ID.");
-				}
-				else{
-					SnpDBAdaptor snpAdaptor = dbAdaptorFactory.getSnpDBAdaptor(this.species);
-					return  generateResponse(query,  snpAdaptor.getAllByPositionList(positionList));
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-				return createErrorResponse("getSNPByPosition", e.toString());
-			}
+		try {
+			List<Position> positionList = Position.parsePositions(query);
+			SnpDBAdaptor snpAdaptor = dbAdaptorFactory.getSnpDBAdaptor(this.species);
+			return  generateResponse(query,  snpAdaptor.getAllByPositionList(positionList));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return createErrorResponse("getSNPByPosition", e.toString());
+		}
 	}
 	
 	
@@ -130,6 +121,7 @@ public class PositionWSServer extends GenericRestWSServer {
 		return getConsequenceTypeByPosition(positionId);
 	}
 	
+	@Deprecated
 	public Response getConsequenceTypeByPosition(String positionId) {
 		List<Position> positionList = Position.parsePositions(positionId);
 		return null;

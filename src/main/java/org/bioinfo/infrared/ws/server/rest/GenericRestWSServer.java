@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.zip.ZipOutputStream;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -51,6 +52,7 @@ public class GenericRestWSServer implements IWSServer {
 	protected String version;
 	protected String species;
 	protected UriInfo uriInfo;
+	protected HttpServletRequest hsr;
 
 	// Common output parameters
 	protected String resultSeparator;
@@ -83,6 +85,7 @@ public class GenericRestWSServer implements IWSServer {
 	protected Logger logger;
 
 
+
 	/**
 	 * DBAdaptorFactory creation, this object can be initialize
 	 * with an HibernateDBAdaptorFactory or an HBaseDBAdaptorFactory.
@@ -103,20 +106,23 @@ public class GenericRestWSServer implements IWSServer {
 	}
 
 	@Deprecated
-	public GenericRestWSServer(@PathParam("version") String version, @Context UriInfo uriInfo) throws VersionException, IOException {
+	public GenericRestWSServer(@PathParam("version") String version, @Context UriInfo uriInfo, @Context HttpServletRequest hsr) throws VersionException, IOException {
 		this.version = version;
 		this.species = "";
 		this.uriInfo = uriInfo;
-
+		this.hsr = hsr;
+		
 		init(version, this.species, uriInfo);
 //		if(version != null && this.species != null) {
 //		}
 	}
 
-	public GenericRestWSServer(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo) throws VersionException, IOException {
+	public GenericRestWSServer(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo, @Context HttpServletRequest hsr) throws VersionException, IOException {
+		
 		this.version = version;
 		this.species = species;
 		this.uriInfo = uriInfo;
+		this.hsr = hsr;
 
 		init(version, species, uriInfo);
 		
@@ -433,8 +439,9 @@ public class GenericRestWSServer implements IWSServer {
 	protected Response createErrorResponse(String method, String errorMessage) {
 		StringBuilder message = new StringBuilder();
 		message.append("URI: "+uriInfo.getAbsolutePath().toString()).append("\n");
-		message.append("Method: "+method).append("\n");
+		message.append("Method: "+hsr.getMethod()+" "+method).append("\n");
 		message.append("Message: "+errorMessage).append("\n");
+		message.append("Remote Addr: http://ipinfodb.com/ip_locator.php?ip="+hsr.getRemoteAddr()).append("\n");
 		HttpUtils.send("correo.cipf.es", "fsalavert@cipf.es", "babelomics@cipf.es", "Infrared error notice", message.toString());
 		String error = "An error occurred: "+errorMessage;
 		if(outputFormat.equalsIgnoreCase("json")){
@@ -481,10 +488,10 @@ public class GenericRestWSServer implements IWSServer {
 		return new ArrayList<String>();
 	}
 
-	@GET
-	public Response getHelp() {
-		return getSpecies();
-	}
+//	@GET
+//	public Response getHelp() {
+//		return getSpecies();
+//	}
 
 	
 	

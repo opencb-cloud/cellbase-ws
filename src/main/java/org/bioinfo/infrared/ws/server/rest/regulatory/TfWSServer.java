@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -36,8 +37,8 @@ import com.sun.jersey.api.client.ClientResponse.Status;
 @Produces("text/plain")
 public class TfWSServer extends RegulatoryWSServer {
 
-	public TfWSServer(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo) throws VersionException, IOException {
-		super(version, species, uriInfo);
+	public TfWSServer(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo, @Context HttpServletRequest hsr) throws VersionException, IOException {
+		super(version, species, uriInfo, hsr);
 	}
 
 	
@@ -73,6 +74,10 @@ public class TfWSServer extends RegulatoryWSServer {
 					ensemblGeneList.add(g.get(0).getStableId());
 					externalNameList.add(g.get(0).getExternalName());
 				}
+				else {
+					ensemblGeneList.add("");
+					externalNameList.add("");
+				}
 			}
 			
 			List<List<Protein>> proteinList = proteinDBAdaptor.getAllByGeneNameList(externalNameList);
@@ -86,15 +91,19 @@ public class TfWSServer extends RegulatoryWSServer {
 			StringBuilder response = new StringBuilder();
 			response.append("[");
 			for (int i = 0; i < genes.size(); i++) {
-				response.append("{");
-				response.append("\"proteins\":"+gson.toJson(proteinList.get(i))+",");
-				response.append("\"gene\":"+gson.toJson(genes.get(i).get(0))+",");
-				response.append("\"transcripts\":"+gson.toJson(transcriptList.get(i))+",");
-				response.append("\"pwm\":"+gson.toJson(pwmGeneList.get(i))+",");
-				response.append("\"targetGenes\":"+gson.toJson(targetGeneList.get(i))+",");
-				response.append("\"protein_xref\":"+gson.toJson(proteinXrefList.get(i))+",");
-				response.append("\"protein_feature\":"+gson.toJson(proteinFeature.get(i))+"");
-				response.append("},");
+				if(genes.get(i).size()>0){
+					response.append("{");
+					response.append("\"proteins\":"+gson.toJson(proteinList.get(i))+",");
+					response.append("\"gene\":"+gson.toJson(genes.get(i).get(0))+",");
+					response.append("\"transcripts\":"+gson.toJson(transcriptList.get(i))+",");
+					response.append("\"pwm\":"+gson.toJson(pwmGeneList.get(i))+",");
+					response.append("\"targetGenes\":"+gson.toJson(targetGeneList.get(i))+",");
+					response.append("\"protein_xref\":"+gson.toJson(proteinXrefList.get(i))+",");
+					response.append("\"protein_feature\":"+gson.toJson(proteinFeature.get(i))+"");
+					response.append("},");
+				}else{
+					response.append("{},");
+				}
 			}
 			response.append("]");
 			//Remove the last comma
