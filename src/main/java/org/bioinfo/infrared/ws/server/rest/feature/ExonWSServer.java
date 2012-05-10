@@ -62,16 +62,18 @@ public class ExonWSServer extends GenericRestWSServer {
 		try{
 			ExonDBAdaptor exonDBAdaptor = dbAdaptorFactory.getExonDBAdaptor(this.species);
 			List<Exon> exons = exonDBAdaptor.getAllByEnsemblIdList(StringUtils.toList(query, ","));
-			List<String> sequence = new ArrayList<String>();
-			for (Exon exon : exons) {
-				if(null != exon && exon.getStrand().equals("-1")){
-					sequence = exonDBAdaptor.getAllSequencesByIdList(StringUtils.toList(query, ","), -1);
-				}
-				else{
-					sequence = exonDBAdaptor.getAllSequencesByIdList(StringUtils.toList(query, ","), 1);
+			List<String> sequenceList = null;
+			if(exons != null) {
+				sequenceList = new ArrayList<String>(exons.size());
+				for(Exon exon : exons) {
+					if(exon != null && "-1".equals(exon.getStrand())) {
+						sequenceList = exonDBAdaptor.getAllSequencesByIdList(StringUtils.toList(query, ","), -1);
+					}else {
+						sequenceList = exonDBAdaptor.getAllSequencesByIdList(StringUtils.toList(query, ","), 1);
+					}
 				}
 			}
-			return generateResponse(query, sequence);
+			return generateResponse(query, sequenceList);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getAminoByExon", e.toString());

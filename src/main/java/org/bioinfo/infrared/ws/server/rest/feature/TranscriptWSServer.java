@@ -113,7 +113,7 @@ public class TranscriptWSServer extends GenericRestWSServer {
 			StringBuilder response = new StringBuilder();
 			response.append("[");
 			for (int i = 0; i < transcripts.size(); i++) {
-				if(null != transcripts.get(i) ){
+				if(transcripts.get(i) != null){
 					response.append("{");
 					response.append("\"stableId\":"+"\""+transcripts.get(i).getStableId()+"\",");
 					response.append("\"externalName\":"+"\""+transcripts.get(i).getExternalName()+"\",");

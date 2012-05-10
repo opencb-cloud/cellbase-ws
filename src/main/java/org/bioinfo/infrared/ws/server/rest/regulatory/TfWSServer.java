@@ -66,15 +66,14 @@ public class TfWSServer extends RegulatoryWSServer {
 			TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
 			TfbsDBAdaptor tfbsDBAdaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species);
 			
-			List<List<Gene>> genes = geneDBAdaptor.getAllByTfNameList(StringUtils.toList(query, ","));
+			List<List<Gene>> geneListList = geneDBAdaptor.getAllByTfNameList(StringUtils.toList(query, ","));
 			List<String> ensemblGeneList = new ArrayList<String>();
 			List<String> externalNameList = new ArrayList<String>();
-			for (List<Gene> g : genes) {
-				if (g.size()>0){
-					ensemblGeneList.add(g.get(0).getStableId());
-					externalNameList.add(g.get(0).getExternalName());
-				}
-				else {
+			for(List<Gene> geneList : geneListList) {
+				if(geneList != null && geneList.size() > 0) {
+					ensemblGeneList.add(geneList.get(0).getStableId());
+					externalNameList.add(geneList.get(0).getExternalName());
+				}else {
 					ensemblGeneList.add("");
 					externalNameList.add("");
 				}
@@ -90,11 +89,11 @@ public class TfWSServer extends RegulatoryWSServer {
 			
 			StringBuilder response = new StringBuilder();
 			response.append("[");
-			for (int i = 0; i < genes.size(); i++) {
-				if(genes.get(i).size()>0){
+			for (int i = 0; i < geneListList.size(); i++) {
+				if(geneListList.get(i).size() > 0){
 					response.append("{");
 					response.append("\"proteins\":"+gson.toJson(proteinList.get(i))+",");
-					response.append("\"gene\":"+gson.toJson(genes.get(i).get(0))+",");
+					response.append("\"gene\":"+gson.toJson(geneListList.get(i).get(0))+",");
 					response.append("\"transcripts\":"+gson.toJson(transcriptList.get(i))+",");
 					response.append("\"pwm\":"+gson.toJson(pwmGeneList.get(i))+",");
 					response.append("\"targetGenes\":"+gson.toJson(targetGeneList.get(i))+",");
