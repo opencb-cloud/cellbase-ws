@@ -62,7 +62,7 @@ public class ExonWSServer extends GenericRestWSServer {
 			ExonDBAdaptor exonDBAdaptor = dbAdaptorFactory.getExonDBAdaptor(this.species);
 			List<Exon> exons = exonDBAdaptor.getAllByEnsemblIdList(StringUtils.toList(query, ","));
 
-			if(exons.isEmpty()){
+			if(exons != null && exons.isEmpty()){
 				return createOkResponse("");
 			}else{
 				List<String> sequence = new ArrayList<String>();

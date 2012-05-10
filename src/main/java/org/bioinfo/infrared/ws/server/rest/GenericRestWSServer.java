@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.zip.ZipOutputStream;
 
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -30,6 +31,7 @@ import org.bioinfo.infrared.lib.api.MirnaDBAdaptor;
 import org.bioinfo.infrared.lib.impl.DBAdaptorFactory;
 import org.bioinfo.infrared.lib.impl.hibernate.HibernateDBAdaptorFactory;
 import org.bioinfo.infrared.lib.io.output.StringWriter;
+import org.bioinfo.infrared.ws.server.rest.exception.SpeciesException;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
 import org.bioinfo.infrared.ws.server.rest.utils.Species;
 import org.hibernate.Criteria;
@@ -117,6 +119,7 @@ public class GenericRestWSServer implements IWSServer {
 		this.uriInfo = uriInfo;
 
 		init(version, species, uriInfo);
+		
 //		if(version != null && species != null) {
 //		}
 	}
@@ -134,6 +137,19 @@ public class GenericRestWSServer implements IWSServer {
 		logger.setLevel(Logger.DEBUG_LEVEL);
 		logger.debug("GenericrestWSServer init method");
 
+		/**
+		 * Check version parameter, must be: v1, v2, ...
+		 * If 'latest' then is converted.
+		 */
+		if(version != null && version.equals("latest") && config.getProperty("LATEST.VERSION") != null) {
+			version = config.getProperty("LATEST.VERSION");
+		}
+		
+//		List<String> speciesList = config.getListProperty("CELLBASE."+version+".AVAILABLE.SPECIES", ",");
+//		if(speciesList != null && speciesList.contains(species)) {
+//
+//		}
+		
 		// this code MUST be run before the checking 
 		parseCommonQueryParameters(uriInfo.getQueryParameters());
 	}
@@ -205,21 +221,46 @@ public class GenericRestWSServer implements IWSServer {
 	}
 
 	@GET
+	@Path("/{species}")
+	public Response getCategories(@PathParam("species") String species) {
+		if(isSpecieAvailable(species)){
+			return createOkResponse("feature\ngenomic\nnetwork\nregulatory");
+		}
+		return getSpecies();
+	}
+	
+	@GET
+	@Path("/{species}/{category}")
+	public Response getCategory(@PathParam("species") String species, @PathParam("category") String category) {
+		if(isSpecieAvailable(species)){
+			if("feature".equalsIgnoreCase(category)){
+				return createOkResponse("exon\ngene\nkaryotype\nprotein\nsnp\ntranscript");
+			}
+			if("genomic".equalsIgnoreCase(category)){
+				return createOkResponse("position\nregion\nvariant");
+			}
+			if("network".equalsIgnoreCase(category)){
+				return createOkResponse("pathway");
+			}
+			if("regulatory".equalsIgnoreCase(category)){
+				return createOkResponse("mirna_gene\nmirna_mature\ntf");
+			}
+			return createOkResponse("feature\ngenomic\nnetwork\nregulatory");
+		}else{
+			return getSpecies();
+		}
+	}
+	
+	@GET
+	@Path("/{species}/{category}/{subcategory}")
+	public Response getSubcategory(@PathParam("species") String species, @PathParam("category") String category, @PathParam("subcategory") String subcategory) {
+		return getCategory(species,category);
+	}
+	
+	@GET
 	@Path("/species")
 	public Response getSpecies() {
-		List<Species> speciesList = new ArrayList<Species>(11);
-		speciesList.add(new Species("hsa", "human", "Homo sapiens", "GRCh37"));
-		speciesList.add(new Species("mmu", "mouse", "Mus musculus", "NCBIM37"));
-		speciesList.add(new Species("rno", "rat", "Rattus norvegicus", ""));
-		speciesList.add(new Species("cfa", "dog", "Canis familiaris", ""));
-		speciesList.add(new Species("ssc", "pig", "Sus scrofa", ""));
-		speciesList.add(new Species("dre", "zebrafish", "Danio rerio", "Zv9"));
-		speciesList.add(new Species("dme", "fruitfly", "Drosophila melanogaster", ""));
-		speciesList.add(new Species("aga", "mosquito", "Anopheles gambiae", "GRCh37"));
-		speciesList.add(new Species("cel", "worm", "Caenorhabditis elegans", ""));
-		speciesList.add(new Species("fpa", "", "Plasmodium falciparum", ""));
-		speciesList.add(new Species("sce", "yeast", "Saccharomyces cerevisiae", ""));
-		
+		List<Species> speciesList = getSpeciesList();
 		MediaType mediaType = MediaType.valueOf("application/javascript");
 		if(uriInfo.getQueryParameters().get("of") != null && uriInfo.getQueryParameters().get("of").get(0).equalsIgnoreCase("json")) {
 			return createOkResponse(gson.toJson(speciesList), mediaType);
@@ -231,7 +272,34 @@ public class GenericRestWSServer implements IWSServer {
 			mediaType = MediaType.valueOf("text/plain");
 			return createOkResponse(stringBuilder.toString(), mediaType);
 		}
+	}
+
+	private boolean isSpecieAvailable(String species) {
+		List<Species> speciesList = getSpeciesList();
+		for(int i=0; i < speciesList.size(); i++){
+			//This only allows to show the information if species is in 3 letters format
+			if(species.equalsIgnoreCase(speciesList.get(i).getSpecies())){
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	private List<Species> getSpeciesList() {
+		List<Species> speciesList = new ArrayList<Species>(11);
+		speciesList.add(new Species("hsa", "human", "Homo sapiens", "GRCh37"));
+		speciesList.add(new Species("mmu", "mouse", "Mus musculus", "NCBIM37"));
+		speciesList.add(new Species("rno", "rat", "Rattus norvegicus", "RGSC 3.4"));
+		speciesList.add(new Species("cfa", "dog", "Canis familiaris", "CanFam 2.0"));
+		speciesList.add(new Species("ssc", "pig", "Sus scrofa", "Sscrofa9"));
+		speciesList.add(new Species("dre", "zebrafish", "Danio rerio", "Zv9"));
+		speciesList.add(new Species("dme", "fruitfly", "Drosophila melanogaster", "BDGP 5"));
+		speciesList.add(new Species("aga", "mosquito", "Anopheles gambiae", "AgamP3"));
+		speciesList.add(new Species("cel", "worm", "Caenorhabditis elegans", "WS220"));
+		speciesList.add(new Species("pfa", "plasmodium", "Plasmodium falciparum", "2.1.4"));
+		speciesList.add(new Species("sce", "yeast", "Saccharomyces cerevisiae", "EF 4"));
 		
+		return speciesList;
 //		stringBuilder.append("#short").append("\t").append("common").append("\t").append("scientific").append("\t").append("assembly").append("\n");
 //		stringBuilder.append("hsa").append("\t").append("human").append("\t").append("Homo sapiens").append("\t").append("GRCh37").append("\n");
 //		stringBuilder.append("mus").append("\t").append("mouse").append("\t").append("Mus musculus").append("\t").append("NCBIM37").append("\n");
@@ -245,7 +313,6 @@ public class GenericRestWSServer implements IWSServer {
 //		stringBuilder.append("pfa").append("\t").append("").append("\t").append("Plasmodium falciparum").append("\t").append("").append("\n");
 //		stringBuilder.append("sce").append("\t").append("yeast").append("\t").append("Saccharomyces cerevisiae").append("\t").append("");
 	}
-
 
 	protected Response generateResponse(Criteria criteria) throws IOException {
 		List result = criteria.list();
