@@ -191,7 +191,9 @@ public class MiRnaMatureWSServer extends RegulatoryWSServer {
 	@Path("/help")
 	public Response help() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("Resources/actions\n\n");
+		sb.append("Input:\n");
+		sb.append("all id formats are accepted.\n\n\n");
+		sb.append("Resources:\n");
 		sb.append("- info: Get information about a miRNA mature: name, accession and sequence.\n");
 		sb.append(" Output columns: miRBase accession, miRBase ID, sequence.\n\n");
 		sb.append("- gene: Get the gene associated to this miRNA mature.\n");
@@ -203,7 +205,9 @@ public class MiRnaMatureWSServer extends RegulatoryWSServer {
 		sb.append("- target: Get all binding sites associated to this miRNA.\n");
 		sb.append(" Output columns: miRBase ID, gene target name, chromosome, start, end, strand, pubmed ID, source.\n\n");
 		sb.append("- disease: Get all diseases related with this miRNA.\n");
-		sb.append(" Output columns: miRBase ID, disease name, pubmed ID, description.\n\n");
+		sb.append(" Output columns: miRBase ID, disease name, pubmed ID, description.\n\n\n");
+		sb.append("Documentation:\n");
+		sb.append("http://docs.bioinfo.cipf.es/projects/cellbase/wiki/Regulatory_rest_ws_api#MicroRNA-mature");
 		
 		return createOkResponse(sb.toString());
 	}

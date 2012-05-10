@@ -253,12 +253,16 @@ public class PathwayWSServer extends GenericRestWSServer {
 	@Path("/help")
 	public Response help() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("Resources/actions\n\n");
+		sb.append("Input:\n");
+		sb.append("all id formats are accepted.\n\n\n");
+		sb.append("Resources:\n");
 		sb.append("- list: This subcategory is an informative WS that show the complete list of available pathways. This is an special resource which does not need a pathway name as input.\n");
 		sb.append(" Output columns: internal ID, pathway name, description.\n\n");
 		sb.append("- info: Prints descriptive information about a pathway.\n");
 		sb.append(" Output columns: internal ID, pathway name, description.\n\n");
-		sb.append("- image: Download an image of the selected pathway.\n");
+		sb.append("- image: Download an image of the selected pathway.\n\n\n");
+		sb.append("Documentation:\n");
+		sb.append("http://docs.bioinfo.cipf.es/projects/cellbase/wiki/Network_rest_ws_api#Pathway");
 		
 		return createOkResponse(sb.toString());
 	}
