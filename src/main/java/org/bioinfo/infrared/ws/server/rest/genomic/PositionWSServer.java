@@ -74,11 +74,6 @@ public class PositionWSServer extends GenericRestWSServer {
 	public Response getGeneByPosition(@PathParam("geneId") String query) {
 		try {
 			List<Position> positionList = Position.parsePositions(query);
-			for (int i = 0; i < positionList.size(); i++) {
-				if(positionList.get(i) == null){
-					positionList.remove(i);
-				}
-			}
 			GeneDBAdaptor geneDBAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species);
 			return  generateResponse(query,  geneDBAdaptor.getAllByPositionList(positionList));
 		} catch (Exception e) {
@@ -92,11 +87,6 @@ public class PositionWSServer extends GenericRestWSServer {
 	public Response getTranscriptByPosition(@PathParam("geneId") String query) {
 		try {
 			List<Position> positionList = Position.parsePositions(query);
-			for (int i = 0; i < positionList.size(); i++) {
-				if(positionList.get(i) == null){
-					positionList.remove(i);
-				}
-			}
 			TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
 			return  generateResponse(query,  transcriptDBAdaptor.getAllByPositionList(positionList));
 		} catch (Exception e) {
@@ -110,11 +100,6 @@ public class PositionWSServer extends GenericRestWSServer {
 	public Response getSNPByPosition(@PathParam("geneId") String query) {
 		try {
 			List<Position> positionList = Position.parsePositions(query);
-			for (int i = 0; i < positionList.size(); i++) {
-				if(positionList.get(i) == null){
-					positionList.remove(i);
-				}
-			}
 			SnpDBAdaptor snpAdaptor = dbAdaptorFactory.getSnpDBAdaptor(this.species);
 			return  generateResponse(query,  snpAdaptor.getAllByPositionList(positionList));
 		} catch (Exception e) {
