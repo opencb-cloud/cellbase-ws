@@ -183,14 +183,18 @@ public class TfWSServer extends RegulatoryWSServer {
 	@Path("/help")
 	public Response help() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("Resources/actions\n\n");
+		sb.append("Input:\n");
+		sb.append("all id formats are accepted.\n\n\n");
+		sb.append("Resources:\n");
 		sb.append("- info: Get information about this transcription factor (TF).\n\n");
 		sb.append("- tfbs: Get all transcription factor binding sites (TFBSs) for this TF.\n");
 		sb.append(" Output columns: TF name, target gene name, chromosome, start, end, cell type, sequence, score.\n\n");
 		sb.append("- gene: Get all genes regulated by this TF.\n");
 		sb.append(" Output columns: Ensembl gene, external name, external name source, biotype, status, chromosome, start, end, strand, source, description.\n\n");
 		sb.append("- pwm: Get all position weight matrices associated to this TF.\n");
-		sb.append(" Output columns: TF Name, type, frequency_matrix, description, source, length, jaspar_accession.\n\n");
+		sb.append(" Output columns: TF Name, type, frequency_matrix, description, source, length, jaspar_accession.\n\n\n");
+		sb.append("Documentation:\n");
+		sb.append("http://docs.bioinfo.cipf.es/projects/cellbase/wiki/Regulatory_rest_ws_api#Transcription-Factor");
 		
 		return createOkResponse(sb.toString());
 	}

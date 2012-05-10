@@ -195,14 +195,18 @@ public class SnpWSServer extends GenericRestWSServer {
 	@Path("/help")
 	public Response help() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("Resources/actions\n\n");
+		sb.append("Input:\n");
+		sb.append("SNP format: rsID.\n\n\n");
+		sb.append("Resources:\n");
 		sb.append("- info: Get SNP information: name, position, consequence type, adjacent nucleotides, ...\n");
 		sb.append(" Output columns: rsID, chromosome, position, Ensembl consequence type, SO consequence type, sequence.\n\n");
 		sb.append("- consequence_type: Get SNP effect on the transcript\n");
 		sb.append(" Output columns: chromosome, start, end, feature ID, feature name, consequence type, biotype, feature chromosome, feature start, feature end, feature strand, snp ID, ancestral allele, alternative allele, gene Ensembl ID, Ensembl transcript ID, gene name, SO consequence type ID, SO consequence type name, consequence type description, consequence type category, aminoacid change, codon change.\n\n");
 		sb.append("- population_frequency: Get the allelic and genotypic frequencies for this SNP acroos populations.\n\n");
 		sb.append("- phenotype: Get the phenotypes that have been previously associated to this SNP.\n\n");
-		sb.append("- xref: Get the external references for this SNP.\n");
+		sb.append("- xref: Get the external references for this SNP.\n\n\n");
+		sb.append("Documentation:\n");
+		sb.append("http://docs.bioinfo.cipf.es/projects/cellbase/wiki/Feature_rest_ws_api#SNP");
 		
 		return createOkResponse(sb.toString());
 	}

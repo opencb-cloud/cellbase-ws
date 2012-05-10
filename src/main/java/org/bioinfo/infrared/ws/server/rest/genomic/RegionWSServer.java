@@ -407,7 +407,9 @@ public class RegionWSServer extends GenericRestWSServer {
 	@Path("/help")
 	public Response help() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("Resources/actions\n\n");
+		sb.append("Input:\n");
+		sb.append("Chr. region format: chr:start-end (i.e.: 7:245000-501560)\n\n\n");
+		sb.append("Resources:\n");
 		sb.append("- gene: This resource obtain the genes belonging to one of the regions specified.\n");
 		sb.append(" Output columns: Ensembl ID, external name, external name source, biotype, status, chromosome, start, end, strand, source, description.\n\n");
 		sb.append("- transcript: This resource obtain the transcripts belonging to one of the regions specified.\n");
@@ -418,7 +420,9 @@ public class RegionWSServer extends GenericRestWSServer {
 		sb.append("- tfbs: To obtain the TFBS of one region write sequence as resource\n");
 		sb.append(" Output columns: TF name, target gene name, chromosome, start, end, cell type, sequence, score.\n\n");
 		sb.append("- regulatory: To obtain the regulatory elements of one region write sequence as resource\n");
-		sb.append(" Output columns: name, type, chromosome, start, end, cell type, source.\n\n");
+		sb.append(" Output columns: name, type, chromosome, start, end, cell type, source.\n\n\n");
+		sb.append("Documentation:\n");
+		sb.append("http://docs.bioinfo.cipf.es/projects/cellbase/wiki/Genomic_rest_ws_api#Region");
 		
 		return createOkResponse(sb.toString());
 	}
