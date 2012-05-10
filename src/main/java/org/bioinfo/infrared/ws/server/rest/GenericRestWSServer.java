@@ -31,6 +31,7 @@ import org.bioinfo.infrared.lib.api.MirnaDBAdaptor;
 import org.bioinfo.infrared.lib.impl.DBAdaptorFactory;
 import org.bioinfo.infrared.lib.impl.hibernate.HibernateDBAdaptorFactory;
 import org.bioinfo.infrared.lib.io.output.StringWriter;
+import org.bioinfo.infrared.ws.server.rest.exception.SpeciesException;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
 import org.bioinfo.infrared.ws.server.rest.utils.Species;
 import org.hibernate.Criteria;
@@ -118,6 +119,7 @@ public class GenericRestWSServer implements IWSServer {
 		this.uriInfo = uriInfo;
 
 		init(version, species, uriInfo);
+		
 //		if(version != null && species != null) {
 //		}
 	}
@@ -135,6 +137,19 @@ public class GenericRestWSServer implements IWSServer {
 		logger.setLevel(Logger.DEBUG_LEVEL);
 		logger.debug("GenericrestWSServer init method");
 
+		/**
+		 * Check version parameter, must be: v1, v2, ...
+		 * If 'latest' then is converted.
+		 */
+		if(version != null && version.equals("latest") && config.getProperty("LATEST.VERSION") != null) {
+			version = config.getProperty("LATEST.VERSION");
+		}
+		
+//		List<String> speciesList = config.getListProperty("CELLBASE."+version+".AVAILABLE.SPECIES", ",");
+//		if(speciesList != null && speciesList.contains(species)) {
+//
+//		}
+		
 		// this code MUST be run before the checking 
 		parseCommonQueryParameters(uriInfo.getQueryParameters());
 	}
@@ -270,6 +285,7 @@ public class GenericRestWSServer implements IWSServer {
 		}
 		return false;
 	}
+	
 	private List<Species> getSpeciesList() {
 		List<Species> speciesList = new ArrayList<Species>(11);
 		speciesList.add(new Species("hsa", "human", "Homo sapiens", "GRCh37"));
