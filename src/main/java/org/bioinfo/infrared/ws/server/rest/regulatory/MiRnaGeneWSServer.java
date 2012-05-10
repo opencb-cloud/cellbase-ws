@@ -2,6 +2,7 @@ package org.bioinfo.infrared.ws.server.rest.regulatory;
 
 import java.io.IOException;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -20,8 +21,8 @@ import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
 public class MiRnaGeneWSServer extends RegulatoryWSServer {
 
 	
-	public MiRnaGeneWSServer(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo) throws VersionException, IOException {
-		super(version, species, uriInfo);
+	public MiRnaGeneWSServer(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo, @Context HttpServletRequest hsr) throws VersionException, IOException {
+		super(version, species, uriInfo, hsr);
 	}
 	
 	@GET
