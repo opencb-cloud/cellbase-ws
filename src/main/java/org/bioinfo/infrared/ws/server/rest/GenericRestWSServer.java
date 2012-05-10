@@ -246,7 +246,6 @@ public class GenericRestWSServer implements IWSServer {
 	@Path("/species")
 	public Response getSpecies() {
 		List<Species> speciesList = getSpeciesList();
-		
 		MediaType mediaType = MediaType.valueOf("application/javascript");
 		if(uriInfo.getQueryParameters().get("of") != null && uriInfo.getQueryParameters().get("of").get(0).equalsIgnoreCase("json")) {
 			return createOkResponse(gson.toJson(speciesList), mediaType);
