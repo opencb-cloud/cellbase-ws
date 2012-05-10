@@ -72,50 +72,55 @@ public class PositionWSServer extends GenericRestWSServer {
 	@GET
 	@Path("/{geneId}/gene")
 	public Response getGeneByPosition(@PathParam("geneId") String query) {
-			try {
-				List<Position> positionList = Position.parsePositions(query);
-				GeneDBAdaptor geneDBAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species);
-				return  generateResponse(query,  geneDBAdaptor.getAllByPositionList(positionList));
-			} catch (Exception e) {
-				e.printStackTrace();
-				return createErrorResponse("getGeneByPosition", e.toString());
+		try {
+			List<Position> positionList = Position.parsePositions(query);
+			for (int i = 0; i < positionList.size(); i++) {
+				if(positionList.get(i) == null){
+					positionList.remove(i);
+				}
 			}
+			GeneDBAdaptor geneDBAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species);
+			return  generateResponse(query,  geneDBAdaptor.getAllByPositionList(positionList));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return createErrorResponse("getGeneByPosition", e.toString());
+		}
 	}
 	
 	@GET
 	@Path("/{geneId}/transcript")
 	public Response getTranscriptByPosition(@PathParam("geneId") String query) {
-			try {
-				List<Position> positionList = Position.parsePositions(query);
-				if(positionList.get(0) == null){
-					return createErrorResponse("getTranscriptByPosition", "No positions found for this gene ID.");
+		try {
+			List<Position> positionList = Position.parsePositions(query);
+			for (int i = 0; i < positionList.size(); i++) {
+				if(positionList.get(i) == null){
+					positionList.remove(i);
 				}
-				else{
-					TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
-					return  generateResponse(query,  transcriptDBAdaptor.getAllByPositionList(positionList));
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-				return createErrorResponse("getTranscriptByPosition", e.toString());
 			}
+			TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
+			return  generateResponse(query,  transcriptDBAdaptor.getAllByPositionList(positionList));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return createErrorResponse("getTranscriptByPosition", e.toString());
+		}
 	}
 	
 	@GET
 	@Path("/{geneId}/snp")
 	public Response getSNPByPosition(@PathParam("geneId") String query) {
-			try {
-				List<Position> positionList = Position.parsePositions(query);
-				if(positionList.get(0) == null){
-					return createErrorResponse("getTranscriptByPosition", "No positions found for this gene ID.");
+		try {
+			List<Position> positionList = Position.parsePositions(query);
+			for (int i = 0; i < positionList.size(); i++) {
+				if(positionList.get(i) == null){
+					positionList.remove(i);
 				}
-				else{
-					SnpDBAdaptor snpAdaptor = dbAdaptorFactory.getSnpDBAdaptor(this.species);
-					return  generateResponse(query,  snpAdaptor.getAllByPositionList(positionList));
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-				return createErrorResponse("getSNPByPosition", e.toString());
 			}
+			SnpDBAdaptor snpAdaptor = dbAdaptorFactory.getSnpDBAdaptor(this.species);
+			return  generateResponse(query,  snpAdaptor.getAllByPositionList(positionList));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return createErrorResponse("getSNPByPosition", e.toString());
+		}
 	}
 	
 	
@@ -131,6 +136,7 @@ public class PositionWSServer extends GenericRestWSServer {
 		return getConsequenceTypeByPosition(positionId);
 	}
 	
+	@Deprecated
 	public Response getConsequenceTypeByPosition(String positionId) {
 		List<Position> positionList = Position.parsePositions(positionId);
 		return null;

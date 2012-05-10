@@ -74,6 +74,10 @@ public class TfWSServer extends RegulatoryWSServer {
 					ensemblGeneList.add(g.get(0).getStableId());
 					externalNameList.add(g.get(0).getExternalName());
 				}
+				else {
+					ensemblGeneList.add("");
+					externalNameList.add("");
+				}
 			}
 			
 			List<List<Protein>> proteinList = proteinDBAdaptor.getAllByGeneNameList(externalNameList);
@@ -87,15 +91,19 @@ public class TfWSServer extends RegulatoryWSServer {
 			StringBuilder response = new StringBuilder();
 			response.append("[");
 			for (int i = 0; i < genes.size(); i++) {
-				response.append("{");
-				response.append("\"proteins\":"+gson.toJson(proteinList.get(i))+",");
-				response.append("\"gene\":"+gson.toJson(genes.get(i).get(0))+",");
-				response.append("\"transcripts\":"+gson.toJson(transcriptList.get(i))+",");
-				response.append("\"pwm\":"+gson.toJson(pwmGeneList.get(i))+",");
-				response.append("\"targetGenes\":"+gson.toJson(targetGeneList.get(i))+",");
-				response.append("\"protein_xref\":"+gson.toJson(proteinXrefList.get(i))+",");
-				response.append("\"protein_feature\":"+gson.toJson(proteinFeature.get(i))+"");
-				response.append("},");
+				if(genes.get(i).size()>0){
+					response.append("{");
+					response.append("\"proteins\":"+gson.toJson(proteinList.get(i))+",");
+					response.append("\"gene\":"+gson.toJson(genes.get(i).get(0))+",");
+					response.append("\"transcripts\":"+gson.toJson(transcriptList.get(i))+",");
+					response.append("\"pwm\":"+gson.toJson(pwmGeneList.get(i))+",");
+					response.append("\"targetGenes\":"+gson.toJson(targetGeneList.get(i))+",");
+					response.append("\"protein_xref\":"+gson.toJson(proteinXrefList.get(i))+",");
+					response.append("\"protein_feature\":"+gson.toJson(proteinFeature.get(i))+"");
+					response.append("},");
+				}else{
+					response.append("{},");
+				}
 			}
 			response.append("]");
 			//Remove the last comma

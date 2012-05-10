@@ -33,8 +33,6 @@ import org.bioinfo.infrared.lib.common.Region;
 import org.bioinfo.infrared.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
 
-import com.sun.jersey.api.client.ClientResponse.Status;
-
 @Path("/{version}/{species}/feature/gene")
 @Produces("text/plain")
 public class GeneWSServer extends GenericRestWSServer {
@@ -62,7 +60,7 @@ public class GeneWSServer extends GenericRestWSServer {
 		try {
 			
 			GeneDBAdaptor geneDBAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species);
-			TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
+			TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species, this.version);
 			XRefsDBAdaptor xRefsDBAdaptor = dbAdaptorFactory.getXRefDBAdaptor(this.species);
 			
 			List<Gene> genes = geneDBAdaptor.getAllByNameList(StringUtils.toList(query, ",")).get(0);
@@ -144,6 +142,7 @@ public class GeneWSServer extends GenericRestWSServer {
 
 	@GET
 	@Path("/{geneId}/mirnatarget")
+	@Deprecated
 	public Response getAllMirnaB(@PathParam("geneId") String query) {
 		return  getAllMirna(query);
 	}
