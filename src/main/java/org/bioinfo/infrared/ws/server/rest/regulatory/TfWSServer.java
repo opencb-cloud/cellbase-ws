@@ -43,12 +43,11 @@ public class TfWSServer extends RegulatoryWSServer {
 	
 	
 	@GET
-	@Path("/{tfId}/info") // Devuelve los TFBSs para el TFId que le das
+	@Path("/{tfId}/info")
 	public Response getTfInfo(@PathParam("tfId") String query) {
 		try {
-			TfbsDBAdaptor tfbsDBAdaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species);
-			return generateResponse(query, tfbsDBAdaptor.getAllByTfGeneNameList(StringUtils.toList(query, ",")));
-			
+			ProteinDBAdaptor adaptor = dbAdaptorFactory.getProteinDBAdaptor(this.species);
+			return generateResponse(query, adaptor.getAllByGeneNameList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getTfInfo", e.toString());
