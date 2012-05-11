@@ -488,10 +488,10 @@ public class GenericRestWSServer implements IWSServer {
 		return new ArrayList<String>();
 	}
 
-//	@GET
-//	public Response getHelp() {
-//		return getSpecies();
-//	}
+	@GET
+	public Response getHelp() {
+		return getSpecies();
+	}
 
 	
 	

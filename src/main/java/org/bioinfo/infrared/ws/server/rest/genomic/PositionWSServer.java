@@ -75,7 +75,7 @@ public class PositionWSServer extends GenericRestWSServer {
 		try {
 			List<Position> positionList = Position.parsePositions(query);
 			GeneDBAdaptor geneDBAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species);
-			return  generateResponse(query,  geneDBAdaptor.getAllByPositionList(positionList));
+			return generateResponse(query, geneDBAdaptor.getAllByPositionList(positionList));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getGeneByPosition", e.toString());
@@ -88,7 +88,7 @@ public class PositionWSServer extends GenericRestWSServer {
 		try {
 			List<Position> positionList = Position.parsePositions(query);
 			TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
-			return  generateResponse(query,  transcriptDBAdaptor.getAllByPositionList(positionList));
+			return generateResponse(query,  transcriptDBAdaptor.getAllByPositionList(positionList));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getTranscriptByPosition", e.toString());
