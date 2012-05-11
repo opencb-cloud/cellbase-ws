@@ -47,6 +47,7 @@ public class TfWSServer extends RegulatoryWSServer {
 	@Path("/{tfId}/info")
 	public Response getTfInfo(@PathParam("tfId") String query) {
 		try {
+			checkVersionAndSpecies();
 			ProteinDBAdaptor adaptor = dbAdaptorFactory.getProteinDBAdaptor(this.species);
 			return generateResponse(query, adaptor.getAllByGeneNameList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
@@ -60,7 +61,7 @@ public class TfWSServer extends RegulatoryWSServer {
 	@Path("/{tfId}/fullinfo") // Devuelve los TFBSs para el TFId que le das
 	public Response getTfFullInfo(@PathParam("tfId") String query) {
 		try {
-			
+			checkVersionAndSpecies();
 			ProteinDBAdaptor proteinDBAdaptor = dbAdaptorFactory.getProteinDBAdaptor(this.species);
 			GeneDBAdaptor geneDBAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species);
 			TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
@@ -101,7 +102,7 @@ public class TfWSServer extends RegulatoryWSServer {
 					response.append("\"protein_feature\":"+gson.toJson(proteinFeature.get(i))+"");
 					response.append("},");
 				}else{
-					response.append("[],");
+					response.append("null,");
 				}
 			}
 			response.append("]");
@@ -120,6 +121,7 @@ public class TfWSServer extends RegulatoryWSServer {
 	@Path("/{tfId}/tfbs")
 	public Response getAllByTfbs(@PathParam("tfId") String query) {
 		try {
+			checkVersionAndSpecies();
 			TfbsDBAdaptor adaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species);
 			return generateResponse(query, adaptor.getAllByTfGeneNameList(StringUtils.toList(query, ",")));
 			
@@ -134,6 +136,7 @@ public class TfWSServer extends RegulatoryWSServer {
 	@Path("/{tfId}/gene")
 	public Response getEnsemblGenes(@PathParam("tfId") String query) {
 		try {
+			checkVersionAndSpecies();
 			GeneDBAdaptor geneDBAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species);
 			return  generateResponse(query, geneDBAdaptor.getAllByTfList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
@@ -147,6 +150,7 @@ public class TfWSServer extends RegulatoryWSServer {
 	@Path("/{tfId}/pwm")
 	public Response getAllPwms(@PathParam("tfId") String query) {
 		try {
+			checkVersionAndSpecies();
 			TfbsDBAdaptor tfbsDBAdaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species);
 			return generateResponse(query, tfbsDBAdaptor.getAllPwmByTfGeneNameList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
@@ -160,6 +164,7 @@ public class TfWSServer extends RegulatoryWSServer {
 	@Path("/annotation")
 	public Response getAnnotation(@DefaultValue("")@QueryParam("celltype") String celltype) {
 		try {
+			checkVersionAndSpecies();
 			TfbsDBAdaptor tfbsDBAdaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species);
 			List<Object> results;
 			if (celltype.equals("")){

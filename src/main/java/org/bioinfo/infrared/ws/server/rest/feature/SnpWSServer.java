@@ -40,6 +40,7 @@ public class SnpWSServer extends GenericRestWSServer {
 	@Path("/{snpId}/info")
 	public Response getByEnsemblId(@PathParam("snpId") String query) {
 		try {
+			checkVersionAndSpecies();
 			SnpDBAdaptor adapter = dbAdaptorFactory.getSnpDBAdaptor(this.species);
 			return  generateResponse(query, adapter.getAllBySnpIdList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
@@ -66,6 +67,7 @@ public class SnpWSServer extends GenericRestWSServer {
 	@Path("/{snpId}/fullinfo")
 	public Response getFullInfoById(@PathParam("snpId") String query) {
 		try {
+			checkVersionAndSpecies();
 			SnpDBAdaptor snpDBAdaptor = dbAdaptorFactory.getSnpDBAdaptor(this.species);
 			
 			
@@ -145,6 +147,7 @@ public class SnpWSServer extends GenericRestWSServer {
 
 	private Response getConsequenceType(String snpId) {
 		try {
+			checkVersionAndSpecies();
 			SnpDBAdaptor snpDBAdaptor = dbAdaptorFactory.getSnpDBAdaptor(species, version);
 			return generateResponse(snpId, snpDBAdaptor.getAllConsequenceTypesBySnpIdList(StringUtils.toList(snpId, ",")));
 		} catch (Exception e) {
@@ -168,6 +171,7 @@ public class SnpWSServer extends GenericRestWSServer {
 	@Path("/{geneId}/phenotype")
 	public Response getPhenotype(@PathParam("geneId") String query) {
 		try {
+			checkVersionAndSpecies();
 			TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
 			return  generateResponse(query, transcriptDBAdaptor.getByEnsemblGeneIdList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
@@ -191,6 +195,7 @@ public class SnpWSServer extends GenericRestWSServer {
 	@Path("/{snpId}/xref")
 	public Response getXrefs(@PathParam("snpId") String query) {
 		try {
+			checkVersionAndSpecies();
 			TfbsDBAdaptor tfbsDBAdaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species);
 			return  generateResponse(query, tfbsDBAdaptor.getAllByTargetGeneNameList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {

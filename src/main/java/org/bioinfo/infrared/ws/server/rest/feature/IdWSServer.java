@@ -32,6 +32,7 @@ public class IdWSServer extends GenericRestWSServer {
 	@Path("/{id}/xref")
 	public Response getByEnsemblId(@PathParam("id") String query, @DefaultValue("") @QueryParam("dbname") String dbName) {
 		try{
+			checkVersionAndSpecies();
 			XRefsDBAdaptor x = dbAdaptorFactory.getXRefDBAdaptor(this.species);
 			if (dbName.equals("")){
 				return generateResponse(query, x.getAllByDBNameList(StringUtils.toList(query, ","), null));

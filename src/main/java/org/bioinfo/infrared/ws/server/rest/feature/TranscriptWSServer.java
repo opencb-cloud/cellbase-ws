@@ -44,6 +44,7 @@ public class TranscriptWSServer extends GenericRestWSServer {
 	public Response getByEnsemblId(@PathParam("transcriptId") String query) {
 		try {
 			checkVersionAndSpecies();
+			checkVersionAndSpecies();
 			TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
 			return generateResponse(query, Arrays.asList(transcriptDBAdaptor.getAllByEnsemblIdList(StringUtils.toList(query, ","))));
 		} catch (Exception e) {
@@ -57,6 +58,7 @@ public class TranscriptWSServer extends GenericRestWSServer {
 	@Path("/{transcriptId}/all")
 	public Response getAll() {
 		try {
+			checkVersionAndSpecies();
 			TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
 			return generateResponse(new String(), Arrays.asList(transcriptDBAdaptor.getAll()));
 		} catch (Exception e) {
@@ -70,6 +72,7 @@ public class TranscriptWSServer extends GenericRestWSServer {
 	@Path("/{transcriptId}/sequence")
 	public Response getSequencesByIdList(@PathParam("transcriptId") String query) {
 		try {
+			checkVersionAndSpecies();
 			TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
 			return generateResponse(query, transcriptDBAdaptor.getAllSequencesByIdList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
@@ -83,6 +86,7 @@ public class TranscriptWSServer extends GenericRestWSServer {
 	@Path("/{transcriptId}/region")
 	public Response getRegionsByIdList(@PathParam("transcriptId") String query) {
 		try {
+			checkVersionAndSpecies();
 			TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
 			return generateResponse(query, transcriptDBAdaptor.getAllRegionsByIdList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
@@ -96,6 +100,8 @@ public class TranscriptWSServer extends GenericRestWSServer {
 	public Response getFullInfoByEnsemblId(@PathParam("transcriptId") String query) {
 		
 		try {
+			checkVersionAndSpecies();
+			
 			TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
 			GeneDBAdaptor geneDBAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species);
 			ExonDBAdaptor exonDBAdaptor = dbAdaptorFactory.getExonDBAdaptor(this.species);
@@ -141,10 +147,10 @@ public class TranscriptWSServer extends GenericRestWSServer {
 					response.append("{},");
 				}
 			}
+			response.replace(response.length()-1, response.length(), "");
 			response.append("]");
 			
 			//Remove the last comma
-			response.replace(response.length()-2, response.length()-1, "");
 			return  generateResponse(query,Arrays.asList(response));
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -167,6 +173,7 @@ public class TranscriptWSServer extends GenericRestWSServer {
 	@Path("/{transcriptId}/exon")
 	public Response getExonsByEnsemblId2(@PathParam("transcriptId") String query) {
 		try {
+			checkVersionAndSpecies();
 			ExonDBAdaptor dbAdaptor = dbAdaptorFactory.getExonDBAdaptor(this.species);
 			return  generateResponse(query, dbAdaptor.getByEnsemblTranscriptIdList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
