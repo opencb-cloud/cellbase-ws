@@ -75,39 +75,80 @@ public class GeneWSServer extends GenericRestWSServer {
 			TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species, this.version);
 			XRefsDBAdaptor xRefsDBAdaptor = dbAdaptorFactory.getXRefDBAdaptor(this.species);
 			
-			List<Gene> genes = geneDBAdaptor.getAllByNameList(StringUtils.toList(query, ",")).get(0);
-			List<String> geneEnsemblStableIdList = new ArrayList<String>(genes.size());
-			for(Gene g: genes) {
-				geneEnsemblStableIdList.add(g.getStableId());
-			}
+			List<List<Gene>> geneListList = geneDBAdaptor.getAllByNameList(StringUtils.toList(query, ","));
+
+//			List<String> ensemblIds = new ArrayList<String>();
+//			for(List<Gene> geneList : geneListList) {
+//				if(geneList.size() > 0){
+//					for(Gene gene : geneList) {
+//						ensemblIds.add(gene.getStableId());
+//					}
+//				}
+//				else{
+//					ensemblIds.add(null);
+//				}
+//			}
+			
 			List<List<Transcript>> transcriptList = transcriptDBAdaptor.getByEnsemblGeneIdList(StringUtils.toList(query, ","));
 			List<List<Xref>> goLists = xRefsDBAdaptor.getAllByDBName(StringUtils.toList(query, ","),"go");
 			List<List<Xref>> interproLists = xRefsDBAdaptor.getAllByDBName(StringUtils.toList(query, ","),"interpro");
 			List<List<Xref>> reactomeLists = xRefsDBAdaptor.getAllByDBName(StringUtils.toList(query, ","),"reactome");
 			StringBuilder response = new StringBuilder();
+			
 			response.append("[");
-			for (int i = 0; i < 1; i++) {		
-				response.append("{");
-				response.append("\"stableId\":"+"\""+genes.get(i).getStableId()+"\",");
-				response.append("\"externalName\":"+"\""+genes.get(i).getExternalName()+"\",");
-				response.append("\"externalDb\":"+"\""+genes.get(i).getExternalDb()+"\",");
-				response.append("\"biotype\":"+"\""+genes.get(i).getBiotype()+"\",");
-				response.append("\"status\":"+"\""+genes.get(i).getStatus()+"\",");
-				response.append("\"chromosome\":"+"\""+genes.get(i).getChromosome()+"\",");
-				response.append("\"start\":"+genes.get(i).getStart()+",");
-				response.append("\"end\":"+genes.get(i).getEnd()+",");
-				response.append("\"strand\":"+"\""+genes.get(i).getStrand()+"\",");
-				response.append("\"source\":"+"\""+genes.get(i).getSource()+"\",");
-				response.append("\"description\":"+"\""+genes.get(i).getDescription()+"\",");
-				response.append("\"transcripts\":"+gson.toJson(transcriptList.get(i))+",");
-				response.append("\"go\":"+gson.toJson(goLists.get(i))+",");
-				response.append("\"interpro\":"+gson.toJson(interproLists.get(i))+",");
-				response.append("\"reactome\":"+gson.toJson(reactomeLists.get(i))+"");
-				response.append("},");
+			for(int i = 0; i < geneListList.size(); i++) {
+				response.append("[");
+				boolean removeComma = false;
+				for(int j = 0; j < geneListList.get(i).size(); j++) {
+					removeComma = true;
+					response.append("{");
+					response.append("\"stableId\":"+"\""+geneListList.get(i).get(j).getStableId()+"\",");
+					response.append("\"externalName\":"+"\""+geneListList.get(i).get(j).getExternalName()+"\",");
+					response.append("\"externalDb\":"+"\""+geneListList.get(i).get(j).getExternalDb()+"\",");
+					response.append("\"biotype\":"+"\""+geneListList.get(i).get(j).getBiotype()+"\",");
+					response.append("\"status\":"+"\""+geneListList.get(i).get(j).getStatus()+"\",");
+					response.append("\"chromosome\":"+"\""+geneListList.get(i).get(j).getChromosome()+"\",");
+					response.append("\"start\":"+geneListList.get(i).get(j).getStart()+",");
+					response.append("\"end\":"+geneListList.get(i).get(j).getEnd()+",");
+					response.append("\"strand\":"+"\""+geneListList.get(i).get(j).getStrand()+"\",");
+					response.append("\"source\":"+"\""+geneListList.get(i).get(j).getSource()+"\",");
+					response.append("\"description\":"+"\""+geneListList.get(i).get(j).getDescription()+"\",");
+					response.append("\"transcripts\":"+gson.toJson(transcriptList.get(i))+",");
+					response.append("\"go\":"+gson.toJson(goLists.get(i))+",");
+					response.append("\"interpro\":"+gson.toJson(interproLists.get(i))+",");
+					response.append("\"reactome\":"+gson.toJson(reactomeLists.get(i))+"");
+					response.append("},");
+				}
+				if(removeComma){
+					response.replace(response.length()-1, response.length(), "");
+				}
+				response.append("],");
 			}
+			response.replace(response.length()-1, response.length(), "");
 			response.append("]");
+//			//XXX
+//			response.append("[");
+//			for (int i = 0; i < 1; i++) {
+//				response.append("{");
+//				response.append("\"stableId\":"+"\""+genes.get(i).getStableId()+"\",");
+//				response.append("\"externalName\":"+"\""+genes.get(i).getExternalName()+"\",");
+//				response.append("\"externalDb\":"+"\""+genes.get(i).getExternalDb()+"\",");
+//				response.append("\"biotype\":"+"\""+genes.get(i).getBiotype()+"\",");
+//				response.append("\"status\":"+"\""+genes.get(i).getStatus()+"\",");
+//				response.append("\"chromosome\":"+"\""+genes.get(i).getChromosome()+"\",");
+//				response.append("\"start\":"+genes.get(i).getStart()+",");
+//				response.append("\"end\":"+genes.get(i).getEnd()+",");
+//				response.append("\"strand\":"+"\""+genes.get(i).getStrand()+"\",");
+//				response.append("\"source\":"+"\""+genes.get(i).getSource()+"\",");
+//				response.append("\"description\":"+"\""+genes.get(i).getDescription()+"\",");
+//				response.append("\"transcripts\":"+gson.toJson(transcriptList.get(i))+",");
+//				response.append("\"go\":"+gson.toJson(goLists.get(i))+",");
+//				response.append("\"interpro\":"+gson.toJson(interproLists.get(i))+",");
+//				response.append("\"reactome\":"+gson.toJson(reactomeLists.get(i))+"");
+//				response.append("},");
+//			}
+//			response.append("]");
 			//Remove the last comma
-			response.replace(response.length()-2, response.length()-1, "");
 			return  generateResponse(query,Arrays.asList(response));
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -202,10 +243,16 @@ public class GeneWSServer extends GenericRestWSServer {
 
 			List<String> ensemblIds = new ArrayList<String>();
 			for(List<Gene> list : geneList) {
-				for(Gene gene : list) {
-					ensemblIds.add(gene.getStableId());
+				if(list.size() > 0){
+					for(Gene gene : list) {
+						ensemblIds.add(gene.getStableId());
+					}
+				}
+				else{
+					ensemblIds.add(null);
 				}
 			}
+			
 			ExonDBAdaptor exonDBAdaptor = dbAdaptorFactory.getExonDBAdaptor(this.species);
 			return  generateResponse(query, exonDBAdaptor.getByEnsemblGeneIdList(ensemblIds));
 		} catch (Exception e) {

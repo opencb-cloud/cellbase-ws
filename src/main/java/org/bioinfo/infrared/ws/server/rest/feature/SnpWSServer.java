@@ -69,7 +69,7 @@ public class SnpWSServer extends GenericRestWSServer {
 			SnpDBAdaptor snpDBAdaptor = dbAdaptorFactory.getSnpDBAdaptor(this.species);
 			
 			
-			List<List<Snp>> snpLists = snpDBAdaptor.getAllBySnpIdList(StringUtils.toList(query, ","));
+			List<List<Snp>> snpListList = snpDBAdaptor.getAllBySnpIdList(StringUtils.toList(query, ","));
 			List<List<SnpToTranscript>> snpToTranscript = snpDBAdaptor.getAllSnpToTranscriptList(StringUtils.toList(query, ","));
 			List<List<SnpPopulationFrequency>> snpPopulation = snpDBAdaptor.getAllSnpPopulationFrequencyList(StringUtils.toList(query, ","));
 			List<List<SnpPhenotypeAnnotation>> snpPhenotype = snpDBAdaptor.getAllSnpPhenotypeAnnotationList(StringUtils.toList(query, ","));
@@ -85,23 +85,25 @@ public class SnpWSServer extends GenericRestWSServer {
 			
 			StringBuilder response = new StringBuilder();
 			response.append("[");
-			for (int i = 0; i < snpLists.size(); i++) {
+			for (int i = 0; i < snpListList.size(); i++) {
 				response.append("[");
-				for (int j = 0; j < snpLists.get(i).size(); j++) {
+				boolean removeComma = false;
+				for (int j = 0; j < snpListList.get(i).size(); j++) {
+					removeComma = true;
 					response.append("{");
-					response.append("\"name\":"+"\""+snpLists.get(i).get(j).getName()+"\",");
-					response.append("\"chromosome\":"+"\""+snpLists.get(i).get(j).getChromosome()+"\",");
-					response.append("\"start\":"+snpLists.get(i).get(j).getStart()+",");
-					response.append("\"end\":"+snpLists.get(i).get(j).getEnd()+",");
-					response.append("\"strand\":"+"\""+snpLists.get(i).get(j).getStrand()+"\",");
-					response.append("\"mapWeight\":"+snpLists.get(i).get(j).getEnd()+",");
-					response.append("\"alleleString\":"+"\""+snpLists.get(i).get(j).getAlleleString()+"\",");
-					response.append("\"ancestralAllele\":"+"\""+snpLists.get(i).get(j).getAncestralAllele()+"\",");
-					response.append("\"source\":"+"\""+snpLists.get(i).get(j).getSource()+"\",");
-					response.append("\"displaySoConsequence\":"+"\""+snpLists.get(i).get(j).getDisplaySoConsequence()+"\",");
-					response.append("\"soConsequenceType\":"+"\""+snpLists.get(i).get(j).getSoConsequenceType()+"\",");
-					response.append("\"displayConsequence\":"+"\""+snpLists.get(i).get(j).getDisplayConsequence()+"\",");
-					response.append("\"sequence\":"+"\""+snpLists.get(i).get(j).getSequence()+"\",");
+					response.append("\"name\":"+"\""+snpListList.get(i).get(j).getName()+"\",");
+					response.append("\"chromosome\":"+"\""+snpListList.get(i).get(j).getChromosome()+"\",");
+					response.append("\"start\":"+snpListList.get(i).get(j).getStart()+",");
+					response.append("\"end\":"+snpListList.get(i).get(j).getEnd()+",");
+					response.append("\"strand\":"+"\""+snpListList.get(i).get(j).getStrand()+"\",");
+					response.append("\"mapWeight\":"+snpListList.get(i).get(j).getEnd()+",");
+					response.append("\"alleleString\":"+"\""+snpListList.get(i).get(j).getAlleleString()+"\",");
+					response.append("\"ancestralAllele\":"+"\""+snpListList.get(i).get(j).getAncestralAllele()+"\",");
+					response.append("\"source\":"+"\""+snpListList.get(i).get(j).getSource()+"\",");
+					response.append("\"displaySoConsequence\":"+"\""+snpListList.get(i).get(j).getDisplaySoConsequence()+"\",");
+					response.append("\"soConsequenceType\":"+"\""+snpListList.get(i).get(j).getSoConsequenceType()+"\",");
+					response.append("\"displayConsequence\":"+"\""+snpListList.get(i).get(j).getDisplayConsequence()+"\",");
+					response.append("\"sequence\":"+"\""+snpListList.get(i).get(j).getSequence()+"\",");
 					response.append("\"population\":"+gson.toJson(snpPopulation.get(i))+",");
 					
 					String aux = gson.toJson(snpToTranscript.get(i));
@@ -115,13 +117,13 @@ public class SnpWSServer extends GenericRestWSServer {
 					response.append("\"phenotype\":"+gson.toJson(snpPhenotype.get(i))+"");
 					response.append("},");
 				}
+				if(removeComma){
+					response.replace(response.length()-1, response.length(), "");
+				}
 				response.append("],");
-				response.replace(response.length()-3, response.length()-2, "");
 			}
+			response.replace(response.length()-1, response.length(), "");
 			response.append("]");
-
-			//Remove the last comma
-			response.replace(response.length()-2, response.length()-1, "");
 			return  generateResponse(query,Arrays.asList(response));
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -162,13 +164,12 @@ public class SnpWSServer extends GenericRestWSServer {
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
 	@GET
-	@Path("/snpId}/phenotype")
+	@Path("/{geneId}/phenotype")
 	public Response getPhenotype(@PathParam("geneId") String query) {
 		try {
 			TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
-			return  generateResponse(query, Arrays.asList(transcriptDBAdaptor.getByEnsemblGeneIdList(StringUtils.toList(query, ","))));
+			return  generateResponse(query, transcriptDBAdaptor.getByEnsemblGeneIdList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getPhenotype", e.toString());
@@ -176,8 +177,19 @@ public class SnpWSServer extends GenericRestWSServer {
 	}
 	
 	@GET
-	@Path("/snpId}/xref")
-	public Response getXrefs(@PathParam("geneId") String query) {
+	@Path("/{snpId}/sequence")
+	public Response getSequence(@PathParam("snpId") String query) {
+		try {
+			return  null;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return createErrorResponse("getSequence", e.toString());
+		}
+	}
+	
+	@GET
+	@Path("/{snpId}/xref")
+	public Response getXrefs(@PathParam("snpId") String query) {
 		try {
 			TfbsDBAdaptor tfbsDBAdaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species);
 			return  generateResponse(query, tfbsDBAdaptor.getAllByTargetGeneNameList(StringUtils.toList(query, ",")));
