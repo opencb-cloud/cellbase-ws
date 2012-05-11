@@ -43,6 +43,7 @@ public class TranscriptWSServer extends GenericRestWSServer {
 	@Path("/{transcriptId}/info")
 	public Response getByEnsemblId(@PathParam("transcriptId") String query) {
 		try {
+			checkVersionAndSpecies();
 			TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
 			return generateResponse(query, Arrays.asList(transcriptDBAdaptor.getAllByEnsemblIdList(StringUtils.toList(query, ","))));
 		} catch (Exception e) {
