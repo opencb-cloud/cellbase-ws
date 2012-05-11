@@ -55,6 +55,18 @@ public class GeneWSServer extends GenericRestWSServer {
 	}
 
 	@GET
+	@Path("/{geneId}/reactome")
+	public Response getReactomeByEnsemblId(@PathParam("geneId") String query) {
+		try {
+			XRefsDBAdaptor xRefsDBAdaptor = dbAdaptorFactory.getXRefDBAdaptor(this.species);
+			return generateResponse(query, xRefsDBAdaptor.getAllByDBName(StringUtils.toList(query, ","),"reactome"));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return createErrorResponse("getByEnsemblId", e.toString());
+		}
+	}
+	
+	@GET
 	@Path("/{geneId}/fullinfo")
 	public Response getFullInfoByEnsemblId(@PathParam("geneId") String query, @DefaultValue("") @QueryParam("sources") String sources) {
 		try {
