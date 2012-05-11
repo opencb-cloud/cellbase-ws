@@ -71,7 +71,7 @@ public class TranscriptWSServer extends GenericRestWSServer {
 	public Response getSequencesByIdList(@PathParam("transcriptId") String query) {
 		try {
 			TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
-			return generateResponse(query, Arrays.asList(transcriptDBAdaptor.getAllSequencesByIdList(StringUtils.toList(query, ","))));
+			return generateResponse(query, transcriptDBAdaptor.getAllSequencesByIdList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getSequencesByIdList", e.toString());
@@ -84,7 +84,7 @@ public class TranscriptWSServer extends GenericRestWSServer {
 	public Response getRegionsByIdList(@PathParam("transcriptId") String query) {
 		try {
 			TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
-			return generateResponse(query, Arrays.asList(transcriptDBAdaptor.getAllRegionsByIdList(StringUtils.toList(query, ","))));
+			return generateResponse(query, transcriptDBAdaptor.getAllRegionsByIdList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getRegionsByIdList", e.toString());

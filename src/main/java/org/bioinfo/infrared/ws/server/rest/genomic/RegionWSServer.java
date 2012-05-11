@@ -98,7 +98,7 @@ public class RegionWSServer extends GenericRestWSServer {
 		try {
 			GeneDBAdaptor geneDBAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species);
 			List<Region> regions = Region.parseRegions(chregionId);
-			
+
 			if (hasHistogramQueryParam()){
 				long t1 = System.currentTimeMillis();
 				//				Response resp = generateResponse(chregionId, getHistogramByFeatures(dbAdaptor.getAllByRegionList(regions)));
@@ -224,7 +224,7 @@ public class RegionWSServer extends GenericRestWSServer {
 		try {
 			TfbsDBAdaptor tfbsDBAdaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species);
 			List<Region> regions = Region.parseRegions(query);
-			
+
 			if (hasHistogramQueryParam()){
 				List<IntervalFeatureFrequency> intervalList = tfbsDBAdaptor.getAllTfIntervalFrequencies(regions.get(0), getHistogramIntervalSize()); 
 				return  generateResponse(query, intervalList);
