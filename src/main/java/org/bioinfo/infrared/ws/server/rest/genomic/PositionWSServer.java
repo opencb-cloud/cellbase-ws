@@ -73,6 +73,7 @@ public class PositionWSServer extends GenericRestWSServer {
 	@Path("/{geneId}/gene")
 	public Response getGeneByPosition(@PathParam("geneId") String query) {
 		try {
+			checkVersionAndSpecies();
 			List<Position> positionList = Position.parsePositions(query);
 			GeneDBAdaptor geneDBAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species);
 			return generateResponse(query, geneDBAdaptor.getAllByPositionList(positionList));
@@ -86,6 +87,7 @@ public class PositionWSServer extends GenericRestWSServer {
 	@Path("/{geneId}/transcript")
 	public Response getTranscriptByPosition(@PathParam("geneId") String query) {
 		try {
+			checkVersionAndSpecies();
 			List<Position> positionList = Position.parsePositions(query);
 			TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
 			return generateResponse(query,  transcriptDBAdaptor.getAllByPositionList(positionList));
@@ -99,6 +101,7 @@ public class PositionWSServer extends GenericRestWSServer {
 	@Path("/{geneId}/snp")
 	public Response getSNPByPosition(@PathParam("geneId") String query) {
 		try {
+			checkVersionAndSpecies();
 			List<Position> positionList = Position.parsePositions(query);
 			SnpDBAdaptor snpAdaptor = dbAdaptorFactory.getSnpDBAdaptor(this.species);
 			return  generateResponse(query,  snpAdaptor.getAllByPositionList(positionList));

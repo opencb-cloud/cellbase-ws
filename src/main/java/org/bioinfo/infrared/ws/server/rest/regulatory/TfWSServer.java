@@ -101,7 +101,7 @@ public class TfWSServer extends RegulatoryWSServer {
 					response.append("\"protein_feature\":"+gson.toJson(proteinFeature.get(i))+"");
 					response.append("},");
 				}else{
-					response.append("[],");
+					response.append("{},");
 				}
 			}
 			response.append("]");

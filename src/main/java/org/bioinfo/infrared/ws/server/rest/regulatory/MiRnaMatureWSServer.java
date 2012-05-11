@@ -85,7 +85,7 @@ public class MiRnaMatureWSServer extends RegulatoryWSServer {
 					response.append("\"mirnaDiseases\":"+gson.toJson(mirnaDiseases.get(i))+"");
 					response.append("},");
 				}else{
-					response.append("[],");
+					response.append("{},");
 				}
 			}
 			response.append("]");
