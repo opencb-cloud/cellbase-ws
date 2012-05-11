@@ -6,12 +6,15 @@ import java.io.OutputStream;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.zip.ZipOutputStream;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -27,17 +30,12 @@ import org.bioinfo.commons.log.Logger;
 import org.bioinfo.commons.utils.ListUtils;
 import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.http.HttpUtils;
-import org.bioinfo.infrared.dao.utils.HibernateUtil;
-import org.bioinfo.infrared.lib.api.MirnaDBAdaptor;
 import org.bioinfo.infrared.lib.impl.DBAdaptorFactory;
 import org.bioinfo.infrared.lib.impl.hibernate.HibernateDBAdaptorFactory;
 import org.bioinfo.infrared.lib.io.output.StringWriter;
 import org.bioinfo.infrared.ws.server.rest.exception.SpeciesException;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
 import org.bioinfo.infrared.ws.server.rest.utils.Species;
-import org.hibernate.Criteria;
-import org.hibernate.Query;
-import org.hibernate.classic.Session;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -46,13 +44,11 @@ import com.google.gson.GsonBuilder;
 @Produces("text/plain")
 public class GenericRestWSServer implements IWSServer {
 
-	protected Config config;
-
 	// Common application parameters
 	protected String version;
 	protected String species;
 	protected UriInfo uriInfo;
-	protected HttpServletRequest hsr;
+	protected HttpServletRequest httpServletRequest;
 
 	// Common output parameters
 	protected String resultSeparator;
@@ -64,7 +60,7 @@ public class GenericRestWSServer implements IWSServer {
 	// file name without extension which server will give back when file format is !null
 	private String filename;
 
-	// output content format: txt or text, json, jsonp, xml, das
+	// output content format: txt or text, json, xml, das
 	protected String outputFormat;
 
 	// in file output produces a zip file, in text outputs generates a gzipped output
@@ -81,9 +77,10 @@ public class GenericRestWSServer implements IWSServer {
 
 	//	private MediaType mediaType;
 	protected Gson gson; 
-//	private GsonBuilder gsonBuilder;
 	protected Logger logger;
 
+	private static final String NEW_LINE = "newline";
+	private static final String TAB = "tab";
 
 
 	/**
@@ -94,12 +91,45 @@ public class GenericRestWSServer implements IWSServer {
 	protected static DBAdaptorFactory dbAdaptorFactory;
 	static{
 		dbAdaptorFactory = new HibernateDBAdaptorFactory();
+		System.out.println("static1");
+	}
+	
+	
+	/**
+	 * Loading properties file just one time to be more efficient.
+	 * All methods will check parameters so to avoid 
+	 * extra operations this config can load versions and species
+	 */
+	protected static Config config;
+	protected static Map<String, Set<String>> availableVersionSpeciesMap;		// stores species for each version
+	static {
+		try {
+			config = new Config(ResourceBundle.getBundle("org.bioinfo.infrared.ws.application"));
+			availableVersionSpeciesMap = new HashMap<String, Set<String>>();
+			if(config != null && config.containsKey("CELLBASE.AVAILABLE.VERSIONS")) {
+				List<String> versionList = config.getListProperty("CELLBASE.AVAILABLE.VERSIONS", ",");
+				if(versionList != null) {
+					for(String version: versionList) {
+						availableVersionSpeciesMap.put(version, new HashSet<String>());
+						if(config.containsKey("CELLBASE."+version.toUpperCase()+".AVAILABLE.SPECIES")) {
+							List<String> speciesList = config.getListProperty("CELLBASE."+version.toUpperCase()+".AVAILABLE.SPECIES", ",");
+							if(speciesList != null) {
+								for(String species: speciesList) {
+									availableVersionSpeciesMap.get(version).add(species);
+								}
+							}
+						}
+					}	
+				}
+			}
+//			System.out.println("static2: "+availableVersions.toString());
+			System.out.println("static2: "+availableVersionSpeciesMap.toString());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
-	private static final String NEW_LINE = "newline";
-	private static final String TAB = "tab";
-
-
+	
 	@Deprecated
 	public GenericRestWSServer(@PathParam("version") String version) {
 		this.version = version;
@@ -110,11 +140,12 @@ public class GenericRestWSServer implements IWSServer {
 		this.version = version;
 		this.species = "";
 		this.uriInfo = uriInfo;
-		this.hsr = hsr;
+		this.httpServletRequest = hsr;
 		
 		init(version, this.species, uriInfo);
 //		if(version != null && this.species != null) {
 //		}
+//		System.out.println("constructor");
 	}
 
 	public GenericRestWSServer(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo, @Context HttpServletRequest hsr) throws VersionException, IOException {
@@ -122,9 +153,11 @@ public class GenericRestWSServer implements IWSServer {
 		this.version = version;
 		this.species = species;
 		this.uriInfo = uriInfo;
-		this.hsr = hsr;
+		this.httpServletRequest = hsr;
 
 		init(version, species, uriInfo);
+		
+		System.out.println("constructor4");
 		
 //		if(version != null && species != null) {
 //		}
@@ -132,12 +165,11 @@ public class GenericRestWSServer implements IWSServer {
 
 	protected void init(String version, String species, UriInfo uriInfo) throws VersionException, IOException {
 		// load properties file
-		ResourceBundle databaseConfig = ResourceBundle.getBundle("org.bioinfo.infrared.ws.application");
-		config = new Config(databaseConfig);
+//		ResourceBundle databaseConfig = ResourceBundle.getBundle("org.bioinfo.infrared.ws.application");
+//		config = new Config(databaseConfig);
 
 		// mediaType = MediaType.valueOf("text/plain");
 		gson = new GsonBuilder().serializeNulls().setExclusionStrategies(new FeatureExclusionStrategy()).create();
-		//		gsonBuilder = new GsonBuilder();
 
 		logger = new Logger();
 		logger.setLevel(Logger.DEBUG_LEVEL);
@@ -145,15 +177,11 @@ public class GenericRestWSServer implements IWSServer {
 
 		/**
 		 * Check version parameter, must be: v1, v2, ...
-		 * If 'latest' then is converted.
+		 * If 'latest' then is converted to appropriate version
 		 */
-		if(version != null && version.equals("latest") && config.getProperty("LATEST.VERSION") != null) {
-			version = config.getProperty("LATEST.VERSION");
-		}
-		
-//		List<String> speciesList = config.getListProperty("CELLBASE."+version+".AVAILABLE.SPECIES", ",");
-//		if(speciesList != null && speciesList.contains(species)) {
-//
+//		if(version != null && version.equals("latest") && config.getProperty("CELLBASE.LATEST.VERSION") != null) {
+//			version = config.getProperty("CELLBASE.LATEST.VERSION");
+//			System.out.println("version init: "+version);
 //		}
 		
 		// this code MUST be run before the checking 
@@ -206,18 +234,40 @@ public class GenericRestWSServer implements IWSServer {
 	}
 
 
-	protected Session getSession(){
-		return HibernateUtil.getSessionFactory().openSession();
-	}
+	/**
+	 * Overriden methods
+	 */
 
+	@Override
+	public void checkVersionAndSpecies() throws VersionException, SpeciesException {
+		if(version == null) {
+			throw new VersionException("Version not valid: '"+version+"'");
+		}
+		if(species == null) {
+			throw new SpeciesException("Species not valid: '"+species+"'");
+		}
+
+		/**
+		 * Check version parameter, must be: v1, v2, ...
+		 * If 'latest' then is converted to appropriate version
+		 */
+		if(version != null && version.equals("latest") && config.getProperty("CELLBASE.LATEST.VERSION") != null) {
+			version = config.getProperty("CELLBASE.LATEST.VERSION");
+			System.out.println("version: "+version);
+		}
+		
+		if(availableVersionSpeciesMap.containsKey(version)) {
+			if(!availableVersionSpeciesMap.get(version).contains(species)) {
+				throw new SpeciesException("Species not valid: '"+species+"' for version: '"+version+"'");
+			}
+		}else {
+			throw new VersionException("Version not valid: '"+version+"'");
+		}
+	}
+	
 	@Override
 	public String stats() {
 		return null;
-	}
-
-	@Override
-	public boolean isValidSpecies() {
-		return true;
 	}
 
 	@GET
@@ -226,6 +276,11 @@ public class GenericRestWSServer implements IWSServer {
 		return createOkResponse("No help available");
 	}
 
+	
+	/**
+	 * Auxiliar methods
+	 */
+	
 	@GET
 	@Path("/{species}")
 	public Response getCategories(@PathParam("species") String species) {
@@ -280,57 +335,6 @@ public class GenericRestWSServer implements IWSServer {
 		}
 	}
 
-	private boolean isSpecieAvailable(String species) {
-		List<Species> speciesList = getSpeciesList();
-		for(int i=0; i < speciesList.size(); i++){
-			//This only allows to show the information if species is in 3 letters format
-			if(species.equalsIgnoreCase(speciesList.get(i).getSpecies())){
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	private List<Species> getSpeciesList() {
-		List<Species> speciesList = new ArrayList<Species>(11);
-		speciesList.add(new Species("hsa", "human", "Homo sapiens", "GRCh37"));
-		speciesList.add(new Species("mmu", "mouse", "Mus musculus", "NCBIM37"));
-		speciesList.add(new Species("rno", "rat", "Rattus norvegicus", "RGSC 3.4"));
-		speciesList.add(new Species("cfa", "dog", "Canis familiaris", "CanFam 2.0"));
-		speciesList.add(new Species("ssc", "pig", "Sus scrofa", "Sscrofa9"));
-		speciesList.add(new Species("dre", "zebrafish", "Danio rerio", "Zv9"));
-		speciesList.add(new Species("dme", "fruitfly", "Drosophila melanogaster", "BDGP 5"));
-		speciesList.add(new Species("aga", "mosquito", "Anopheles gambiae", "AgamP3"));
-		speciesList.add(new Species("cel", "worm", "Caenorhabditis elegans", "WS220"));
-		speciesList.add(new Species("pfa", "plasmodium", "Plasmodium falciparum", "2.1.4"));
-		speciesList.add(new Species("sce", "yeast", "Saccharomyces cerevisiae", "EF 4"));
-		
-		return speciesList;
-//		stringBuilder.append("#short").append("\t").append("common").append("\t").append("scientific").append("\t").append("assembly").append("\n");
-//		stringBuilder.append("hsa").append("\t").append("human").append("\t").append("Homo sapiens").append("\t").append("GRCh37").append("\n");
-//		stringBuilder.append("mus").append("\t").append("mouse").append("\t").append("Mus musculus").append("\t").append("NCBIM37").append("\n");
-//		stringBuilder.append("rno").append("\t").append("rat").append("\t").append("Rattus norvegicus").append("\t").append("").append("\n");
-//		stringBuilder.append("cfa").append("\t").append("dog").append("\t").append("Canis familiaris").append("\t").append("").append("\n");
-//		stringBuilder.append("ssc").append("\t").append("pig").append("\t").append("Sus scrofa").append("\t").append("").append("\n");
-//		stringBuilder.append("dre").append("\t").append("zebrafish").append("\t").append("Danio rerio").append("\t").append("Zv9").append("\n");
-//		stringBuilder.append("dme").append("\t").append("fruitfly").append("\t").append("Drosophila melanogaster").append("\t").append("").append("\n");
-//		stringBuilder.append("aga").append("\t").append("mosquito").append("\t").append("Anopheles gambiae").append("\t").append("").append("\n");
-//		stringBuilder.append("cel").append("\t").append("worm").append("\t").append("Caenorhabditis elegans").append("\t").append("").append("\n");
-//		stringBuilder.append("pfa").append("\t").append("").append("\t").append("Plasmodium falciparum").append("\t").append("").append("\n");
-//		stringBuilder.append("sce").append("\t").append("yeast").append("\t").append("Saccharomyces cerevisiae").append("\t").append("");
-	}
-
-	protected Response generateResponse(Criteria criteria) throws IOException {
-		List result = criteria.list();
-		this.getSession().close();
-		return generateResponse("", result); 
-	}
-
-	protected Response generateResponse(Query query) throws IOException {
-		List result = query.list();
-		this.getSession().close();
-		return generateResponse("", result); 
-	}
 
 	@SuppressWarnings("unchecked")
 	protected Response generateResponse(String queryString, List features) throws IOException {
@@ -434,19 +438,19 @@ public class GenericRestWSServer implements IWSServer {
 		return this.createOkResponse(response, mediaType);
 	}
 
-
-	
 	protected Response createErrorResponse(String method, String errorMessage) {
-		StringBuilder message = new StringBuilder();
-		message.append("URI: "+uriInfo.getAbsolutePath().toString()).append("\n");
-		message.append("Method: "+hsr.getMethod()+" "+method).append("\n");
-		message.append("Message: "+errorMessage).append("\n");
-		message.append("Remote Addr: http://ipinfodb.com/ip_locator.php?ip="+hsr.getRemoteAddr()).append("\n");
-		HttpUtils.send("correo.cipf.es", "fsalavert@cipf.es", "babelomics@cipf.es", "Infrared error notice", message.toString());
+		if(!errorMessage.contains("Species") && !errorMessage.contains("Version")) {
+			StringBuilder message = new StringBuilder();
+			message.append("URI: "+uriInfo.getAbsolutePath().toString()).append("\n");
+			message.append("Method: "+httpServletRequest.getMethod()+" "+method).append("\n");
+			message.append("Message: "+errorMessage).append("\n");
+			message.append("Remote Addr: http://ipinfodb.com/ip_locator.php?ip="+httpServletRequest.getRemoteAddr()).append("\n");
+			HttpUtils.send("correo.cipf.es", "fsalavert@cipf.es", "babelomics@cipf.es", "Infrared error notice", message.toString());
+		}
 		String error = "An error occurred: "+errorMessage;
 		if(outputFormat.equalsIgnoreCase("json")){
 			error = "{\"error\":\""+errorMessage+"\"}";
-		}	
+		}				
 		return Response.ok(error, MediaType.valueOf("text/plain")).header("Access-Control-Allow-Origin", "*").build();
 	}
 
@@ -462,12 +466,68 @@ public class GenericRestWSServer implements IWSServer {
 		return Response.ok(obj, mediaType).header("content-disposition","attachment; filename ="+fileName).header("Access-Control-Allow-Origin", "*").build();
 	}
 
+	@GET
+	public Response getHelp() {
+		return getSpecies();
+	}
 
+	private List<Species> getSpeciesList() {
+		List<Species> speciesList = new ArrayList<Species>(11);
+		speciesList.add(new Species("hsa", "human", "Homo sapiens", "GRCh37"));
+		speciesList.add(new Species("mmu", "mouse", "Mus musculus", "NCBIM37"));
+		speciesList.add(new Species("rno", "rat", "Rattus norvegicus", "RGSC 3.4"));
+		speciesList.add(new Species("cfa", "dog", "Canis familiaris", "CanFam 2.0"));
+		speciesList.add(new Species("ssc", "pig", "Sus scrofa", "Sscrofa9"));
+		speciesList.add(new Species("dre", "zebrafish", "Danio rerio", "Zv9"));
+		speciesList.add(new Species("dme", "fruitfly", "Drosophila melanogaster", "BDGP 5"));
+		speciesList.add(new Species("aga", "mosquito", "Anopheles gambiae", "AgamP3"));
+		speciesList.add(new Species("cel", "worm", "Caenorhabditis elegans", "WS220"));
+		speciesList.add(new Species("pfa", "malaria parasite", "Plasmodium falciparum", "2.1.4"));
+		speciesList.add(new Species("sce", "yeast", "Saccharomyces cerevisiae", "EF 4"));
+		
+		return speciesList;
+	}
+	
+	
+	
+	
+	/**
+	 * TO DELETE
+	 */
+
+	@Deprecated
+	private boolean isSpecieAvailable(String species) {
+		List<Species> speciesList = getSpeciesList();
+		for(int i=0; i < speciesList.size(); i++){
+			//This only allows to show the information if species is in 3 letters format
+			if(species.equalsIgnoreCase(speciesList.get(i).getSpecies())){
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	@Deprecated
 	protected Response generateErrorResponse(String errorMessage) {
 		return Response.ok("An error occurred: "+errorMessage, MediaType.valueOf("text/plain")).build();
 	}
 
-
+	@Deprecated
+	protected List<String> getPathsNicePrint(){
+		return new ArrayList<String>();
+	}
+	
+//	protected Response generateResponse(Criteria criteria) throws IOException {
+//		List result = criteria.list();
+//		this.getSession().close();
+//		return generateResponse("", result); 
+//	}
+//
+//	protected Response generateResponse(Query query) throws IOException {
+//		List result = query.list();
+//		this.getSession().close();
+//		return generateResponse("", result); 
+//	}
 	
 	@Deprecated
 	private String convertToJsonText(String response) {
@@ -482,17 +542,9 @@ public class GenericRestWSServer implements IWSServer {
 		response = "var " + jsonpQueryParam+ " = (" + response +")";
 		return response;
 	}
-
-	@Deprecated
-	protected List<String> getPathsNicePrint(){
-		return new ArrayList<String>();
-	}
-
-	@GET
-	public Response getHelp() {
-		return getSpecies();
-	}
-
 	
+//	protected Session getSession(){
+//		return HibernateUtil.getSessionFactory().openSession();
+//	}
 	
 }
