@@ -110,11 +110,15 @@ public class TfWSServer extends RegulatoryWSServer {
 	
 	@GET
 	@Path("/{tfId}/tfbs")
-	public Response getAllByTfbs(@PathParam("tfId") String query) {
+	public Response getAllByTfbs(@PathParam("tfId") String query, @DefaultValue("")@QueryParam("celltype") String celltype) {
 		try {
 			TfbsDBAdaptor adaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species);
-			return generateResponse(query, adaptor.getAllByTfGeneNameList(StringUtils.toList(query, ",")));
-			
+			if (!celltype.equals("")){ // if celltype
+				return generateResponse(query, adaptor.getAllByTfGeneNameListByCelltype(StringUtils.toList(query, ","), celltype));
+			}else{ // no filters
+				return generateResponse(query, adaptor.getAllByTfGeneNameList(StringUtils.toList(query, ",")));
+			}
+//			return generateResponse(query, adaptor.getAllByTfGeneNameList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getAllByTfbs", e.toString());
