@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -36,8 +37,8 @@ import com.sun.jersey.api.client.ClientResponse.Status;
 @Produces("text/plain")
 public class TfWSServer extends RegulatoryWSServer {
 
-	public TfWSServer(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo) throws VersionException, IOException {
-		super(version, species, uriInfo);
+	public TfWSServer(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo, @Context HttpServletRequest hsr) throws VersionException, IOException {
+		super(version, species, uriInfo, hsr);
 	}
 
 	
@@ -46,6 +47,7 @@ public class TfWSServer extends RegulatoryWSServer {
 	@Path("/{tfId}/info")
 	public Response getTfInfo(@PathParam("tfId") String query) {
 		try {
+			checkVersionAndSpecies();
 			ProteinDBAdaptor adaptor = dbAdaptorFactory.getProteinDBAdaptor(this.species);
 			return generateResponse(query, adaptor.getAllByGeneNameList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
@@ -59,19 +61,22 @@ public class TfWSServer extends RegulatoryWSServer {
 	@Path("/{tfId}/fullinfo") // Devuelve los TFBSs para el TFId que le das
 	public Response getTfFullInfo(@PathParam("tfId") String query) {
 		try {
-			
+			checkVersionAndSpecies();
 			ProteinDBAdaptor proteinDBAdaptor = dbAdaptorFactory.getProteinDBAdaptor(this.species);
 			GeneDBAdaptor geneDBAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species);
 			TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
 			TfbsDBAdaptor tfbsDBAdaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species);
 			
-			List<List<Gene>> genes = geneDBAdaptor.getAllByTfNameList(StringUtils.toList(query, ","));
+			List<List<Gene>> geneListList = geneDBAdaptor.getAllByTfNameList(StringUtils.toList(query, ","));
 			List<String> ensemblGeneList = new ArrayList<String>();
 			List<String> externalNameList = new ArrayList<String>();
-			for (List<Gene> g : genes) {
-				if (g.size()>0){
-					ensemblGeneList.add(g.get(0).getStableId());
-					externalNameList.add(g.get(0).getExternalName());
+			for(List<Gene> geneList : geneListList) {
+				if(geneList != null && geneList.size() > 0) {
+					ensemblGeneList.add(geneList.get(0).getStableId());
+					externalNameList.add(geneList.get(0).getExternalName());
+				}else {
+					ensemblGeneList.add("");
+					externalNameList.add("");
 				}
 			}
 			
@@ -85,16 +90,20 @@ public class TfWSServer extends RegulatoryWSServer {
 			
 			StringBuilder response = new StringBuilder();
 			response.append("[");
-			for (int i = 0; i < genes.size(); i++) {
-				response.append("{");
-				response.append("\"proteins\":"+gson.toJson(proteinList.get(i))+",");
-				response.append("\"gene\":"+gson.toJson(genes.get(i).get(0))+",");
-				response.append("\"transcripts\":"+gson.toJson(transcriptList.get(i))+",");
-				response.append("\"pwm\":"+gson.toJson(pwmGeneList.get(i))+",");
-				response.append("\"targetGenes\":"+gson.toJson(targetGeneList.get(i))+",");
-				response.append("\"protein_xref\":"+gson.toJson(proteinXrefList.get(i))+",");
-				response.append("\"protein_feature\":"+gson.toJson(proteinFeature.get(i))+"");
-				response.append("},");
+			for (int i = 0; i < geneListList.size(); i++) {
+				if(geneListList.get(i).size() > 0){
+					response.append("{");
+					response.append("\"proteins\":"+gson.toJson(proteinList.get(i))+",");
+					response.append("\"gene\":"+gson.toJson(geneListList.get(i).get(0))+",");
+					response.append("\"transcripts\":"+gson.toJson(transcriptList.get(i))+",");
+					response.append("\"pwm\":"+gson.toJson(pwmGeneList.get(i))+",");
+					response.append("\"targetGenes\":"+gson.toJson(targetGeneList.get(i))+",");
+					response.append("\"protein_xref\":"+gson.toJson(proteinXrefList.get(i))+",");
+					response.append("\"protein_feature\":"+gson.toJson(proteinFeature.get(i))+"");
+					response.append("},");
+				}else{
+					response.append("null,");
+				}
 			}
 			response.append("]");
 			//Remove the last comma
@@ -112,6 +121,7 @@ public class TfWSServer extends RegulatoryWSServer {
 	@Path("/{tfId}/tfbs")
 	public Response getAllByTfbs(@PathParam("tfId") String query, @DefaultValue("")@QueryParam("celltype") String celltype) {
 		try {
+			checkVersionAndSpecies();
 			TfbsDBAdaptor adaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species);
 			if (!celltype.equals("")){ // if celltype
 				return generateResponse(query, adaptor.getAllByTfGeneNameListByCelltype(StringUtils.toList(query, ","), celltype));
@@ -130,6 +140,7 @@ public class TfWSServer extends RegulatoryWSServer {
 	@Path("/{tfId}/gene")
 	public Response getEnsemblGenes(@PathParam("tfId") String query) {
 		try {
+			checkVersionAndSpecies();
 			GeneDBAdaptor geneDBAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species);
 			return  generateResponse(query, geneDBAdaptor.getAllByTfList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
@@ -143,6 +154,7 @@ public class TfWSServer extends RegulatoryWSServer {
 	@Path("/{tfId}/pwm")
 	public Response getAllPwms(@PathParam("tfId") String query) {
 		try {
+			checkVersionAndSpecies();
 			TfbsDBAdaptor tfbsDBAdaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species);
 			return generateResponse(query, tfbsDBAdaptor.getAllPwmByTfGeneNameList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
@@ -156,6 +168,7 @@ public class TfWSServer extends RegulatoryWSServer {
 	@Path("/annotation")
 	public Response getAnnotation(@DefaultValue("")@QueryParam("celltype") String celltype) {
 		try {
+			checkVersionAndSpecies();
 			TfbsDBAdaptor tfbsDBAdaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species);
 			List<Object> results;
 			if (celltype.equals("")){

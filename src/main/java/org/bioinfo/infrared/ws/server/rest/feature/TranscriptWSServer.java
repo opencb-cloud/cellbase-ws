@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -33,8 +34,8 @@ import com.sun.jersey.api.client.ClientResponse.Status;
 public class TranscriptWSServer extends GenericRestWSServer {
 	
 	
-	public TranscriptWSServer(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo) throws VersionException, IOException {
-		super(version, species, uriInfo);
+	public TranscriptWSServer(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo, @Context HttpServletRequest hsr) throws VersionException, IOException {
+		super(version, species, uriInfo, hsr);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -42,6 +43,8 @@ public class TranscriptWSServer extends GenericRestWSServer {
 	@Path("/{transcriptId}/info")
 	public Response getByEnsemblId(@PathParam("transcriptId") String query) {
 		try {
+			checkVersionAndSpecies();
+			checkVersionAndSpecies();
 			TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
 			return generateResponse(query, Arrays.asList(transcriptDBAdaptor.getAllByEnsemblIdList(StringUtils.toList(query, ","))));
 		} catch (Exception e) {
@@ -55,6 +58,7 @@ public class TranscriptWSServer extends GenericRestWSServer {
 	@Path("/{transcriptId}/all")
 	public Response getAll() {
 		try {
+			checkVersionAndSpecies();
 			TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
 			return generateResponse(new String(), Arrays.asList(transcriptDBAdaptor.getAll()));
 		} catch (Exception e) {
@@ -68,8 +72,9 @@ public class TranscriptWSServer extends GenericRestWSServer {
 	@Path("/{transcriptId}/sequence")
 	public Response getSequencesByIdList(@PathParam("transcriptId") String query) {
 		try {
+			checkVersionAndSpecies();
 			TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
-			return generateResponse(query, Arrays.asList(transcriptDBAdaptor.getAllSequencesByIdList(StringUtils.toList(query, ","))));
+			return generateResponse(query, transcriptDBAdaptor.getAllSequencesByIdList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getSequencesByIdList", e.toString());
@@ -81,8 +86,9 @@ public class TranscriptWSServer extends GenericRestWSServer {
 	@Path("/{transcriptId}/region")
 	public Response getRegionsByIdList(@PathParam("transcriptId") String query) {
 		try {
+			checkVersionAndSpecies();
 			TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
-			return generateResponse(query, Arrays.asList(transcriptDBAdaptor.getAllRegionsByIdList(StringUtils.toList(query, ","))));
+			return generateResponse(query, transcriptDBAdaptor.getAllRegionsByIdList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getRegionsByIdList", e.toString());
@@ -94,6 +100,8 @@ public class TranscriptWSServer extends GenericRestWSServer {
 	public Response getFullInfoByEnsemblId(@PathParam("transcriptId") String query) {
 		
 		try {
+			checkVersionAndSpecies();
+			
 			TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
 			GeneDBAdaptor geneDBAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species);
 			ExonDBAdaptor exonDBAdaptor = dbAdaptorFactory.getExonDBAdaptor(this.species);
@@ -111,34 +119,38 @@ public class TranscriptWSServer extends GenericRestWSServer {
 			
 			StringBuilder response = new StringBuilder();
 			response.append("[");
-			for (int i = 0; i < transcripts.size(); i++) {		
-				response.append("{");
-				response.append("\"stableId\":"+"\""+transcripts.get(i).getStableId()+"\",");
-				response.append("\"externalName\":"+"\""+transcripts.get(i).getExternalName()+"\",");
-				response.append("\"externalDb\":"+"\""+transcripts.get(i).getExternalDb()+"\",");
-				response.append("\"biotype\":"+"\""+transcripts.get(i).getBiotype()+"\",");
-				response.append("\"status\":"+"\""+transcripts.get(i).getStatus()+"\",");
-				response.append("\"chromosome\":"+"\""+transcripts.get(i).getChromosome()+"\",");
-				response.append("\"start\":"+transcripts.get(i).getStart()+",");
-				response.append("\"end\":"+transcripts.get(i).getEnd()+",");
-				response.append("\"strand\":"+"\""+transcripts.get(i).getStrand()+"\",");
-				response.append("\"codingRegionStart\":"+transcripts.get(i).getCodingRegionStart()+",");
-				response.append("\"codingRegionEnd\":"+transcripts.get(i).getCodingRegionEnd()+",");
-				response.append("\"cdnaCodingStart\":"+transcripts.get(i).getCdnaCodingStart()+",");
-				response.append("\"cdnaCodingEnd\":"+transcripts.get(i).getCdnaCodingEnd()+",");
-				response.append("\"description\":"+"\""+transcripts.get(i).getDescription()+"\",");
-				response.append("\"gene\":"+gson.toJson(genes.get(i))+",");
-				response.append("\"exons\":"+gson.toJson(exonLists.get(i))+",");
-				response.append("\"snps\":"+gson.toJson(snpLists.get(i))+",");
-				response.append("\"go\":"+gson.toJson(goLists.get(i))+",");
-				response.append("\"interpro\":"+gson.toJson(interproLists.get(i))+",");
-				response.append("\"reactome\":"+gson.toJson(reactomeLists.get(i))+"");
-				response.append("},");
+			for (int i = 0; i < transcripts.size(); i++) {
+				if(transcripts.get(i) != null){
+					response.append("{");
+					response.append("\"stableId\":"+"\""+transcripts.get(i).getStableId()+"\",");
+					response.append("\"externalName\":"+"\""+transcripts.get(i).getExternalName()+"\",");
+					response.append("\"externalDb\":"+"\""+transcripts.get(i).getExternalDb()+"\",");
+					response.append("\"biotype\":"+"\""+transcripts.get(i).getBiotype()+"\",");
+					response.append("\"status\":"+"\""+transcripts.get(i).getStatus()+"\",");
+					response.append("\"chromosome\":"+"\""+transcripts.get(i).getChromosome()+"\",");
+					response.append("\"start\":"+transcripts.get(i).getStart()+",");
+					response.append("\"end\":"+transcripts.get(i).getEnd()+",");
+					response.append("\"strand\":"+"\""+transcripts.get(i).getStrand()+"\",");
+					response.append("\"codingRegionStart\":"+transcripts.get(i).getCodingRegionStart()+",");
+					response.append("\"codingRegionEnd\":"+transcripts.get(i).getCodingRegionEnd()+",");
+					response.append("\"cdnaCodingStart\":"+transcripts.get(i).getCdnaCodingStart()+",");
+					response.append("\"cdnaCodingEnd\":"+transcripts.get(i).getCdnaCodingEnd()+",");
+					response.append("\"description\":"+"\""+transcripts.get(i).getDescription()+"\",");
+					response.append("\"gene\":"+gson.toJson(genes.get(i))+",");
+					response.append("\"exons\":"+gson.toJson(exonLists.get(i))+",");
+					response.append("\"snps\":"+gson.toJson(snpLists.get(i))+",");
+					response.append("\"go\":"+gson.toJson(goLists.get(i))+",");
+					response.append("\"interpro\":"+gson.toJson(interproLists.get(i))+",");
+					response.append("\"reactome\":"+gson.toJson(reactomeLists.get(i))+"");
+					response.append("},");
+				}else{
+					response.append("{},");
+				}
 			}
+			response.replace(response.length()-1, response.length(), "");
 			response.append("]");
 			
 			//Remove the last comma
-			response.replace(response.length()-2, response.length()-1, "");
 			return  generateResponse(query,Arrays.asList(response));
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -161,6 +173,7 @@ public class TranscriptWSServer extends GenericRestWSServer {
 	@Path("/{transcriptId}/exon")
 	public Response getExonsByEnsemblId2(@PathParam("transcriptId") String query) {
 		try {
+			checkVersionAndSpecies();
 			ExonDBAdaptor dbAdaptor = dbAdaptorFactory.getExonDBAdaptor(this.species);
 			return  generateResponse(query, dbAdaptor.getByEnsemblTranscriptIdList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {

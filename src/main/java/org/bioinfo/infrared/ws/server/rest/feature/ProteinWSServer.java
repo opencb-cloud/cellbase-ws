@@ -2,6 +2,7 @@ package org.bioinfo.infrared.ws.server.rest.feature;
 
 import java.io.IOException;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -23,14 +24,15 @@ import com.sun.jersey.api.client.ClientResponse.Status;
 @Produces("text/plain")
 public class ProteinWSServer extends GenericRestWSServer {
 
-	public ProteinWSServer(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo) throws VersionException, IOException {
-		super(version, species, uriInfo);
+	public ProteinWSServer(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo, @Context HttpServletRequest hsr) throws VersionException, IOException {
+		super(version, species, uriInfo, hsr);
 	}
 	
 	@GET
 	@Path("/{proteinId}/info")
 	public Response getByEnsemblId(@PathParam("proteinId") String query) {
 		try {
+			checkVersionAndSpecies();
 			ProteinDBAdaptor adaptor = dbAdaptorFactory.getProteinDBAdaptor(this.species);
 			return generateResponse(query, adaptor.getAllByGeneNameList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
@@ -61,6 +63,7 @@ public class ProteinWSServer extends GenericRestWSServer {
 	@Path("/{proteinId}/feature")
 	public Response getFeatures(@PathParam("proteinId") String query, @DefaultValue("") @QueryParam("type") String type) {
 		try {
+			checkVersionAndSpecies();
 			ProteinDBAdaptor adaptor = dbAdaptorFactory.getProteinDBAdaptor(this.species);
 			return generateResponse(query, adaptor.getAllProteinFeaturesByProteinXrefList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
@@ -79,6 +82,7 @@ public class ProteinWSServer extends GenericRestWSServer {
 	@Path("/{proteinId}/xref")
 	public Response getXrefs(@PathParam("proteinId") String proteinId, @DefaultValue("") @QueryParam("dbname") String dbname) {
 		try {
+			checkVersionAndSpecies();
 			ProteinDBAdaptor adaptor = dbAdaptorFactory.getProteinDBAdaptor(this.species);
 			return generateResponse(proteinId, adaptor.getAllProteinXrefsByProteinNameList(StringUtils.toList(proteinId, ",")));
 		} catch (Exception e) {

@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
@@ -36,8 +37,8 @@ public class VariantWSServer extends GenericRestWSServer {
 
 	protected static HashMap<String, List<Transcript>> CACHE_TRANSCRIPT = new HashMap<String, List<Transcript>>();
 
-	public VariantWSServer(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo) throws VersionException, IOException {
-		super(version, species, uriInfo);
+	public VariantWSServer(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo, @Context HttpServletRequest hsr) throws VersionException, IOException {
+		super(version, species, uriInfo, hsr);
 
 		//		if (CACHE_TRANSCRIPT.get(this.species) == null){
 		//			logger.debug("\tCACHE_TRANSCRIPT is null");
@@ -100,6 +101,7 @@ public class VariantWSServer extends GenericRestWSServer {
 
 	private Response getConsequenceTypeByPosition(String variants, String excludes) {
 		try {
+			checkVersionAndSpecies();
 			System.out.println("PAKO: "+ variants);
 			List<GenomicVariant> genomicVariantList = GenomicVariant.parseVariants(variants);
 			if(genomicVariantList != null && excludes != null) {
