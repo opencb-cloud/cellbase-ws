@@ -24,13 +24,10 @@ import org.bioinfo.infrared.core.cellbase.ProteinXref;
 import org.bioinfo.infrared.core.cellbase.Pwm;
 import org.bioinfo.infrared.core.cellbase.Transcript;
 import org.bioinfo.infrared.lib.api.GeneDBAdaptor;
-import org.bioinfo.infrared.lib.api.MirnaDBAdaptor;
 import org.bioinfo.infrared.lib.api.ProteinDBAdaptor;
 import org.bioinfo.infrared.lib.api.TfbsDBAdaptor;
 import org.bioinfo.infrared.lib.api.TranscriptDBAdaptor;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
-
-import com.sun.jersey.api.client.ClientResponse.Status;
 
 
 @Path("/{version}/{species}/regulatory/tf")
@@ -119,15 +116,25 @@ public class TfWSServer extends RegulatoryWSServer {
 	
 	@GET
 	@Path("/{tfId}/tfbs")
-	public Response getAllByTfbs(@PathParam("tfId") String query, @DefaultValue("")@QueryParam("celltype") String celltype) {
+	public Response getAllByTfbs(@PathParam("tfId") String query, @DefaultValue("")@QueryParam("celltype") String celltype, @DefaultValue("-2500")@QueryParam("start") String start, @DefaultValue("500")@QueryParam("end") String end) {
 		try {
 			checkVersionAndSpecies();
 			TfbsDBAdaptor adaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species);
-			if (!celltype.equals("")){ // if celltype
-				return generateResponse(query, adaptor.getAllByTfGeneNameListByCelltype(StringUtils.toList(query, ","), celltype));
-			}else{ // no filters
-				return generateResponse(query, adaptor.getAllByTfGeneNameList(StringUtils.toList(query, ",")));
+			if(celltype == null || celltype.equals("")) {
+				celltype = null;
 			}
+			int iStart = -2500;
+			int iEnd = 500;
+			try {
+				if (start != null && end  != null) {
+					iStart = Integer.parseInt(start);
+					iEnd = Integer.parseInt(end);
+				}
+			}catch(NumberFormatException e) {
+				e.printStackTrace();
+				return createErrorResponse("getAllByTfbs", e.toString());
+			}
+			return generateResponse(query, adaptor.getAllByTfGeneNameList(StringUtils.toList(query, ","), celltype, iStart, iEnd));
 //			return generateResponse(query, adaptor.getAllByTfGeneNameList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -200,7 +207,7 @@ public class TfWSServer extends RegulatoryWSServer {
 	public Response help() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("Input:\n");
-		sb.append("all id formats are accepted.\n\n\n");
+		sb.append("All id formats are accepted.\n\n\n");
 		sb.append("Resources:\n");
 		sb.append("- info: Get information about this transcription factor (TF).\n\n");
 		sb.append("- tfbs: Get all transcription factor binding sites (TFBSs) for this TF.\n");

@@ -143,11 +143,11 @@ public class MiRnaMatureWSServer extends RegulatoryWSServer {
 
 	@GET
 	@Path("/{mirnaId}/target")
-	public Response getMirnaTargets(@PathParam("mirnaId") String query) {
+	public Response getMirnaTargets(@PathParam("mirnaId") String query, @DefaultValue("")@QueryParam("source") String source) {
 		try {
 			checkVersionAndSpecies();
 			MirnaDBAdaptor adaptor = dbAdaptorFactory.getMirnaDBAdaptor(this.species);
-			return  generateResponse(query, adaptor.getAllMiRnaTargetsByMiRnaMatureList(StringUtils.toList(query, ",")));
+			return  generateResponse(query, adaptor.getAllMiRnaTargetsByMiRnaMatureList(StringUtils.toList(query, ","), StringUtils.toList(source, ",")));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getMirnaTargets", e.toString());

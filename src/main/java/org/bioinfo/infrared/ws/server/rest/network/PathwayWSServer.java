@@ -153,7 +153,7 @@ public class PathwayWSServer extends GenericRestWSServer {
 		try {
 			checkVersionAndSpecies();
 			TfbsDBAdaptor adaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species);
-			return generateResponse(query, adaptor.getAllByTfGeneNameList(StringUtils.toList(query, ",")));
+			return generateResponse(query, adaptor.getAllByTfGeneNameList(StringUtils.toList(query, ","), null, Integer.MIN_VALUE, Integer.MIN_VALUE));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getAllElements", e.toString());
@@ -167,7 +167,7 @@ public class PathwayWSServer extends GenericRestWSServer {
 		try {
 			checkVersionAndSpecies();
 			TfbsDBAdaptor adaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species);
-			return generateResponse(query, adaptor.getAllByTfGeneNameList(StringUtils.toList(query, ",")));
+			return generateResponse(query, adaptor.getAllByTfGeneNameList(StringUtils.toList(query, ","), null, Integer.MIN_VALUE, Integer.MIN_VALUE));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getAllGenes", e.toString());
@@ -180,7 +180,7 @@ public class PathwayWSServer extends GenericRestWSServer {
 		try {
 			checkVersionAndSpecies();
 			TfbsDBAdaptor adaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species);
-			return generateResponse(query, adaptor.getAllByTfGeneNameList(StringUtils.toList(query, ",")));
+			return generateResponse(query, adaptor.getAllByTfGeneNameList(StringUtils.toList(query, ","), null, Integer.MIN_VALUE, Integer.MIN_VALUE));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getAllByTfbs", e.toString());

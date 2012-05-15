@@ -3,13 +3,14 @@ package org.bioinfo.infrared.ws.server.rest.regulatory;
 import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
 import org.bioinfo.commons.utils.StringUtils;
@@ -57,11 +58,11 @@ public class MiRnaGeneWSServer extends RegulatoryWSServer {
 
 	@GET
 	@Path("/{mirnaId}/target")
-	public Response getMirnaTargets(@PathParam("mirnaId") String query) {
+	public Response getMirnaTargets(@PathParam("mirnaId") String query, @DefaultValue("")@QueryParam("source") String source) {
 		try {
 			checkVersionAndSpecies();
 			MirnaDBAdaptor mirnaDBAdaptor = dbAdaptorFactory.getMirnaDBAdaptor(this.species);
-			return  generateResponse(query, mirnaDBAdaptor.getAllMiRnaTargetsByMiRnaGeneList(StringUtils.toList(query, ",")));
+			return generateResponse(query, mirnaDBAdaptor.getAllMiRnaTargetsByMiRnaGeneList(StringUtils.toList(query, ","), StringUtils.toList(source, ",")));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getMirnaTargets", e.toString());
