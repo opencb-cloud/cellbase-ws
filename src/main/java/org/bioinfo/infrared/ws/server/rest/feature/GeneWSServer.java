@@ -42,6 +42,19 @@ public class GeneWSServer extends GenericRestWSServer {
 	}
 
 	@GET
+	@Path("/list")
+	public Response getList(@DefaultValue("")@QueryParam("biotype") List<String> biotype, @DefaultValue("false")@QueryParam("id") Boolean id) {
+		try {
+			checkVersionAndSpecies();
+			GeneDBAdaptor geneDBAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species);
+			return generateResponse("list", geneDBAdaptor.getAll(biotype, id));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return createErrorResponse("getByEnsemblId", e.toString());
+		}
+	}
+		
+	@GET
 	@Path("/{geneId}/info")
 	public Response getByEnsemblId(@PathParam("geneId") String query) {
 		try {
