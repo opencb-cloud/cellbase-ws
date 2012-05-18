@@ -129,6 +129,31 @@ public class GenericRestWSServer implements IWSServer {
 		}
 	}
 
+	/**
+	 * Preparing headers columns for text output
+	 */
+	protected static Map<String, String> headers;
+	static{
+		System.out.println("Adding headers to static Map...");
+		headers = new HashMap<String, String>();
+		headers.put("GENE", "Ensembl gene,external name,external name source,biotype,status,chromosome,start,end,strand,source,description".replaceAll(",", "\t"));
+		headers.put("TRANSCRIPT", "Ensembl ID,external name,external name source,biotype,status,chromosome,start,end,strand,coding region start,coding region end,cdna coding start,cdna coding end,description".replaceAll(",", "\t"));
+		headers.put("EXON", "Ensembl ID,chromosome,start,end,strand".replaceAll(",", "\t"));
+		headers.put("SNP", "rsID,chromosome,position,Ensembl consequence type,SO consequence type,sequence".replaceAll(",", "\t"));
+		headers.put("TFBS", "TF name,target gene name,chromosome,start,end,cell type,sequence,score".replaceAll(",", "\t"));
+		headers.put("MIRNA_GENE", "miRBase accession,miRBase ID,status,sequence,source".replaceAll(",", "\t"));
+		headers.put("MIRNA_MATURE", "miRBase accession,miRBase ID,sequence".replaceAll(",", "\t"));
+		headers.put("MIRNA_TARGET", "miRBase ID,gene target name,chromosome,start,end,strand,pubmed ID,source".replaceAll(",", "\t"));
+		headers.put("MIRNA_DISEASE", "miRBase ID,disease name,pubmed ID,description".replaceAll(",", "\t"));
+		headers.put("REGULATORY_REGION", "name,type,chromosome,start,end,cell type,source".replaceAll(",", "\t"));
+		headers.put("CONSEQUENCE_TYPE", "chromosome,start,end,feature ID,feature name,consequence type,biotype,feature chromosome,feature start,feature end,feature strand,snp ID,ancestral allele,alternative allele,gene Ensembl ID,Ensembl transcript ID,gene name,SO consequence type ID,SO consequence type name,consequence type description,consequence type category,aminoacid change,codon change".replaceAll(",", "\t"));
+		headers.put("PROTEIN", "UniProt accession,protein name,full name,gene name,organism".replaceAll(",", "\t"));
+		headers.put("PROTEIN_FEATURE", "feature type,aa start,aa end,original,variation,identifier,description".replaceAll(",", "\t"));
+		headers.put("XREF", "ID,description".replaceAll(",", "\t"));
+		headers.put("PATHWAY", "".replaceAll(",", "\t"));
+	}
+	
+	
 	
 	@Deprecated
 	public GenericRestWSServer(@PathParam("version") String version) {
@@ -226,7 +251,7 @@ public class GenericRestWSServer implements IWSServer {
 		//		outputFormat = (multivaluedMap.get("contentformat") != null) ? multivaluedMap.get("contentformat").get(0) : "txt";
 		filename = (multivaluedMap.get("filename") != null) ? multivaluedMap.get("filename").get(0) : "result";
 		outputRowNames = (multivaluedMap.get("outputrownames") != null) ? multivaluedMap.get("outputrownames").get(0) : "false";
-		outputHeader = (multivaluedMap.get("outputheader") != null) ? multivaluedMap.get("outputheader").get(0) : "false";
+		outputHeader = (multivaluedMap.get("header") != null) ? multivaluedMap.get("header").get(0) : "true";
 		outputCompress = (multivaluedMap.get("outputcompress") != null) ? multivaluedMap.get("outputcompress").get(0) : "false";
 
 		user = (multivaluedMap.get("user") != null) ? multivaluedMap.get("user").get(0) : "anonymous";
@@ -335,9 +360,13 @@ public class GenericRestWSServer implements IWSServer {
 		}
 	}
 
-
 	@SuppressWarnings("unchecked")
 	protected Response generateResponse(String queryString, List features) throws IOException {
+		return generateResponse(queryString, null, features);
+	}
+	
+	@SuppressWarnings("unchecked")
+	protected Response generateResponse(String queryString, String headerTag, List features) throws IOException {
 		logger.debug("CellBase - GenerateResponse, QueryString: " + ((queryString.length() > 50) ? queryString.substring(0, 49)+"..." : queryString));			
 
 		// default mediaType
@@ -360,7 +389,7 @@ public class GenericRestWSServer implements IWSServer {
 				//				if(outputFormat.equals("jsonp")) {
 				//					mediaType = MediaType.valueOf("application/javascript");
 				//					response = convertToJson(response);
-				//				}
+				//				}GENE
 			}else {
 				if(outputFormat.equalsIgnoreCase("txt") || outputFormat.equalsIgnoreCase("text")) {	// || outputFormat.equalsIgnoreCase("jsontext")
 					//				if(outputFormat.equalsIgnoreCase("jsontext")) {
@@ -372,7 +401,11 @@ public class GenericRestWSServer implements IWSServer {
 					// CONCATENAR el nombre de la query
 					// String[] query.split(",");
 					mediaType = MediaType.valueOf("text/plain");
-					response = StringWriter.serialize(features);
+					if(headerTag != null && headers.containsKey(headerTag) && outputHeader != null && outputHeader.equalsIgnoreCase("true")) {
+						response = "#" + headers.get(headerTag) + "\n" + StringWriter.serialize(features);						
+					}else {
+						response = StringWriter.serialize(features);						
+					}
 					//				}
 				}
 

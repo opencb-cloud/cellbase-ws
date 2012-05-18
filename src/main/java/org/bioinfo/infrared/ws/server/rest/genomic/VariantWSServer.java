@@ -119,7 +119,7 @@ public class VariantWSServer extends GenericRestWSServer {
 				//				return generateResponse(variants, gv.getAllConsequenceTypeByVariantList(genomicVariantList));
 				genomicVariantConsequenceTypes = gv.getAllConsequenceTypeByVariantList(genomicVariantList, excludeSet);
 //				System.out.println("VariantWSServer: genomicVariantConsequenceTypes => "+genomicVariantConsequenceTypes);
-				return generateResponse(variants, genomicVariantConsequenceTypes);
+				return generateResponse(variants, "CONSEQUENCE_TYPE", genomicVariantConsequenceTypes);
 //				return generateResponse(variants, gv.getAllConsequenceTypeByVariantList(genomicVariantList, excludeSet));
 			} else {
 				logger.error("ERRRORRRRRR EN VARIATNWSSERVER");
@@ -137,7 +137,7 @@ public class VariantWSServer extends GenericRestWSServer {
 					excludeSet = new HashSet<String>(Arrays.asList(excludeArray));
 					genomicVariantConsequenceTypes = gv.getAllConsequenceTypeByVariantList(genomicVariantList, excludeSet);
 					logger.warn("VariantWSServer: in catch of genomicVariantConsequenceTypes => "+genomicVariantConsequenceTypes);
-					return generateResponse(variants, genomicVariantConsequenceTypes);
+					return generateResponse(variants, "CONSEQUENCE_TYPE", genomicVariantConsequenceTypes);
 				} catch (IOException e1) {
 					e1.printStackTrace();
 					return createErrorResponse("getConsequenceTypeByPositionByGet", e.toString());

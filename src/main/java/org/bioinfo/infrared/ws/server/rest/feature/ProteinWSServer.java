@@ -34,7 +34,7 @@ public class ProteinWSServer extends GenericRestWSServer {
 		try {
 			checkVersionAndSpecies();
 			ProteinDBAdaptor adaptor = dbAdaptorFactory.getProteinDBAdaptor(this.species);
-			return generateResponse(query, adaptor.getAllByGeneNameList(StringUtils.toList(query, ",")));
+			return generateResponse(query, "PROTEIN", adaptor.getAllByGeneNameList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getByEnsemblId", e.toString());
@@ -65,7 +65,7 @@ public class ProteinWSServer extends GenericRestWSServer {
 		try {
 			checkVersionAndSpecies();
 			ProteinDBAdaptor adaptor = dbAdaptorFactory.getProteinDBAdaptor(this.species);
-			return generateResponse(query, adaptor.getAllProteinFeaturesByProteinXrefList(StringUtils.toList(query, ",")));
+			return generateResponse(query, "PROTEIN_FEATURE", adaptor.getAllProteinFeaturesByProteinXrefList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getFeatures", e.toString());
@@ -84,7 +84,7 @@ public class ProteinWSServer extends GenericRestWSServer {
 		try {
 			checkVersionAndSpecies();
 			ProteinDBAdaptor adaptor = dbAdaptorFactory.getProteinDBAdaptor(this.species);
-			return generateResponse(proteinId, adaptor.getAllProteinXrefsByProteinNameList(StringUtils.toList(proteinId, ",")));
+			return generateResponse(proteinId, "XREF", adaptor.getAllProteinXrefsByProteinNameList(StringUtils.toList(proteinId, ",")));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getXrefs", e.toString());

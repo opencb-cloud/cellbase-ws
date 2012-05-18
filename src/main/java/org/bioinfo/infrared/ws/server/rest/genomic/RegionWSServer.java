@@ -107,7 +107,7 @@ public class RegionWSServer extends GenericRestWSServer {
 				logger.info("Old histogram: "+(System.currentTimeMillis()-t1)+",  resp: "+resp.toString());
 				return resp;
 			}else {
-				return generateResponse(chregionId, geneDBAdaptor.getAllByRegionList(regions));
+				return generateResponse(chregionId, "GENE", geneDBAdaptor.getAllByRegionList(regions));
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -123,7 +123,7 @@ public class RegionWSServer extends GenericRestWSServer {
 			TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
 			List<Region> regions = Region.parseRegions(chregionId);
 			
-			return generateResponse(chregionId, transcriptDBAdaptor.getAllByRegionList(regions));
+			return generateResponse(chregionId, "TRANSCRIPT", transcriptDBAdaptor.getAllByRegionList(regions));
 		}catch(Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getTranscriptByRegion", e.toString());
@@ -139,7 +139,7 @@ public class RegionWSServer extends GenericRestWSServer {
 			ExonDBAdaptor exonDBAdaptor = dbAdaptorFactory.getExonDBAdaptor(this.species);
 			List<Region> regions = Region.parseRegions(chregionId);
 			
-			return generateResponse(chregionId, exonDBAdaptor.getAllByRegionList(regions));
+			return generateResponse(chregionId, "EXON", exonDBAdaptor.getAllByRegionList(regions));
 		}catch(Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getExonByRegion", e.toString());
@@ -162,7 +162,7 @@ public class RegionWSServer extends GenericRestWSServer {
 				//				logger.info("Old histogram: "+(System.currentTimeMillis()-t1)+",  resp: "+resp.toString());
 				return resp;
 			}else {
-				return generateResponse(chregionId, snpDBAdaptor.getAllByRegionList(regions));
+				return generateResponse(chregionId, "SNP", snpDBAdaptor.getAllByRegionList(regions));
 			}
 
 		}catch(Exception e) {
@@ -188,14 +188,18 @@ public class RegionWSServer extends GenericRestWSServer {
 
 	@GET
 	@Path("/{chrRegionId}/sequence")
-	public Response getSequenceByRegion(@PathParam("chrRegionId") String chregionId, @DefaultValue("1") @QueryParam("strand") String strandParam) {
+	public Response getSequenceByRegion(@PathParam("chrRegionId") String chregionId, @DefaultValue("1") @QueryParam("strand") String strandParam, @DefaultValue("") @QueryParam("format") String format) {
 		try {
 			checkVersionAndSpecies();
 			List<Region> regions = Region.parseRegions(chregionId);
 			GenomeSequenceDBAdaptor genomeSequenceDBAdaptor =  dbAdaptorFactory.getGenomeSequenceDBAdaptor(this.species);
 			int strand = 1;
+//			String result;
 			try {
 				strand = Integer.parseInt(strandParam);
+//				List<GenomeSequence> gs = genomeSequenceDBAdaptor.getByRegionList(regions, strand);
+//				if(gs != null && gs.size() > 0) {
+//				}
 			}catch(Exception e) {
 				strand = 1;
 				logger.warn("RegionWSServer: method getSequence could not convert strand to integer");
@@ -238,7 +242,7 @@ public class RegionWSServer extends GenericRestWSServer {
 				return  generateResponse(query, intervalList);
 			}else{
 				List<List<Tfbs>> tfList = tfbsDBAdaptor.getAllByRegionList(regions);
-				return this.generateResponse(query, tfList);
+				return this.generateResponse(query, "TFBS", tfList);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -282,7 +286,7 @@ public class RegionWSServer extends GenericRestWSServer {
 				}else {
 					results = regulatoryRegionDBAdaptor.getAllByRegionList(regions, Arrays.asList(type.split(",")));
 				}
-				return generateResponse(chregionId, results);
+				return generateResponse(chregionId, "REGULATORY_REGION", results);
 			}
 
 		} catch (Exception e) {
@@ -306,7 +310,7 @@ public class RegionWSServer extends GenericRestWSServer {
 			}else{
 				System.out.println("PAKO:"+"NO");
 				List<List<MirnaTarget>> mirnaTargetList = mirnaDBAdaptor.getAllMiRnaTargetsByRegionList(regions);
-				return this.generateResponse(query, mirnaTargetList);
+				return this.generateResponse(query, "MIRNA_TARGET", mirnaTargetList);
 			}
 
 		} catch (Exception e) {
@@ -392,7 +396,7 @@ public class RegionWSServer extends GenericRestWSServer {
 	}
 
 	@GET
-	@Path("/{chrRegionId}/structuralvariation")
+	@Path("/{chrRegionId}/structural_variation")
 	public Response getStructuralVariationByRegion(@PathParam("chrRegionId") String query) {
 		try {
 			checkVersionAndSpecies();
@@ -411,6 +415,13 @@ public class RegionWSServer extends GenericRestWSServer {
 			e.printStackTrace();
 			return createErrorResponse("getStructuralVariationByRegion", e.toString());
 		}
+	}
+	
+	@GET
+	@Path("/{chrRegionId}/structuralvariation")
+	@Deprecated
+	public Response getStructuralVariationByRegionOld(@PathParam("chrRegionId") String query) {
+		return getStructuralVariationByRegion(query);
 	}
 
 
