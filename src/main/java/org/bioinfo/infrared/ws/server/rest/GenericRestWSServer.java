@@ -344,6 +344,21 @@ public class GenericRestWSServer implements IWSServer {
 	}
 	
 	@GET
+	@Path("/version")
+	public Response getVersion() {
+		StringBuilder versionMessage = new StringBuilder();
+		versionMessage.append("Homo sapiens").append("\t").append("Ensembl 64").append("\n");
+		versionMessage.append("Mus musculus").append("\t").append("Ensembl 65").append("\n");
+		versionMessage.append("Rattus norvegicus").append("\t").append("Ensembl 65").append("\n");
+		versionMessage.append("Drosophila melanogaster").append("\t").append("Ensembl 65").append("\n");
+		versionMessage.append("Canis familiaris").append("\t").append("Ensembl 65").append("\n");
+		versionMessage.append("...").append("\n\n");
+		versionMessage.append("The rest of nfo will be added soon, sorry for the inconveniences. You can find mor info at:").append("\n\n").append("http://docs.bioinfo.cipf.es/projects/variant/wiki/Databases");
+		return createOkResponse(versionMessage.toString(), MediaType.valueOf("text/plain"));
+	}
+	
+	
+	@GET
 	@Path("/species")
 	public Response getSpecies() {
 		List<Species> speciesList = getSpeciesList();
