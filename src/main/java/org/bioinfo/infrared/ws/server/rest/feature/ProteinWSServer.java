@@ -98,6 +98,19 @@ public class ProteinWSServer extends GenericRestWSServer {
 	}
 	
 	@GET
+	@Path("/{proteinId}/interaction")
+	public Response getInteraction(@PathParam("proteinId") String query) {
+		try {
+			checkVersionAndSpecies();
+			ProteinDBAdaptor adaptor = dbAdaptorFactory.getProteinDBAdaptor(this.species);
+			return generateResponse(query, "PROTEIN_INTERACTION", adaptor.getAllProteinInteractionsByProteinNameList(StringUtils.toList(query, ",")));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return createErrorResponse("getXrefs", e.toString());
+		}
+	}
+	
+	@GET
 	@Path("/{proteinId}/sequence")
 	public Response getSequence(@PathParam("proteinId") String query) {
 		return null;
