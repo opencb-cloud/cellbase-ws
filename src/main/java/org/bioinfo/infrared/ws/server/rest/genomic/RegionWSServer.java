@@ -1,6 +1,7 @@
 package org.bioinfo.infrared.ws.server.rest.genomic;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -18,17 +19,21 @@ import javax.ws.rs.core.UriInfo;
 
 import org.bioinfo.infrared.core.cellbase.ConservedRegion;
 import org.bioinfo.infrared.core.cellbase.CpGIsland;
+import org.bioinfo.infrared.core.cellbase.Exon;
+import org.bioinfo.infrared.core.cellbase.FeatureMap;
 import org.bioinfo.infrared.core.cellbase.GenomeSequence;
 import org.bioinfo.infrared.core.cellbase.MirnaTarget;
 import org.bioinfo.infrared.core.cellbase.MutationPhenotypeAnnotation;
 import org.bioinfo.infrared.core.cellbase.RegulatoryRegion;
 import org.bioinfo.infrared.core.cellbase.StructuralVariation;
 import org.bioinfo.infrared.core.cellbase.Tfbs;
+import org.bioinfo.infrared.core.cellbase.Transcript;
 import org.bioinfo.infrared.lib.api.CpGIslandDBAdaptor;
 import org.bioinfo.infrared.lib.api.CytobandDBAdaptor;
 import org.bioinfo.infrared.lib.api.ExonDBAdaptor;
 import org.bioinfo.infrared.lib.api.GeneDBAdaptor;
 import org.bioinfo.infrared.lib.api.GenomeSequenceDBAdaptor;
+import org.bioinfo.infrared.lib.api.GenomicRegionFeatureDBAdaptor;
 import org.bioinfo.infrared.lib.api.MirnaDBAdaptor;
 import org.bioinfo.infrared.lib.api.MutationDBAdaptor;
 import org.bioinfo.infrared.lib.api.RegulatoryRegionDBAdaptor;
@@ -38,6 +43,8 @@ import org.bioinfo.infrared.lib.api.TfbsDBAdaptor;
 import org.bioinfo.infrared.lib.api.TranscriptDBAdaptor;
 import org.bioinfo.infrared.lib.common.IntervalFeatureFrequency;
 import org.bioinfo.infrared.lib.common.Region;
+import org.bioinfo.infrared.lib.impl.hibernate.GenomicRegionFeatures;
+import org.bioinfo.infrared.lib.io.output.StringWriter;
 import org.bioinfo.infrared.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
 
@@ -122,7 +129,7 @@ public class RegionWSServer extends GenericRestWSServer {
 			checkVersionAndSpecies();
 			TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
 			List<Region> regions = Region.parseRegions(chregionId);
-			
+
 			return generateResponse(chregionId, transcriptDBAdaptor.getAllByRegionList(regions));
 		}catch(Exception e) {
 			e.printStackTrace();
@@ -138,7 +145,7 @@ public class RegionWSServer extends GenericRestWSServer {
 			checkVersionAndSpecies();
 			ExonDBAdaptor exonDBAdaptor = dbAdaptorFactory.getExonDBAdaptor(this.species);
 			List<Region> regions = Region.parseRegions(chregionId);
-			
+
 			return generateResponse(chregionId, exonDBAdaptor.getAllByRegionList(regions));
 		}catch(Exception e) {
 			e.printStackTrace();
@@ -154,7 +161,7 @@ public class RegionWSServer extends GenericRestWSServer {
 			checkVersionAndSpecies();
 			SnpDBAdaptor snpDBAdaptor = dbAdaptorFactory.getSnpDBAdaptor(this.species);
 			List<Region> regions = Region.parseRegions(chregionId);
-			
+
 			if(hasHistogramQueryParam()){
 				//				long t1 = System.currentTimeMillis();
 				//				Response resp = generateResponse(chregionId, getHistogramByFeatures(dbAdaptor.getAllByRegionList(regions)));
@@ -214,7 +221,7 @@ public class RegionWSServer extends GenericRestWSServer {
 		try {
 			checkVersionAndSpecies();
 			List<Region> regions = Region.parseRegions(chregionId);
-			
+
 			GenomeSequenceDBAdaptor dbAdaptor =  dbAdaptorFactory.getGenomeSequenceDBAdaptor(this.species);
 			List<GenomeSequence> result = dbAdaptor.getByRegionList(regions, -1);
 			return this.generateResponse(chregionId, result);
@@ -252,7 +259,7 @@ public class RegionWSServer extends GenericRestWSServer {
 		try {
 			checkVersionAndSpecies();
 			List<Region> regions = Region.parseRegions(chregionId);
-			
+
 			RegulatoryRegionDBAdaptor regulatoryRegionDBAdaptor = dbAdaptorFactory.getRegulatoryRegionDBAdaptor(this.species);
 
 			return this.generateResponse(chregionId, regulatoryRegionDBAdaptor.getAllFeatureMapByRegion(regions));
@@ -271,7 +278,7 @@ public class RegionWSServer extends GenericRestWSServer {
 			RegulatoryRegionDBAdaptor regulatoryRegionDBAdaptor = dbAdaptorFactory.getRegulatoryRegionDBAdaptor(this.species);
 			/** type ["open chromatin", "Polymerase", "HISTONE", "Transcription Factor"] **/
 			List<Region> regions = Region.parseRegions(chregionId);
-			
+
 			if(hasHistogramQueryParam()) {
 				//				return generateResponse(chregionId, getHistogramByFeatures(results));
 				return generateResponse(chregionId, regulatoryRegionDBAdaptor.getAllRegulatoryRegionIntervalFrequencies(regions.get(0), getHistogramIntervalSize(), type));
@@ -298,7 +305,7 @@ public class RegionWSServer extends GenericRestWSServer {
 			checkVersionAndSpecies();
 			MirnaDBAdaptor mirnaDBAdaptor = dbAdaptorFactory.getMirnaDBAdaptor(this.species);
 			List<Region> regions = Region.parseRegions(query);
-			
+
 			if (hasHistogramQueryParam()){
 				System.out.println("PAKO:"+"si");
 				List<IntervalFeatureFrequency> intervalList = mirnaDBAdaptor.getAllMirnaTargetsIntervalFrequencies(regions.get(0), getHistogramIntervalSize()); 
@@ -323,7 +330,7 @@ public class RegionWSServer extends GenericRestWSServer {
 			checkVersionAndSpecies();
 			RegulatoryRegionDBAdaptor regulatoryRegionDBAdaptor =  dbAdaptorFactory.getRegulatoryRegionDBAdaptor(this.species);
 			List<Region> regions = Region.parseRegions(query);
-			
+
 			if (hasHistogramQueryParam()){
 				List<IntervalFeatureFrequency> intervalList = regulatoryRegionDBAdaptor.getAllConservedRegionIntervalFrequencies(regions.get(0), getHistogramIntervalSize()); 
 				return  generateResponse(query, intervalList);
@@ -354,7 +361,7 @@ public class RegionWSServer extends GenericRestWSServer {
 			checkVersionAndSpecies();
 			MutationDBAdaptor mutationDBAdaptor =  dbAdaptorFactory.getMutationDBAdaptor(this.species);
 			List<Region> regions = Region.parseRegions(query);
-			
+
 			if (hasHistogramQueryParam()){
 				List<IntervalFeatureFrequency> intervalList = mutationDBAdaptor.getAllIntervalFrequencies(regions.get(0), getHistogramIntervalSize()); 
 				return  generateResponse(query, intervalList);
@@ -376,7 +383,7 @@ public class RegionWSServer extends GenericRestWSServer {
 			checkVersionAndSpecies();
 			CpGIslandDBAdaptor cpGIslandDBAdaptor =  dbAdaptorFactory.getCpGIslandDBAdaptor(this.species);
 			List<Region> regions = Region.parseRegions(query);
-			
+
 			if (hasHistogramQueryParam()){
 				List<IntervalFeatureFrequency> intervalList = cpGIslandDBAdaptor.getAllIntervalFrequencies(regions.get(0), getHistogramIntervalSize()); 
 				return  generateResponse(query, intervalList);
@@ -398,7 +405,7 @@ public class RegionWSServer extends GenericRestWSServer {
 			checkVersionAndSpecies();
 			StructuralVariationDBAdaptor structuralVariationDBAdaptor = dbAdaptorFactory.getStructuralVariationDBAdaptor(this.species);
 			List<Region> regions = Region.parseRegions(query);
-			
+
 			if (hasHistogramQueryParam()){
 				List<IntervalFeatureFrequency> intervalList = structuralVariationDBAdaptor.getAllIntervalFrequencies(regions.get(0), getHistogramIntervalSize()); 
 				return  generateResponse(query, intervalList);
@@ -413,18 +420,78 @@ public class RegionWSServer extends GenericRestWSServer {
 		}
 	}
 
+	@GET
+	@Path("/{chrRegionId}/peptide")
+	public Response getPeptideByRegion(@PathParam("chrRegionId") String region) {
+		try {
+			checkVersionAndSpecies();
+			List<Region> regions = Region.parseRegions(region);
+			boolean isUTR = false;
+			List<String> peptide = new ArrayList<String>(0);
+			GenomicRegionFeatureDBAdaptor genomicRegionFeatureDBAdaptor = dbAdaptorFactory.getFeatureMapDBAdaptor(this.species);
+			if (regions != null && !regions.get(0).equals("")){
+				for (Region reg: regions){
+					List<FeatureMap> featureMapList = genomicRegionFeatureDBAdaptor.getFeatureMapsByRegion(reg);
+					if(featureMapList != null){
+						for(FeatureMap featureMap: featureMapList) {
+							String line = "";
+							if(featureMap.getFeatureType().equalsIgnoreCase("5_prime_utr") || featureMap.getFeatureType().equalsIgnoreCase("3_prime_utr")) {
+								isUTR = true;
+								line = featureMap.getTranscriptStableId()+"\tNo-coding\t\t";
+								peptide.add(line);
+							}else{
+								isUTR = false;
+								if(featureMap.getFeatureType().equalsIgnoreCase("exon")) {
+									if (!isUTR && featureMap.getBiotype().equalsIgnoreCase("protein_coding")) {
+										System.out.println("Exon: "+featureMap.getFeatureId());
+										System.out.println("Phase: "+featureMap.getExonPhase());
+										if(!featureMap.getExonPhase().equals("") && !featureMap.getExonPhase().equals("-1")) {
+											System.out.println("with phase");
+											int aaPositionStart = -1;
+											int aaPositionEnd = -1;
+											if(featureMap.getStrand().equals("1")) {
+												aaPositionStart = ((reg.getStart()-featureMap.getStart()+1+featureMap.getExonCdnaCodingStart()-featureMap.getTranscriptCdnaCodingStart())/3)+1;
+												aaPositionEnd = ((reg.getEnd()-featureMap.getStart()+1+featureMap.getExonCdnaCodingStart()-featureMap.getTranscriptCdnaCodingStart())/3)+1;
+											}else {
+												aaPositionStart = ((featureMap.getEnd()-reg.getStart()+1+featureMap.getExonCdnaCodingStart()-featureMap.getTranscriptCdnaCodingStart())/3)+1;
+												aaPositionEnd = ((featureMap.getEnd()-reg.getEnd()+1+featureMap.getExonCdnaCodingStart()-featureMap.getTranscriptCdnaCodingStart())/3)+1;
+											}
+											line = featureMap.getTranscriptStableId()+"\t"+"Protein"+"\t"+aaPositionStart+"\t"+aaPositionEnd;
+											peptide.add(line);
+										}else{
+											if(!featureMap.getExonPhase().equals("") && !featureMap.getExonPhase().equals("-1")) {
+												
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+				
+			}
+			return createOkResponse(StringWriter.serialize(peptide));
+//			return generateResponse(region, exonIds);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			return createErrorResponse("getPeptideByRegion", e.toString());
+		}
+	}
+
 
 	@Deprecated
 	private  List<?>  getHistogramByFeatures(List<?> list){
 		Histogram histogram = new Histogram(list, this.getHistogramIntervalSize());
 		return histogram.getIntervals();
 	}
-	
+
 	@GET
 	public Response getHelp() {
 		return help();
 	}
-	
+
 	@GET
 	@Path("/help")
 	public Response help() {
@@ -445,7 +512,7 @@ public class RegionWSServer extends GenericRestWSServer {
 		sb.append(" Output columns: name, type, chromosome, start, end, cell type, source.\n\n\n");
 		sb.append("Documentation:\n");
 		sb.append("http://docs.bioinfo.cipf.es/projects/cellbase/wiki/Genomic_rest_ws_api#Region");
-		
+
 		return createOkResponse(sb.toString());
 	}
 
