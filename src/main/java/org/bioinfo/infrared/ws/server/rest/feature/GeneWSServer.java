@@ -60,7 +60,7 @@ public class GeneWSServer extends GenericRestWSServer {
 		try {
 			checkVersionAndSpecies();
 			GeneDBAdaptor geneDBAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species);
-			return generateResponse(query, geneDBAdaptor.getAllByNameList(StringUtils.toList(query, ",")));
+			return generateResponse(query, "GENE", geneDBAdaptor.getAllByNameList(StringUtils.toList(query, ",")));
 			//	return generateResponse(query, Arrays.asList(this.getGeneDBAdaptor().getAllByEnsemblIdList(StringUtils.toList(query, ","))));
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -155,7 +155,8 @@ public class GeneWSServer extends GenericRestWSServer {
 		try {
 			checkVersionAndSpecies();
 			TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
-			return  generateResponse(query, Arrays.asList(transcriptDBAdaptor.getByEnsemblGeneIdList(StringUtils.toList(query, ","))));
+			return generateResponse(query, "TRANSCRIPT", Arrays.asList(transcriptDBAdaptor.getAllByNameList(StringUtils.toList(query, ","))));
+//			return  generateResponse(query, Arrays.asList(transcriptDBAdaptor.getByEnsemblGeneIdList(StringUtils.toList(query, ","))));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getTranscriptsByEnsemblId", e.toString());
@@ -168,7 +169,7 @@ public class GeneWSServer extends GenericRestWSServer {
 		try {
 			checkVersionAndSpecies();
 			TfbsDBAdaptor tfbsDBAdaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species);
-			return  generateResponse(query, tfbsDBAdaptor.getAllByTargetGeneNameList(StringUtils.toList(query, ",")));
+			return  generateResponse(query, "TFBS", tfbsDBAdaptor.getAllByTargetGeneNameList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getAllTfbs", e.toString());
@@ -181,7 +182,7 @@ public class GeneWSServer extends GenericRestWSServer {
 		try {
 			checkVersionAndSpecies();
 			MirnaDBAdaptor mirnaDBAdaptor = dbAdaptorFactory.getMirnaDBAdaptor(this.species);
-			return  generateResponse(query, mirnaDBAdaptor.getAllMiRnaTargetsByGeneNameList(StringUtils.toList(query, ",")));
+			return  generateResponse(query, "MIRNA_TARGET", mirnaDBAdaptor.getAllMiRnaTargetsByGeneNameList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getAllMirna", e.toString());
@@ -201,7 +202,7 @@ public class GeneWSServer extends GenericRestWSServer {
 		try {
 			checkVersionAndSpecies();
 			ProteinDBAdaptor proteinDBAdaptor = dbAdaptorFactory.getProteinDBAdaptor(this.species);
-			return  generateResponse(query, proteinDBAdaptor.getAllProteinFeaturesByGeneNameList(StringUtils.toList(query, ",")));
+			return  generateResponse(query, "PROTEIN_FEATURE", proteinDBAdaptor.getAllProteinFeaturesByGeneNameList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getProteinFeature", e.toString());
@@ -224,7 +225,7 @@ public class GeneWSServer extends GenericRestWSServer {
 				}
 				result.add(resultSNP);
 			}
-			return  generateResponse(query, result);
+			return generateResponse(query, "SNP", result);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getSNPByGene", e.toString());
@@ -252,7 +253,7 @@ public class GeneWSServer extends GenericRestWSServer {
 			}
 			
 			ExonDBAdaptor exonDBAdaptor = dbAdaptorFactory.getExonDBAdaptor(this.species);
-			return  generateResponse(query, exonDBAdaptor.getByEnsemblGeneIdList(ensemblIds));
+			return  generateResponse(query, "EXON", exonDBAdaptor.getByEnsemblGeneIdList(ensemblIds));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getExonByGene", e.toString());
