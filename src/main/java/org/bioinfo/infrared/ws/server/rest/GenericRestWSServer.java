@@ -19,6 +19,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
@@ -107,11 +108,13 @@ public class GenericRestWSServer implements IWSServer {
 			config = new Config(ResourceBundle.getBundle("org.bioinfo.infrared.ws.application"));
 			availableVersionSpeciesMap = new HashMap<String, Set<String>>();
 			if(config != null && config.containsKey("CELLBASE.AVAILABLE.VERSIONS")) {
+				// read all versions available
 				List<String> versionList = config.getListProperty("CELLBASE.AVAILABLE.VERSIONS", ",");
 				if(versionList != null) {
 					for(String version: versionList) {
 						availableVersionSpeciesMap.put(version, new HashSet<String>());
 						if(config.containsKey("CELLBASE."+version.toUpperCase()+".AVAILABLE.SPECIES")) {
+							// read the species available for each version
 							List<String> speciesList = config.getListProperty("CELLBASE."+version.toUpperCase()+".AVAILABLE.SPECIES", ",");
 							if(speciesList != null) {
 								for(String species: speciesList) {
@@ -134,7 +137,7 @@ public class GenericRestWSServer implements IWSServer {
 	 */
 	protected static Map<String, String> headers;
 	static{
-		System.out.println("Adding headers to static Map...");
+		System.out.println("static 3: Adding headers to static Map...");
 		headers = new HashMap<String, String>();
 		headers.put("GENE", "Ensembl gene,external name,external name source,biotype,status,chromosome,start,end,strand,source,description".replaceAll(",", "\t"));
 		headers.put("TRANSCRIPT", "Ensembl ID,external name,external name source,biotype,status,chromosome,start,end,strand,coding region start,coding region end,cdna coding start,cdna coding end,description".replaceAll(",", "\t"));
@@ -373,6 +376,12 @@ public class GenericRestWSServer implements IWSServer {
 			mediaType = MediaType.valueOf("text/plain");
 			return createOkResponse(stringBuilder.toString(), mediaType);
 		}
+	}
+	
+	@GET
+	@Path("/{species}/chromosomes")
+	public Response getChromosomes(@PathParam("species") String species) {
+		return createOkResponse(config.getProperty("CELLBASE."+species.toUpperCase()+".CHROMOSOMES"), MediaType.valueOf("text/plain"));
 	}
 
 	@SuppressWarnings("unchecked")
