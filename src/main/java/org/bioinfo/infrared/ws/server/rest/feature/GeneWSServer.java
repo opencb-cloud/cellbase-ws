@@ -168,7 +168,7 @@ public class GeneWSServer extends GenericRestWSServer {
 	public Response getAllTfbs(@PathParam("geneId") String query) {
 		try {
 			checkVersionAndSpecies();
-			TfbsDBAdaptor tfbsDBAdaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species);
+			TfbsDBAdaptor tfbsDBAdaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species, this.version);
 			return  generateResponse(query, "TFBS", tfbsDBAdaptor.getAllByTargetGeneNameList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -40,28 +40,15 @@ public class VariantWSServer extends GenericRestWSServer {
 
 	public VariantWSServer(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo, @Context HttpServletRequest hsr) throws VersionException, IOException {
 		super(version, species, uriInfo, hsr);
-
-		//		if (CACHE_TRANSCRIPT.get(this.species) == null){
-		//			logger.debug("\tCACHE_TRANSCRIPT is null");
-		//			long t0 = System.currentTimeMillis();
-		//			TranscriptDBAdaptor adaptor = dbAdaptorFactory.getTranscriptDBAdaptor(species);
-		//			CACHE_TRANSCRIPT.put(species, adaptor.getAll());
-		//			logger.debug("\t\tFilling up for " + this.species + " in " + (System.currentTimeMillis() - t0) + " ms");
-		//			logger.debug("\t\tNumber of transcripts: " + CACHE_TRANSCRIPT.get(this.species).size());
-		//		}
 	}
 
 	@GET
-	@Path("/{positionId}/consequence_type")
-	public Response getConsequenceTypeByPositionByGet(@PathParam("positionId") String query, 
-			@DefaultValue("true") @QueryParam("features") String features,
-			@DefaultValue("true") @QueryParam("variation") String variation,
-			@DefaultValue("true") @QueryParam("regulatory") String regulatory,
-			@DefaultValue("true") @QueryParam("disease") String diseases,
+	@Path("/{variants}/consequence_type")
+	public Response getConsequenceTypeByPositionByGet(@PathParam("variants") String variants, 
 			@DefaultValue("") @QueryParam("exclude") String excludeSOTerms) {
 		try {
 			//			return getConsequenceTypeByPosition(query, features, variation, regulatory, diseases);
-			return getConsequenceTypeByPosition(query, excludeSOTerms);
+			return getConsequenceTypeByPosition(variants, excludeSOTerms);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getConsequenceTypeByPositionByGet", e.toString());
@@ -74,28 +61,6 @@ public class VariantWSServer extends GenericRestWSServer {
 	public Response getConsequenceTypeByPositionByPost( @FormDataParam("of") String outputFormat, 
 			@FormDataParam("variants") String postQuery, 
 			@DefaultValue("") @FormDataParam("exclude") String excludeSOTerms) {
-		//		String features = "true";
-		//		String variation = "true"; 
-		//		String regulatory = "true";
-		//		String diseases = "true";
-		//		System.out.println("VariantWSServer ==> postQuery: "+postQuery);
-		//		postQuery = postQuery.replace("?", "%");
-		//		
-		//		String query = Arrays.asList(postQuery.split("%")).get(0);
-		//		String queryParams =  Arrays.asList(postQuery.split("%")).get(1);
-		//		if (queryParams.toLowerCase().contains("features=false")){
-		//			features = "false";
-		//		}
-		//		if (queryParams.toLowerCase().contains("regulatory=false")){
-		//			regulatory = "false";
-		//		}
-		//		if (queryParams.toLowerCase().contains("variation=false")){
-		//			variation = "false";
-		//		}
-		//		if (queryParams.toLowerCase().contains("disease=false")){
-		//			diseases = "false";
-		//		}
-
 		//		return getConsequenceTypeByPosition(postQuery, features, variation, regulatory, diseases);
 		return getConsequenceTypeByPosition(postQuery, excludeSOTerms);
 	}
@@ -113,7 +78,7 @@ public class VariantWSServer extends GenericRestWSServer {
 			if(genomicVariantList != null && excludes != null) {
 				logger.debug("VariantWSServer: number of variants: "+ genomicVariantList.size());
 				//			GenomicVariantEffect gv = new GenomicVariantEffect(this.species);
-				gv = dbAdaptorFactory.getGenomicVariantEffectDBAdaptor(species);
+				gv = dbAdaptorFactory.getGenomicVariantEffectDBAdaptor(species, this.version);
 				excludeArray = excludes.split(",");
 				excludeSet = new HashSet<String>(Arrays.asList(excludeArray));
 				//				return generateResponse(variants, gv.getAllConsequenceTypeByVariantList(genomicVariantList));
@@ -132,7 +97,7 @@ public class VariantWSServer extends GenericRestWSServer {
 			System.out.println("ERROR: getConsequenceTypeByPosition: "+StringUtils.getStackTrace(e));
 			if(genomicVariantList != null && excludes != null) {
 				try {
-					gv = dbAdaptorFactory.getGenomicVariantEffectDBAdaptor(species);
+					gv = dbAdaptorFactory.getGenomicVariantEffectDBAdaptor(species, this.version);
 					excludeArray = excludes.split(",");
 					excludeSet = new HashSet<String>(Arrays.asList(excludeArray));
 					genomicVariantConsequenceTypes = gv.getAllConsequenceTypeByVariantList(genomicVariantList, excludeSet);
@@ -148,6 +113,33 @@ public class VariantWSServer extends GenericRestWSServer {
 	}
 
 	
+	@GET
+	@Path("/{variants}/snp_phenotype")
+	public Response getSnpPhenotypesByPositionByGet(@PathParam("variants") String variants, 
+			@DefaultValue("") @QueryParam("exclude") String excludeSOTerms) {
+		try {
+			//			return getConsequenceTypeByPosition(query, features, variation, regulatory, diseases);
+			return getConsequenceTypeByPosition(variants, excludeSOTerms);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return createErrorResponse("getConsequenceTypeByPositionByGet", e.toString());
+		}
+	}
+
+	@POST
+	@Consumes({MediaType.MULTIPART_FORM_DATA, MediaType.APPLICATION_FORM_URLENCODED})//MediaType.MULTIPART_FORM_DATA, 
+	@Path("/snp_phenotype")
+	public Response getSnpPhenotypesByPositionByPost( @FormDataParam("of") String outputFormat, 
+			@FormDataParam("variants") String postQuery, 
+			@DefaultValue("") @FormDataParam("exclude") String excludeSOTerms) {
+		//		return getConsequenceTypeByPosition(postQuery, features, variation, regulatory, diseases);
+		return getConsequenceTypeByPosition(postQuery, excludeSOTerms);
+	}
+	
+	
+	
+	
+	
 	
 	@Deprecated
 	private Response getConsequenceTypeByPosition(String query, String features, String variation, String regulatory, String diseases){
@@ -162,34 +154,7 @@ public class VariantWSServer extends GenericRestWSServer {
 			List<GenomicVariant> variants = GenomicVariant.parseVariants(query);
 			System.out.println("number of variants: "+variants.size());
 			//			GenomicVariantEffect gv = new GenomicVariantEffect(this.species);
-			GenomicVariantEffectDBAdaptor gv = dbAdaptorFactory.getGenomicVariantEffectDBAdaptor(species);
-			//			if (features.equalsIgnoreCase("true")){
-			//				gv.setShowFeatures(true);
-			//			}
-			//			else{
-			//				gv.setShowFeatures(false);
-			//			}
-			//			
-			//			if (variation.equalsIgnoreCase("true")){
-			//				gv.setShowVariation(true);
-			//			}
-			//			else{
-			//				gv.setShowVariation(false);
-			//			}
-			//			
-			//			if (regulatory.equalsIgnoreCase("true")){
-			//				gv.setShowRegulatory(true);
-			//			}
-			//			else{
-			//				gv.setShowRegulatory(false);
-			//			}
-			//			
-			//			if (diseases.equalsIgnoreCase("true")){
-			//				gv.setShowDiseases(true);
-			//			}
-			//			else{
-			//				gv.setShowDiseases(false);
-			//			}
+			GenomicVariantEffectDBAdaptor gv = dbAdaptorFactory.getGenomicVariantEffectDBAdaptor(species, this.version);
 
 			//			return generateResponse(query, gv.getConsequenceType(variants, CACHE_TRANSCRIPT.get(this.species)));
 			return generateResponse(query, gv.getAllConsequenceTypeByVariantList(variants));

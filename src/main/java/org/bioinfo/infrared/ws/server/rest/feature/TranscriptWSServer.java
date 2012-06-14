@@ -27,8 +27,6 @@ import org.bioinfo.infrared.lib.api.XRefsDBAdaptor;
 import org.bioinfo.infrared.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
 
-import com.sun.jersey.api.client.ClientResponse.Status;
-
 @Path("/{version}/{species}/feature/transcript")
 @Produces("text/plain")
 public class TranscriptWSServer extends GenericRestWSServer {

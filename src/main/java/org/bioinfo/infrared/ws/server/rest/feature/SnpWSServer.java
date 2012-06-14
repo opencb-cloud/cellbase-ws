@@ -26,8 +26,6 @@ import org.bioinfo.infrared.lib.api.TranscriptDBAdaptor;
 import org.bioinfo.infrared.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
 
-import com.sun.jersey.api.client.ClientResponse.Status;
-
 @Path("/{version}/{species}/feature/snp")
 @Produces("text/plain")
 public class SnpWSServer extends GenericRestWSServer {

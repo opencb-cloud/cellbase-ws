@@ -21,8 +21,6 @@ import org.bioinfo.infrared.lib.api.TranscriptDBAdaptor;
 import org.bioinfo.infrared.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
 
-import com.sun.jersey.api.client.ClientResponse.Status;
-
 @Path("/{version}/{species}/feature/exon")
 @Produces("text/plain")
 public class ExonWSServer extends GenericRestWSServer {
@@ -36,7 +34,7 @@ public class ExonWSServer extends GenericRestWSServer {
 	public Response getByEnsemblId(@PathParam("exonId") String query) {
 		try {
 			checkVersionAndSpecies();
-			ExonDBAdaptor exonDBAdaptor = dbAdaptorFactory.getExonDBAdaptor(this.species);
+			ExonDBAdaptor exonDBAdaptor = dbAdaptorFactory.getExonDBAdaptor(this.species, this.version);
 			return  generateResponse(query,exonDBAdaptor.getAllByEnsemblIdList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
 			e.printStackTrace();

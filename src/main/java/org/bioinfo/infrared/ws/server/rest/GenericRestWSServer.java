@@ -19,7 +19,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
@@ -112,13 +111,13 @@ public class GenericRestWSServer implements IWSServer {
 				List<String> versionList = config.getListProperty("CELLBASE.AVAILABLE.VERSIONS", ",");
 				if(versionList != null) {
 					for(String version: versionList) {
-						availableVersionSpeciesMap.put(version, new HashSet<String>());
+						availableVersionSpeciesMap.put(version.trim(), new HashSet<String>());
 						if(config.containsKey("CELLBASE."+version.toUpperCase()+".AVAILABLE.SPECIES")) {
 							// read the species available for each version
 							List<String> speciesList = config.getListProperty("CELLBASE."+version.toUpperCase()+".AVAILABLE.SPECIES", ",");
 							if(speciesList != null) {
 								for(String species: speciesList) {
-									availableVersionSpeciesMap.get(version).add(species);
+									availableVersionSpeciesMap.get(version.trim()).add(species.trim());
 								}
 							}
 						}
