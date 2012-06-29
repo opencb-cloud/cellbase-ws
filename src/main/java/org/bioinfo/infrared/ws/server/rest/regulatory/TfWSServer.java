@@ -45,7 +45,7 @@ public class TfWSServer extends RegulatoryWSServer {
 	public Response getTfInfo(@PathParam("tfId") String query) {
 		try {
 			checkVersionAndSpecies();
-			ProteinDBAdaptor adaptor = dbAdaptorFactory.getProteinDBAdaptor(this.species);
+			ProteinDBAdaptor adaptor = dbAdaptorFactory.getProteinDBAdaptor(this.species, this.version);
 			return generateResponse(query, adaptor.getAllByGeneNameList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -59,10 +59,10 @@ public class TfWSServer extends RegulatoryWSServer {
 	public Response getTfFullInfo(@PathParam("tfId") String query) {
 		try {
 			checkVersionAndSpecies();
-			ProteinDBAdaptor proteinDBAdaptor = dbAdaptorFactory.getProteinDBAdaptor(this.species);
-			GeneDBAdaptor geneDBAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species);
-			TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
-			TfbsDBAdaptor tfbsDBAdaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species);
+			ProteinDBAdaptor proteinDBAdaptor = dbAdaptorFactory.getProteinDBAdaptor(this.species, this.version);
+			GeneDBAdaptor geneDBAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species, this.version);
+			TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species, this.version);
+			TfbsDBAdaptor tfbsDBAdaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species, this.version);
 			
 			List<List<Gene>> geneListList = geneDBAdaptor.getAllByTfNameList(StringUtils.toList(query, ","));
 			List<String> ensemblGeneList = new ArrayList<String>();
@@ -119,7 +119,7 @@ public class TfWSServer extends RegulatoryWSServer {
 	public Response getAllByTfbs(@PathParam("tfId") String query, @DefaultValue("")@QueryParam("celltype") String celltype, @DefaultValue("-2500")@QueryParam("start") String start, @DefaultValue("500")@QueryParam("end") String end) {
 		try {
 			checkVersionAndSpecies();
-			TfbsDBAdaptor adaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species);
+			TfbsDBAdaptor adaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species, this.version);
 			if(celltype == null || celltype.equals("")) {
 				celltype = null;
 			}
@@ -148,7 +148,7 @@ public class TfWSServer extends RegulatoryWSServer {
 	public Response getEnsemblGenes(@PathParam("tfId") String query) {
 		try {
 			checkVersionAndSpecies();
-			GeneDBAdaptor geneDBAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species);
+			GeneDBAdaptor geneDBAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species, this.version);
 			return  generateResponse(query, geneDBAdaptor.getAllByTfList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -162,7 +162,7 @@ public class TfWSServer extends RegulatoryWSServer {
 	public Response getAllPwms(@PathParam("tfId") String query) {
 		try {
 			checkVersionAndSpecies();
-			TfbsDBAdaptor tfbsDBAdaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species);
+			TfbsDBAdaptor tfbsDBAdaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species, this.version);
 			return generateResponse(query, tfbsDBAdaptor.getAllPwmByTfGeneNameList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -176,7 +176,7 @@ public class TfWSServer extends RegulatoryWSServer {
 	public Response getAnnotation(@DefaultValue("")@QueryParam("celltype") String celltype) {
 		try {
 			checkVersionAndSpecies();
-			TfbsDBAdaptor tfbsDBAdaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species);
+			TfbsDBAdaptor tfbsDBAdaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species, this.version);
 			List<Object> results;
 			if (celltype.equals("")){
 				results = tfbsDBAdaptor.getAllAnnotation();

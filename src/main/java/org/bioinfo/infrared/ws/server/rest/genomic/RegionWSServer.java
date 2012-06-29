@@ -19,11 +19,14 @@ import javax.ws.rs.core.UriInfo;
 
 import org.bioinfo.infrared.core.cellbase.ConservedRegion;
 import org.bioinfo.infrared.core.cellbase.CpGIsland;
+import org.bioinfo.infrared.core.cellbase.ExonToTranscript;
+import org.bioinfo.infrared.core.cellbase.Gene;
 import org.bioinfo.infrared.core.cellbase.MirnaTarget;
 import org.bioinfo.infrared.core.cellbase.MutationPhenotypeAnnotation;
 import org.bioinfo.infrared.core.cellbase.RegulatoryRegion;
 import org.bioinfo.infrared.core.cellbase.StructuralVariation;
 import org.bioinfo.infrared.core.cellbase.Tfbs;
+import org.bioinfo.infrared.core.cellbase.Transcript;
 import org.bioinfo.infrared.lib.api.CpGIslandDBAdaptor;
 import org.bioinfo.infrared.lib.api.CytobandDBAdaptor;
 import org.bioinfo.infrared.lib.api.ExonDBAdaptor;
@@ -94,33 +97,106 @@ public class RegionWSServer extends GenericRestWSServer {
 
 	@GET
 	@Path("/{chrRegionId}/gene")
-	public Response getGenesByRegion(@PathParam("chrRegionId") String chregionId) {
+	public Response getGenesByRegion(@PathParam("chrRegionId") String chregionId, @DefaultValue("false") @QueryParam("transcript") String transcripts) {
 		try {
 			checkVersionAndSpecies();
 			GeneDBAdaptor geneDBAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species, this.version);
 			List<Region> regions = Region.parseRegions(chregionId);
 
-			if (hasHistogramQueryParam()){
+			if (hasHistogramQueryParam()) {
 				long t1 = System.currentTimeMillis();
 				//				Response resp = generateResponse(chregionId, getHistogramByFeatures(dbAdaptor.getAllByRegionList(regions)));
 				Response resp = generateResponse(chregionId, geneDBAdaptor.getAllIntervalFrequencies(regions.get(0), getHistogramIntervalSize()));
 				logger.info("Old histogram: "+(System.currentTimeMillis()-t1)+",  resp: "+resp.toString());
 				return resp;
 			}else {
-				return generateResponse(chregionId, "GENE", geneDBAdaptor.getAllByRegionList(regions));
+				if(transcripts != null && transcripts.equalsIgnoreCase("true") && outputFormat.equalsIgnoreCase("json")) {
+					
+					List<List<Gene>> geneListList = geneDBAdaptor.getAllByRegionList(regions);
+					
+					// Getting Gene IDs
+					List<List<String>> geneStringList = new ArrayList<List<String>>(geneListList.size() * geneListList.get(0).size());
+					for(int i=0; i<geneListList.size(); i++) {
+						geneStringList.add(new ArrayList<String>());
+						for(int j=0; j<geneListList.get(i).size(); j++) {
+							geneStringList.get(i).add(geneListList.get(i).get(j).getStableId());
+						}	
+					}
+					StringBuilder response = new StringBuilder();
+					response.append("[");
+					for(int i = 0; i < geneListList.size(); i++) {
+						response.append("[");
+						// This query get Genes filled up with Transcript and Exons
+						List<Gene> geneList = geneDBAdaptor.getAllByEnsemblIdList(geneStringList.get(i), true);
+						System.out.println(">>>"+geneListList.get(i).size()+" == "+geneList.size());
+						boolean removeComma = false;
+						for(int j = 0; j < geneList.size(); j++) {
+							removeComma = true;
+							response.append("{");
+							response.append("\"stableId\":"+"\""+geneList.get(j).getStableId()+"\",");
+							response.append("\"externalName\":"+"\""+geneList.get(j).getExternalName()+"\",");
+							response.append("\"externalDb\":"+"\""+geneList.get(j).getExternalDb()+"\",");
+							response.append("\"biotype\":"+"\""+geneList.get(j).getBiotype()+"\",");
+							response.append("\"status\":"+"\""+geneList.get(j).getStatus()+"\",");
+							response.append("\"chromosome\":"+"\""+geneList.get(j).getChromosome()+"\",");
+							response.append("\"start\":"+geneList.get(j).getStart()+",");
+							response.append("\"end\":"+geneList.get(j).getEnd()+",");
+							response.append("\"strand\":"+"\""+geneList.get(j).getStrand()+"\",");
+							response.append("\"source\":"+"\""+geneList.get(j).getSource()+"\",");
+							response.append("\"description\":"+"\""+geneList.get(j).getDescription()+"\",");
+							response.append("\"transcripts\":[");
+							
+							for(Transcript trans: geneList.get(j).getTranscripts()) {
+								response.append(gson.toJson(trans));
+								// remove last '}'
+								response.replace(response.length()-1, response.length(), "");
+								response.append(",\"exonToTranscripts\":[");
+								for(ExonToTranscript e2t: trans.getExonToTranscripts()) { 
+									response.append(gson.toJson(e2t));
+									// remove last '}'
+									response.replace(response.length()-1, response.length(), "");
+									response.append(",\"exon\":{");
+									response.append("\"stableId\":\""+e2t.getExon().getStableId()+"\",");
+									response.append("\"chromosome\":\""+e2t.getExon().getChromosome()+"\",");
+									response.append("\"start\":\""+e2t.getExon().getStart()+"\",");
+									response.append("\"end\":\""+e2t.getExon().getEnd()+"\",");
+									response.append("\"strand\":\""+e2t.getExon().getStrand()+"\"");
+									response.append("}},");
+								}
+								response.replace(response.length()-1, response.length(), "");
+								response.append("]},");
+							}
+							response.replace(response.length()-1, response.length(), "");
+							response.append("]");
+							response.append("},");
+						}
+						if(removeComma){
+							response.replace(response.length()-1, response.length(), "");
+						}
+						response.append("],");
+					}
+					response.replace(response.length()-1, response.length(), "");
+					response.append("]");
+//					return generateResponse(chregionId, "GENE", geneDBAdaptor.getAllByRegionList(regions));		
+//					return generateResponse(chregionId, "GENE", Arrays.asList(response));
+					return createOkResponse(response.toString());
+				}else {
+					return generateResponse(chregionId, "GENE", geneDBAdaptor.getAllByRegionList(regions));					
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getGenesByRegion", e.toString());
 		}
 	}
+	
 
 	@GET
 	@Path("/{chrRegionId}/transcript")
 	public Response getTranscriptByRegion(@PathParam("chrRegionId") String chregionId) {
 		try {
 			checkVersionAndSpecies();
-			TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
+			TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species, this.version);
 			List<Region> regions = Region.parseRegions(chregionId);
 			return generateResponse(chregionId, "TRANSCRIPT", transcriptDBAdaptor.getAllByRegionList(regions));
 		}catch(Exception e) {
@@ -518,4 +594,44 @@ public class RegionWSServer extends GenericRestWSServer {
 		return createOkResponse(sb.toString());
 	}
 
+//	private class GeneListDeserializer implements JsonSerializer<List> {
+//
+//		@Override
+//		public JsonElement serialize(List geneListList, Type typeOfSrc, JsonSerializationContext context) {
+//			System.out.println("GeneListDeserializer - gene JSON elem: ");
+//			Gson gsonLocal = gson = new GsonBuilder().serializeNulls().setExclusionStrategies(new FeatureExclusionStrategy()).create();
+//			//logger.debug("SnpWSCLient - FeatureListDeserializer - json FeatureList<SNP> size: "+json.getAsJsonArray().size());
+//			List<List<Gene>> snps = new ArrayList<List<Gene>>(json.getAsJsonArray().size());
+//			List<Gene> geneList;
+//			JsonArray ja = new JsonArray();
+//			for(JsonElement geneArray: json.getAsJsonArray()) {
+//				System.out.println("GeneListDeserializer - gene JSON elem: ");
+//				geneList = new ArrayList<Gene>(geneArray.getAsJsonArray().size());
+//				for(JsonElement gene: geneArray.getAsJsonArray()) {
+//					geneList.add(gsonLocal.fromJson(gene, Gene.class));					
+//				}
+//				snps.add(geneList);
+//			}
+//			return null;
+//		}
+//		
+//		@Override
+//		public List<List<Gene>> deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+//			System.out.println("GeneListDeserializer - gene JSON elem: ");
+//			Gson gsonLocal = gson = new GsonBuilder().serializeNulls().setExclusionStrategies(new FeatureExclusionStrategy()).create();
+//			//logger.debug("SnpWSCLient - FeatureListDeserializer - json FeatureList<SNP> size: "+json.getAsJsonArray().size());
+//			List<List<Gene>> snps = new ArrayList<List<Gene>>(json.getAsJsonArray().size());
+//			List<Gene> geneList;
+//			for(JsonElement geneArray: json.getAsJsonArray()) {
+//				System.out.println("GeneListDeserializer - gene JSON elem: ");
+//				geneList = new ArrayList<Gene>(geneArray.getAsJsonArray().size());
+//				for(JsonElement gene: geneArray.getAsJsonArray()) {
+//					geneList.add(gsonLocal.fromJson(gene, Gene.class));					
+//				}
+//				snps.add(geneList);
+//			}
+//			return snps;
+//		}
+//	}
+	
 }

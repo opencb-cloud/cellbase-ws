@@ -45,7 +45,7 @@ public class MiRnaMatureWSServer extends RegulatoryWSServer {
 			// miRnaGene y Ensembl Genes + Transcripts
 			// mirnaDiseases
 			// mirnaTargets
-			MirnaDBAdaptor mirnaDBAdaptor = dbAdaptorFactory.getMirnaDBAdaptor(this.species);
+			MirnaDBAdaptor mirnaDBAdaptor = dbAdaptorFactory.getMirnaDBAdaptor(this.species, this.version);
 			logger.debug("En getMiRnaMatureInfo: "+query);
 			return generateResponse(query, mirnaDBAdaptor.getAllMiRnaMaturesByNameList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
@@ -59,9 +59,9 @@ public class MiRnaMatureWSServer extends RegulatoryWSServer {
 	public Response getMiRnaMatureFullInfo(@PathParam("mirnaId") String query) {
 		try {
 			checkVersionAndSpecies();
-			MirnaDBAdaptor mirnaDBAdaptor = dbAdaptorFactory.getMirnaDBAdaptor(this.species);
-			GeneDBAdaptor geneDBAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species);
-			TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
+			MirnaDBAdaptor mirnaDBAdaptor = dbAdaptorFactory.getMirnaDBAdaptor(this.species, this.version);
+			GeneDBAdaptor geneDBAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species, this.version);
+			TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species, this.version);
 			
 			List<List<MirnaMature>> mirnaMature = mirnaDBAdaptor.getAllMiRnaMaturesByNameList(StringUtils.toList(query, ","));
 			List<List<MirnaGene>> mirnaGenes = mirnaDBAdaptor.getAllMiRnaGenesByMiRnaMatureList(StringUtils.toList(query, ","));
@@ -106,7 +106,7 @@ public class MiRnaMatureWSServer extends RegulatoryWSServer {
 	public Response getEnsemblGene(@PathParam("mirnaId") String query) {
 		try {
 			checkVersionAndSpecies();
-			GeneDBAdaptor adaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species);
+			GeneDBAdaptor adaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species, this.version);
 			return  generateResponse(query, adaptor.getAllByMiRnaMatureList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -119,7 +119,7 @@ public class MiRnaMatureWSServer extends RegulatoryWSServer {
 	public Response getMiRnaGene(@PathParam("mirnaId") String query) {
 		try {
 			checkVersionAndSpecies();
-			MirnaDBAdaptor mirnaDBAdaptor = dbAdaptorFactory.getMirnaDBAdaptor(this.species);
+			MirnaDBAdaptor mirnaDBAdaptor = dbAdaptorFactory.getMirnaDBAdaptor(this.species, this.version);
 			return generateResponse(query, mirnaDBAdaptor.getAllMiRnaGenesByMiRnaMatureList(StringUtils.toList(query, ",")));
 //			return  generateResponse(query, mirnaDBAdaptor.getAllByMiRnaList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
@@ -133,7 +133,7 @@ public class MiRnaMatureWSServer extends RegulatoryWSServer {
 	public Response getEnsemblTargetGenes(@PathParam("mirnaId") String query) {
 		try {
 			checkVersionAndSpecies();
-			GeneDBAdaptor adaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species);
+			GeneDBAdaptor adaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species, this.version);
 			return  generateResponse(query, adaptor.getAllTargetsByMiRnaMatureList(StringUtils.toList(query, ","))); // Renombrar a getAllTargetGenesByMiRnaList
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -146,7 +146,7 @@ public class MiRnaMatureWSServer extends RegulatoryWSServer {
 	public Response getMirnaTargets(@PathParam("mirnaId") String query, @DefaultValue("")@QueryParam("source") String source) {
 		try {
 			checkVersionAndSpecies();
-			MirnaDBAdaptor adaptor = dbAdaptorFactory.getMirnaDBAdaptor(this.species);
+			MirnaDBAdaptor adaptor = dbAdaptorFactory.getMirnaDBAdaptor(this.species, this.version);
 			return  generateResponse(query, adaptor.getAllMiRnaTargetsByMiRnaMatureList(StringUtils.toList(query, ","), StringUtils.toList(source, ",")));
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -159,7 +159,7 @@ public class MiRnaMatureWSServer extends RegulatoryWSServer {
 	public Response getMinaDisease(@PathParam("mirnaId") String query) {
 		try {
 			checkVersionAndSpecies();
-			MirnaDBAdaptor mirnaDBAdaptor = dbAdaptorFactory.getMirnaDBAdaptor(this.species);
+			MirnaDBAdaptor mirnaDBAdaptor = dbAdaptorFactory.getMirnaDBAdaptor(this.species, this.version);
 			return  generateResponse(query, mirnaDBAdaptor.getAllMiRnaDiseasesByMiRnaMatureList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -172,7 +172,7 @@ public class MiRnaMatureWSServer extends RegulatoryWSServer {
 	public Response getAnnotation(@DefaultValue("") @QueryParam("source") String source) {
 		try {
 			checkVersionAndSpecies();
-			MirnaDBAdaptor adaptor = dbAdaptorFactory.getMirnaDBAdaptor(this.species);
+			MirnaDBAdaptor adaptor = dbAdaptorFactory.getMirnaDBAdaptor(this.species, this.version);
 
 			List<?> results;
 			if(source.equals("")){

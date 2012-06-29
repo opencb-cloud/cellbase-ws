@@ -1,10 +1,14 @@
 package org.bioinfo.infrared.ws.server.rest.feature;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javassist.expr.Instanceof;
+
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -12,6 +16,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
@@ -23,8 +28,13 @@ import org.bioinfo.infrared.core.cellbase.SnpToTranscript;
 import org.bioinfo.infrared.lib.api.SnpDBAdaptor;
 import org.bioinfo.infrared.lib.api.TfbsDBAdaptor;
 import org.bioinfo.infrared.lib.api.TranscriptDBAdaptor;
+import org.bioinfo.infrared.lib.common.GenomicVariant;
+import org.bioinfo.infrared.lib.common.Position;
+import org.bioinfo.infrared.lib.common.SnpRegulatoryConsequenceType;
 import org.bioinfo.infrared.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
+
+import com.sun.jersey.multipart.FormDataParam;
 
 @Path("/{version}/{species}/feature/snp")
 @Produces("text/plain")
@@ -39,7 +49,7 @@ public class SnpWSServer extends GenericRestWSServer {
 	public Response getByEnsemblId(@PathParam("snpId") String query) {
 		try {
 			checkVersionAndSpecies();
-			SnpDBAdaptor adapter = dbAdaptorFactory.getSnpDBAdaptor(this.species);
+			SnpDBAdaptor adapter = dbAdaptorFactory.getSnpDBAdaptor(this.species, this.version);
 			return  generateResponse(query, "SNP", adapter.getAllBySnpIdList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -66,13 +76,13 @@ public class SnpWSServer extends GenericRestWSServer {
 	public Response getFullInfoById(@PathParam("snpId") String query) {
 		try {
 			checkVersionAndSpecies();
-			SnpDBAdaptor snpDBAdaptor = dbAdaptorFactory.getSnpDBAdaptor(this.species);
+			SnpDBAdaptor snpDBAdaptor = dbAdaptorFactory.getSnpDBAdaptor(this.species, this.version);
 			
 			
 			List<List<Snp>> snpListList = snpDBAdaptor.getAllBySnpIdList(StringUtils.toList(query, ","));
 			List<List<SnpToTranscript>> snpToTranscript = snpDBAdaptor.getAllSnpToTranscriptList(StringUtils.toList(query, ","));
 			List<List<SnpPopulationFrequency>> snpPopulation = snpDBAdaptor.getAllSnpPopulationFrequencyList(StringUtils.toList(query, ","));
-			List<List<SnpPhenotypeAnnotation>> snpPhenotype = snpDBAdaptor.getAllSnpPhenotypeAnnotationList(StringUtils.toList(query, ","));
+			List<List<SnpPhenotypeAnnotation>> snpPhenotype = snpDBAdaptor.getAllSnpPhenotypeAnnotationListBySnpNameList(StringUtils.toList(query, ","));
 			
 //			List<List<Transcript>> transcripts = new ArrayList<List<Transcript>>(StringUtils.toList(query, ",").size());
 //			for (int i = 0; i < snpToTranscript.size(); i++) {
@@ -147,36 +157,67 @@ public class SnpWSServer extends GenericRestWSServer {
 		try {
 			checkVersionAndSpecies();
 			SnpDBAdaptor snpDBAdaptor = dbAdaptorFactory.getSnpDBAdaptor(species, version);
-			return generateResponse(snpId, snpDBAdaptor.getAllConsequenceTypesBySnpIdList(StringUtils.toList(snpId, ",")));
+			return generateResponse(snpId, "SNP_CONSEQUENCE_TYPE", snpDBAdaptor.getAllConsequenceTypesBySnpIdList(StringUtils.toList(snpId, ",")));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getConsequenceTypeByPostMethod", e.toString());
 		}
 	}
 	
+	
+	
 	@GET
-	@Path("/{snpId}/population_frequency")
-	public Response getPopulationFrequency(@PathParam("snpId") String snpId) {
+	@Path("/{snpId}/regulatory")
+	public Response getRegulatoryByGetMethod(@PathParam("snpId") String snpId) {
+		return getRegulatoryType(snpId);
+	}
+	
+	@POST
+	@Path("/regulatory")
+	public Response getRegulatoryTypeByPostMethod(@QueryParam("id") String snpId) {
+		return getRegulatoryType(snpId);
+	}
+
+	private Response getRegulatoryType(String snpId) {
 		try {
-			return null;
+			checkVersionAndSpecies();
+			SnpDBAdaptor snpDBAdaptor = dbAdaptorFactory.getSnpDBAdaptor(species, version);
+			return generateResponse(snpId, "SNP_REGULATORY", snpDBAdaptor.getAllSnpRegulatoryBySnpNameList(StringUtils.toList(snpId, ",")));
+//			return generateResponse(snpId, "", snpDBAdaptor.getAllSnpRegulatoryBySnpNameList(StringUtils.toList(snpId, ",")));
 		} catch (Exception e) {
 			e.printStackTrace();
-			return createErrorResponse("getPopulationFrequency", e.toString());
+			return createErrorResponse("getConsequenceTypeByPostMethod", e.toString());
 		}
 	}
 	
+	
+	
 	@GET
-	@Path("/{geneId}/phenotype")
-	public Response getPhenotype(@PathParam("geneId") String query) {
+	@Path("/{snpId}/phenotype")
+	public Response getSnpPhenotypesByPositionByGet(@PathParam("snpId") String snps) {
+		return getSnpPhenotypesByPosition(snps, outputFormat);
+	}
+
+	@POST
+	@Consumes({MediaType.MULTIPART_FORM_DATA, MediaType.APPLICATION_FORM_URLENCODED})//MediaType.MULTIPART_FORM_DATA, 
+	@Path("/phenotype")
+	public Response getSnpPhenotypesByPositionByPost(@FormDataParam("of") String outputFormat, @FormDataParam("snps") String snps) {
+		return getSnpPhenotypesByPosition(snps, outputFormat);
+	}
+	
+	public Response getSnpPhenotypesByPosition(String snps, String outputFormat) {
 		try {
 			checkVersionAndSpecies();
-			TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
-			return  generateResponse(query, transcriptDBAdaptor.getByEnsemblGeneIdList(StringUtils.toList(query, ",")));
+			SnpDBAdaptor snpDBAdaptor = dbAdaptorFactory.getSnpDBAdaptor(this.species, this.version);
+			return generateResponse(snps, "SNP_PHENOTYPE", snpDBAdaptor.getAllSnpPhenotypeAnnotationListBySnpNameList(StringUtils.toList(snps, ",")));
 		} catch (Exception e) {
 			e.printStackTrace();
-			return createErrorResponse("getPhenotype", e.toString());
+			return createErrorResponse("getSnpPhenotypesByPositionByGet", e.toString());
 		}
 	}
+	
+	
+	
 	
 	@GET
 	@Path("/{snpId}/sequence")
@@ -189,12 +230,26 @@ public class SnpWSServer extends GenericRestWSServer {
 		}
 	}
 	
+
+	@GET
+	@Path("/{snpId}/population_frequency")
+	public Response getPopulationFrequency(@PathParam("snpId") String snpId) {
+		try {
+			checkVersionAndSpecies();
+			SnpDBAdaptor snpDBAdaptor = dbAdaptorFactory.getSnpDBAdaptor(species, version);
+			return generateResponse(snpId, "SNP_POPULATION_FREQUENCY", snpDBAdaptor.getAllSnpPopulationFrequencyList(StringUtils.toList(snpId, ",")));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return createErrorResponse("getPopulationFrequency", e.toString());
+		}
+	}
+	
 	@GET
 	@Path("/{snpId}/xref")
 	public Response getXrefs(@PathParam("snpId") String query) {
 		try {
 			checkVersionAndSpecies();
-			TfbsDBAdaptor tfbsDBAdaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species);
+			TfbsDBAdaptor tfbsDBAdaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species, this.version);
 			return  generateResponse(query, "XREF", tfbsDBAdaptor.getAllByTargetGeneNameList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
 			e.printStackTrace();

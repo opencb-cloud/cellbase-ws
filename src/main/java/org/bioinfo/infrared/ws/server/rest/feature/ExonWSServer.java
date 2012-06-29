@@ -48,7 +48,7 @@ public class ExonWSServer extends GenericRestWSServer {
 	public Response getAllBySnpIdList(@PathParam("snpId") String query) {
 		try {
 			checkVersionAndSpecies();
-			ExonDBAdaptor exonDBAdaptor = dbAdaptorFactory.getExonDBAdaptor(this.species);
+			ExonDBAdaptor exonDBAdaptor = dbAdaptorFactory.getExonDBAdaptor(this.species, this.version);
 			return generateResponse(query, Arrays.asList(exonDBAdaptor.getAllBySnpIdList(StringUtils.toList(query, ","))));
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -61,7 +61,7 @@ public class ExonWSServer extends GenericRestWSServer {
 	public Response getAminoByExon(@PathParam("exonId") String query) {
 		try{
 			checkVersionAndSpecies();
-			ExonDBAdaptor exonDBAdaptor = dbAdaptorFactory.getExonDBAdaptor(this.species);
+			ExonDBAdaptor exonDBAdaptor = dbAdaptorFactory.getExonDBAdaptor(this.species, this.version);
 			List<Exon> exons = exonDBAdaptor.getAllByEnsemblIdList(StringUtils.toList(query, ","));
 			List<String> sequenceList = null;
 			if(exons != null) {
@@ -103,7 +103,7 @@ public class ExonWSServer extends GenericRestWSServer {
 	public Response getSequencesByIdList(@PathParam("exonId") String query) {
 		try {
 			checkVersionAndSpecies();
-			ExonDBAdaptor exonDBAdaptor = dbAdaptorFactory.getExonDBAdaptor(this.species);
+			ExonDBAdaptor exonDBAdaptor = dbAdaptorFactory.getExonDBAdaptor(this.species, this.version);
 			return generateResponse(query, Arrays.asList(exonDBAdaptor.getAllSequencesByIdList(StringUtils.toList(query, ","))));
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -117,7 +117,7 @@ public class ExonWSServer extends GenericRestWSServer {
 	public Response getRegionsByIdList(@PathParam("exonId") String query) {
 		try {
 			checkVersionAndSpecies();
-			ExonDBAdaptor exonDBAdaptor = dbAdaptorFactory.getExonDBAdaptor(this.species);
+			ExonDBAdaptor exonDBAdaptor = dbAdaptorFactory.getExonDBAdaptor(this.species, this.version);
 			return generateResponse(query, Arrays.asList(exonDBAdaptor.getAllRegionsByIdList(StringUtils.toList(query, ","))));
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -130,7 +130,7 @@ public class ExonWSServer extends GenericRestWSServer {
 	public Response getTranscriptsByEnsemblId(@PathParam("exonId") String query) {
 		try {
 			checkVersionAndSpecies();
-			TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
+			TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species, this.version);
 			return generateResponse(query, transcriptDBAdaptor.getAllByEnsemblExonId(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
 			e.printStackTrace();

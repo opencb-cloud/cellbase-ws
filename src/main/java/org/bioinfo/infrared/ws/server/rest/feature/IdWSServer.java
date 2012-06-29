@@ -33,13 +33,38 @@ public class IdWSServer extends GenericRestWSServer {
 	public Response getByEnsemblId(@PathParam("id") String query, @DefaultValue("") @QueryParam("dbname") String dbName) {
 		try{
 			checkVersionAndSpecies();
-			XRefsDBAdaptor x = dbAdaptorFactory.getXRefDBAdaptor(this.species);
-			if (dbName.equals("")){
+			XRefsDBAdaptor x = dbAdaptorFactory.getXRefDBAdaptor(this.species, this.version);
+			if(dbName.equals("")){
 				return generateResponse(query, x.getAllByDBNameList(StringUtils.toList(query, ","), null));
-			}
-			else{
+			}else {
 				return generateResponse(query, x.getAllByDBNameList(StringUtils.toList(query, ","), (StringUtils.toList(dbName, ","))));
 			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return createErrorResponse("getByEnsemblId", e.toString());
+		}
+	}
+	
+	@GET
+	@Path("/{id}/starts_with")
+	public Response getByLikeQuery(@PathParam("id") String query) {
+		try{
+			checkVersionAndSpecies();
+			XRefsDBAdaptor x = dbAdaptorFactory.getXRefDBAdaptor(this.species, this.version);
+			return generateResponse(query, x.getByStartsWithQueryList(StringUtils.toList(query, ",")));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return createErrorResponse("getByEnsemblId", e.toString());
+		}
+	}
+	
+	@GET
+	@Path("/{id}/contains")
+	public Response getByContainsQuery(@PathParam("id") String query) {
+		try{
+			checkVersionAndSpecies();
+			XRefsDBAdaptor x = dbAdaptorFactory.getXRefDBAdaptor(this.species, this.version);
+			return generateResponse(query, x.getByContainsQueryList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getByEnsemblId", e.toString());

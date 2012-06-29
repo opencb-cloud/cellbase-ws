@@ -75,7 +75,7 @@ public class PositionWSServer extends GenericRestWSServer {
 		try {
 			checkVersionAndSpecies();
 			List<Position> positionList = Position.parsePositions(query);
-			GeneDBAdaptor geneDBAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species);
+			GeneDBAdaptor geneDBAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species, this.version);
 			return generateResponse(query, geneDBAdaptor.getAllByPositionList(positionList));
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -89,7 +89,7 @@ public class PositionWSServer extends GenericRestWSServer {
 		try {
 			checkVersionAndSpecies();
 			List<Position> positionList = Position.parsePositions(query);
-			TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
+			TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species, this.version);
 			return generateResponse(query,  transcriptDBAdaptor.getAllByPositionList(positionList));
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -103,7 +103,7 @@ public class PositionWSServer extends GenericRestWSServer {
 		try {
 			checkVersionAndSpecies();
 			List<Position> positionList = Position.parsePositions(query);
-			SnpDBAdaptor snpAdaptor = dbAdaptorFactory.getSnpDBAdaptor(this.species);
+			SnpDBAdaptor snpAdaptor = dbAdaptorFactory.getSnpDBAdaptor(this.species, this.version);
 			return  generateResponse(query,  snpAdaptor.getAllByPositionList(positionList));
 		} catch (Exception e) {
 			e.printStackTrace();

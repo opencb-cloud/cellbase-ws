@@ -149,13 +149,15 @@ public class GenericRestWSServer implements IWSServer {
 		headers.put("MIRNA_DISEASE", "miRBase ID,disease name,pubmed ID,description".replaceAll(",", "\t"));
 		headers.put("REGULATORY_REGION", "name,type,chromosome,start,end,cell type,source".replaceAll(",", "\t"));
 		headers.put("CONSEQUENCE_TYPE", "chromosome,start,end,feature ID,feature name,consequence type,biotype,feature chromosome,feature start,feature end,feature strand,snp ID,ancestral allele,alternative allele,gene Ensembl ID,Ensembl transcript ID,gene name,SO consequence type ID,SO consequence type name,consequence type description,consequence type category,aminoacid change,codon change".replaceAll(",", "\t"));
+		headers.put("SNP_CONSEQUENCE_TYPE", "SNP name,chromosome,start,end,strand,allele,transcript ID,gene,SO accession,SO term,label,description".replaceAll(",", "\t"));
 		headers.put("PROTEIN", "UniProt accession,protein name,full name,gene name,organism".replaceAll(",", "\t"));
 		headers.put("PROTEIN_FEATURE", "feature type,aa start,aa end,original,variation,identifier,description".replaceAll(",", "\t"));
 		headers.put("XREF", "ID,description".replaceAll(",", "\t"));
 		headers.put("PATHWAY", "".replaceAll(",", "\t"));
+		headers.put("SNP_PHENOTYPE", "SNP name,source,associated gene name,risk allele,risk allele freq in controls,p-value,phenotype name,phenotype description,study name,study type,study URL,study description".replaceAll(",", "\t"));
+		headers.put("SNP_POPULATION_FREQUENCY", "SNP name,population,source,ref allele,ref allele freq,other allele,other allele freq,ref allele homozygote,ref allele homozygote freq,allele heterozygote,allele heterozygote freq,ref other allele homozygote, ref other allele homozygote freq".replaceAll(",", "\t"));
+		headers.put("SNP_REGULATORY", "SNP name,feature name,feature type,chromsome,start,end,strand,Ensembl transcript ID,Ensembl gene ID,gene name,biotype".replaceAll(",", "\t"));
 	}
-	
-	
 	
 	@Deprecated
 	public GenericRestWSServer(@PathParam("version") String version) {

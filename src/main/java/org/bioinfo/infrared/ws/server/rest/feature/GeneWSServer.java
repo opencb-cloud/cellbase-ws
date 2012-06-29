@@ -46,7 +46,7 @@ public class GeneWSServer extends GenericRestWSServer {
 	public Response getList(@DefaultValue("")@QueryParam("biotype") List<String> biotype, @DefaultValue("false")@QueryParam("id") Boolean id) {
 		try {
 			checkVersionAndSpecies();
-			GeneDBAdaptor geneDBAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species);
+			GeneDBAdaptor geneDBAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species, this.version);
 			return generateResponse("list", geneDBAdaptor.getAll(biotype, id));
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -59,7 +59,7 @@ public class GeneWSServer extends GenericRestWSServer {
 	public Response getByEnsemblId(@PathParam("geneId") String query) {
 		try {
 			checkVersionAndSpecies();
-			GeneDBAdaptor geneDBAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species);
+			GeneDBAdaptor geneDBAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species, this.version);
 			return generateResponse(query, "GENE", geneDBAdaptor.getAllByNameList(StringUtils.toList(query, ",")));
 			//	return generateResponse(query, Arrays.asList(this.getGeneDBAdaptor().getAllByEnsemblIdList(StringUtils.toList(query, ","))));
 		} catch (Exception e) {
@@ -73,7 +73,7 @@ public class GeneWSServer extends GenericRestWSServer {
 	public Response getReactomeByEnsemblId(@PathParam("geneId") String query) {
 		try {
 			checkVersionAndSpecies();
-			XRefsDBAdaptor xRefsDBAdaptor = dbAdaptorFactory.getXRefDBAdaptor(this.species);
+			XRefsDBAdaptor xRefsDBAdaptor = dbAdaptorFactory.getXRefDBAdaptor(this.species, this.version);
 			return generateResponse(query, xRefsDBAdaptor.getAllByDBName(StringUtils.toList(query, ","),"reactome"));
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -86,9 +86,9 @@ public class GeneWSServer extends GenericRestWSServer {
 	public Response getFullInfoByEnsemblId(@PathParam("geneId") String query, @DefaultValue("") @QueryParam("sources") String sources) {
 		try {
 			checkVersionAndSpecies();
-			GeneDBAdaptor geneDBAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species);
+			GeneDBAdaptor geneDBAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species, this.version);
 			TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species, this.version);
-			XRefsDBAdaptor xRefsDBAdaptor = dbAdaptorFactory.getXRefDBAdaptor(this.species);
+			XRefsDBAdaptor xRefsDBAdaptor = dbAdaptorFactory.getXRefDBAdaptor(this.species, this.version);
 			
 			List<List<Gene>> geneListList = geneDBAdaptor.getAllByNameList(StringUtils.toList(query, ","));
 
@@ -154,7 +154,7 @@ public class GeneWSServer extends GenericRestWSServer {
 	public Response getTranscriptsByEnsemblId(@PathParam("geneId") String query) {
 		try {
 			checkVersionAndSpecies();
-			TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species);
+			TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species, this.version);
 			return generateResponse(query, "TRANSCRIPT", Arrays.asList(transcriptDBAdaptor.getAllByNameList(StringUtils.toList(query, ","))));
 //			return  generateResponse(query, Arrays.asList(transcriptDBAdaptor.getByEnsemblGeneIdList(StringUtils.toList(query, ","))));
 		} catch (Exception e) {
@@ -181,7 +181,7 @@ public class GeneWSServer extends GenericRestWSServer {
 	public Response getAllMirna(@PathParam("geneId") String query) {
 		try {
 			checkVersionAndSpecies();
-			MirnaDBAdaptor mirnaDBAdaptor = dbAdaptorFactory.getMirnaDBAdaptor(this.species);
+			MirnaDBAdaptor mirnaDBAdaptor = dbAdaptorFactory.getMirnaDBAdaptor(this.species, this.version);
 			return  generateResponse(query, "MIRNA_TARGET", mirnaDBAdaptor.getAllMiRnaTargetsByGeneNameList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -201,7 +201,7 @@ public class GeneWSServer extends GenericRestWSServer {
 	public Response getProteinFeature(@PathParam("geneId") String query) {
 		try {
 			checkVersionAndSpecies();
-			ProteinDBAdaptor proteinDBAdaptor = dbAdaptorFactory.getProteinDBAdaptor(this.species);
+			ProteinDBAdaptor proteinDBAdaptor = dbAdaptorFactory.getProteinDBAdaptor(this.species, this.version);
 			return  generateResponse(query, "PROTEIN_FEATURE", proteinDBAdaptor.getAllProteinFeaturesByGeneNameList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -214,7 +214,7 @@ public class GeneWSServer extends GenericRestWSServer {
 	public Response getSNPByGene(@PathParam("geneId") String query) {
 		try {
 			checkVersionAndSpecies();
-			GeneDBAdaptor geneAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species);
+			GeneDBAdaptor geneAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species, this.version);
 			List<List<Gene>> geneList = geneAdaptor.getAllByNameList(StringUtils.toList(query, ","));
 			List<List<Snp>> result = new ArrayList<List<Snp>>();
 			SnpDBAdaptor snpAdaptor = dbAdaptorFactory.getSnpDBAdaptor(this.species);
@@ -237,7 +237,7 @@ public class GeneWSServer extends GenericRestWSServer {
 	public Response getExonByGene(@PathParam("geneId") String query) {
 		try {
 			checkVersionAndSpecies();
-			GeneDBAdaptor geneDBAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species);
+			GeneDBAdaptor geneDBAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species, this.version);
 			List<List<Gene>> geneList = geneDBAdaptor.getAllByNameList(StringUtils.toList(query, ","));
 
 			List<String> ensemblIds = new ArrayList<String>();
@@ -252,7 +252,7 @@ public class GeneWSServer extends GenericRestWSServer {
 				}
 			}
 			
-			ExonDBAdaptor exonDBAdaptor = dbAdaptorFactory.getExonDBAdaptor(this.species);
+			ExonDBAdaptor exonDBAdaptor = dbAdaptorFactory.getExonDBAdaptor(this.species, this.version);
 			return  generateResponse(query, "EXON", exonDBAdaptor.getByEnsemblGeneIdList(ensemblIds));
 		} catch (Exception e) {
 			e.printStackTrace();

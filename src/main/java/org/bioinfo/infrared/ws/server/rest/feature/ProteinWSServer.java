@@ -33,7 +33,7 @@ public class ProteinWSServer extends GenericRestWSServer {
 	public Response getByEnsemblId(@PathParam("proteinId") String query) {
 		try {
 			checkVersionAndSpecies();
-			ProteinDBAdaptor adaptor = dbAdaptorFactory.getProteinDBAdaptor(this.species);
+			ProteinDBAdaptor adaptor = dbAdaptorFactory.getProteinDBAdaptor(this.species, this.version);
 			return generateResponse(query, "PROTEIN", adaptor.getAllByGeneNameList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -64,7 +64,7 @@ public class ProteinWSServer extends GenericRestWSServer {
 	public Response getFeatures(@PathParam("proteinId") String query, @DefaultValue("") @QueryParam("type") String type) {
 		try {
 			checkVersionAndSpecies();
-			ProteinDBAdaptor adaptor = dbAdaptorFactory.getProteinDBAdaptor(this.species);
+			ProteinDBAdaptor adaptor = dbAdaptorFactory.getProteinDBAdaptor(this.species, this.version);
 			return generateResponse(query, "PROTEIN_FEATURE", adaptor.getAllProteinFeaturesByProteinXrefList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -83,7 +83,7 @@ public class ProteinWSServer extends GenericRestWSServer {
 	public Response getXrefs(@PathParam("proteinId") String proteinId, @DefaultValue("") @QueryParam("dbname") String dbname) {
 		try {
 			checkVersionAndSpecies();
-			ProteinDBAdaptor adaptor = dbAdaptorFactory.getProteinDBAdaptor(this.species);
+			ProteinDBAdaptor adaptor = dbAdaptorFactory.getProteinDBAdaptor(this.species, this.version);
 			return generateResponse(proteinId, "XREF", adaptor.getAllProteinXrefsByProteinNameList(StringUtils.toList(proteinId, ",")));
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -102,11 +102,11 @@ public class ProteinWSServer extends GenericRestWSServer {
 	public Response getInteraction(@PathParam("proteinId") String query) {
 		try {
 			checkVersionAndSpecies();
-			ProteinDBAdaptor adaptor = dbAdaptorFactory.getProteinDBAdaptor(this.species);
+			ProteinDBAdaptor adaptor = dbAdaptorFactory.getProteinDBAdaptor(this.species, this.version);
 			return generateResponse(query, "PROTEIN_INTERACTION", adaptor.getAllProteinInteractionsByProteinNameList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
 			e.printStackTrace();
-			return createErrorResponse("getXrefs", e.toString());
+			return createErrorResponse("getInteraction", e.toString());
 		}
 	}
 	

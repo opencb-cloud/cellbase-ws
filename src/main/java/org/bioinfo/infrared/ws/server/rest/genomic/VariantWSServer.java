@@ -1,6 +1,7 @@
 package org.bioinfo.infrared.ws.server.rest.genomic;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -24,8 +25,11 @@ import javax.ws.rs.core.UriInfo;
 import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.infrared.core.cellbase.Transcript;
 import org.bioinfo.infrared.lib.api.GenomicVariantEffectDBAdaptor;
+import org.bioinfo.infrared.lib.api.MutationDBAdaptor;
+import org.bioinfo.infrared.lib.api.SnpDBAdaptor;
 import org.bioinfo.infrared.lib.common.GenomicVariant;
 import org.bioinfo.infrared.lib.common.GenomicVariantConsequenceType;
+import org.bioinfo.infrared.lib.common.Position;
 import org.bioinfo.infrared.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
 
@@ -113,56 +117,70 @@ public class VariantWSServer extends GenericRestWSServer {
 	}
 
 	
+	
 	@GET
 	@Path("/{variants}/snp_phenotype")
-	public Response getSnpPhenotypesByPositionByGet(@PathParam("variants") String variants, 
-			@DefaultValue("") @QueryParam("exclude") String excludeSOTerms) {
-		try {
-			//			return getConsequenceTypeByPosition(query, features, variation, regulatory, diseases);
-			return getConsequenceTypeByPosition(variants, excludeSOTerms);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return createErrorResponse("getConsequenceTypeByPositionByGet", e.toString());
-		}
+	public Response getSnpPhenotypesByPositionByGet(@PathParam("variants") String variants) {
+		return getSnpPhenotypesByPosition(variants, outputFormat);
 	}
 
 	@POST
 	@Consumes({MediaType.MULTIPART_FORM_DATA, MediaType.APPLICATION_FORM_URLENCODED})//MediaType.MULTIPART_FORM_DATA, 
 	@Path("/snp_phenotype")
-	public Response getSnpPhenotypesByPositionByPost( @FormDataParam("of") String outputFormat, 
-			@FormDataParam("variants") String postQuery, 
-			@DefaultValue("") @FormDataParam("exclude") String excludeSOTerms) {
-		//		return getConsequenceTypeByPosition(postQuery, features, variation, regulatory, diseases);
-		return getConsequenceTypeByPosition(postQuery, excludeSOTerms);
+	public Response getSnpPhenotypesByPositionByPost(@FormDataParam("of") String outputFormat, @FormDataParam("variants") String variants) {
+		return getSnpPhenotypesByPosition(variants, outputFormat);
 	}
 	
-	
-	
-	
-	
-	
-	@Deprecated
-	private Response getConsequenceTypeByPosition(String query, String features, String variation, String regulatory, String diseases){
+	public Response getSnpPhenotypesByPosition(String variants, String outputFormat) {
 		try {
-			System.out.println("variants: "+query);
-			if(query.length() > 100){
-				logger.debug("VARIANT TOOL WS: " + query.substring(0, 99) + "....");
+			checkVersionAndSpecies();
+			SnpDBAdaptor snpDBAdaptor = dbAdaptorFactory.getSnpDBAdaptor(this.species, this.version);
+			List<GenomicVariant> variantList=  GenomicVariant.parseVariants(variants);
+			List<Position> positionList = new ArrayList<Position>(variantList.size());
+			for(GenomicVariant gv: variantList) {
+				positionList.add(new Position(gv.getChromosome(), gv.getPosition()));
 			}
-			else{
-				logger.debug("VARIANT TOOL WS: " + query);
-			}
-			List<GenomicVariant> variants = GenomicVariant.parseVariants(query);
-			System.out.println("number of variants: "+variants.size());
-			//			GenomicVariantEffect gv = new GenomicVariantEffect(this.species);
-			GenomicVariantEffectDBAdaptor gv = dbAdaptorFactory.getGenomicVariantEffectDBAdaptor(species, this.version);
-
-			//			return generateResponse(query, gv.getConsequenceType(variants, CACHE_TRANSCRIPT.get(this.species)));
-			return generateResponse(query, gv.getAllConsequenceTypeByVariantList(variants));
+			return generateResponse(variants, "SNP_PHENOTYPE", snpDBAdaptor.getAllSnpPhenotypeAnnotationListByPositionList(positionList));
 		} catch (Exception e) {
 			e.printStackTrace();
-			return createErrorResponse("getConsequenceTypeByPosition", e.toString());
+			return createErrorResponse("getSnpPhenotypesByPositionByGet", e.toString());
 		}
 	}
+	
+	
+	
+	
+	@GET
+	@Path("/{variants}/mutation_phenotype")
+	public Response getMutationPhenotypesByPositionByGet(@PathParam("variants") String variants) {
+		return getMutationPhenotypesByPosition(variants, outputFormat);
+	}
+
+	@POST
+	@Consumes({MediaType.MULTIPART_FORM_DATA, MediaType.APPLICATION_FORM_URLENCODED})//MediaType.MULTIPART_FORM_DATA, 
+	@Path("/mutation_phenotype")
+	public Response getMutationPhenotypesByPositionByPost( @FormDataParam("of") String outputFormat, @FormDataParam("variants") String variants) {
+		return getMutationPhenotypesByPosition(variants, outputFormat);
+	}
+	
+	public Response getMutationPhenotypesByPosition(String variants, String outputFormat) {
+		try {
+			checkVersionAndSpecies();
+			MutationDBAdaptor mutationDBAdaptor = dbAdaptorFactory.getMutationDBAdaptor(this.species, this.version);
+			List<GenomicVariant> variantList =  GenomicVariant.parseVariants(variants);
+			List<Position> positionList = new ArrayList<Position>(variantList.size());
+			for(GenomicVariant gv: variantList) {
+				positionList.add(new Position(gv.getChromosome(), gv.getPosition()));
+			}
+			return generateResponse(variants, "variants", mutationDBAdaptor.getAllMutationPhenotypeAnnotationByPositionList(positionList));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return createErrorResponse("getMutationPhenotypesByPositionByGet", e.toString());
+		}
+	}
+	
+	
+
 	
 	@GET
 	public Response getHelp() {
