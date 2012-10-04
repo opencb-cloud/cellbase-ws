@@ -48,6 +48,19 @@ public class ProteinWSServer extends GenericRestWSServer {
 	}
 	
 	@GET
+	@Path("/all")
+	public Response getAll() {
+		try {
+			checkVersionAndSpecies();
+			ProteinDBAdaptor adaptor = dbAdaptorFactory.getProteinDBAdaptor(this.species, this.version);
+			return generateResponse("", "PROTEIN", adaptor.getAll());
+		} catch (Exception e) {
+			e.printStackTrace();
+			return createErrorResponse("getByEnsemblId", e.toString());
+		}
+	}
+	
+	@GET
 	@Path("/{proteinId}/gene")
 	public Response getGene(@PathParam("proteinId") String query) {
 		return null;
@@ -72,11 +85,11 @@ public class ProteinWSServer extends GenericRestWSServer {
 		}
 	}
 	
-	@GET
-	@Path("/{proteinId}/association")
-	public Response getInteraction(@PathParam("proteinId") String query, @DefaultValue("") @QueryParam("type") String type) {
-		return null;
-	}
+//	@GET
+//	@Path("/{proteinId}/association")
+//	public Response getInteraction(@PathParam("proteinId") String query, @DefaultValue("") @QueryParam("type") String type) {
+//		return null;
+//	}
 	
 	@GET
 	@Path("/{proteinId}/xref")
@@ -99,11 +112,15 @@ public class ProteinWSServer extends GenericRestWSServer {
 	
 	@GET
 	@Path("/{proteinId}/interaction")
-	public Response getInteraction(@PathParam("proteinId") String query) {
+	public Response getInteraction(@PathParam("proteinId") String query, @DefaultValue("") @QueryParam("source") String source) {
 		try {
 			checkVersionAndSpecies();
 			ProteinDBAdaptor adaptor = dbAdaptorFactory.getProteinDBAdaptor(this.species, this.version);
-			return generateResponse(query, "PROTEIN_INTERACTION", adaptor.getAllProteinInteractionsByProteinNameList(StringUtils.toList(query, ",")));
+			if(source != null && !source.equals("")) {
+				return generateResponse(query, "PROTEIN_INTERACTION", adaptor.getAllProteinInteractionsByProteinNameList(StringUtils.toList(query, ","), source));				
+			}else{
+				return generateResponse(query, "PROTEIN_INTERACTION", adaptor.getAllProteinInteractionsByProteinNameList(StringUtils.toList(query, ",")));
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getInteraction", e.toString());

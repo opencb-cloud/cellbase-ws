@@ -134,7 +134,7 @@ public class TfWSServer extends RegulatoryWSServer {
 				e.printStackTrace();
 				return createErrorResponse("getAllByTfbs", e.toString());
 			}
-			return generateResponse(query, adaptor.getAllByTfGeneNameList(StringUtils.toList(query, ","), celltype, iStart, iEnd));
+			return generateResponse(query, "TFBS", adaptor.getAllByTfGeneNameList(StringUtils.toList(query, ","), celltype, iStart, iEnd));
 //			return generateResponse(query, adaptor.getAllByTfGeneNameList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -149,13 +149,25 @@ public class TfWSServer extends RegulatoryWSServer {
 		try {
 			checkVersionAndSpecies();
 			GeneDBAdaptor geneDBAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species, this.version);
-			return  generateResponse(query, geneDBAdaptor.getAllByTfList(StringUtils.toList(query, ",")));
+			return  generateResponse(query, "GENE", geneDBAdaptor.getAllByTfList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getEnsemblGenes", e.toString());
 		}
 	}
 	
+	@GET
+	@Path("/{tfId}/target_gene")
+	public Response getTargetGenes(@PathParam("tfId") String query) {
+		try {
+			checkVersionAndSpecies();
+			GeneDBAdaptor geneDBAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species, this.version);
+			return  generateResponse(query, "GENE", geneDBAdaptor.getAllTargetsByTfList(StringUtils.toList(query, ",")));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return createErrorResponse("getEnsemblGenes", e.toString());
+		}
+	}
 	
 	@GET
 	@Path("/{tfId}/pwm")

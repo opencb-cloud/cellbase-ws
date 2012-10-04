@@ -194,22 +194,25 @@ public class SnpWSServer extends GenericRestWSServer {
 	
 	@GET
 	@Path("/{snpId}/phenotype")
-	public Response getSnpPhenotypesByPositionByGet(@PathParam("snpId") String snps) {
-		return getSnpPhenotypesByPosition(snps, outputFormat);
+	public Response getSnpPhenotypesByNameByGet(@PathParam("snpId") String snps) {
+		return getSnpPhenotypesByName(snps, outputFormat);
 	}
 
 	@POST
 	@Consumes({MediaType.MULTIPART_FORM_DATA, MediaType.APPLICATION_FORM_URLENCODED})//MediaType.MULTIPART_FORM_DATA, 
 	@Path("/phenotype")
-	public Response getSnpPhenotypesByPositionByPost(@FormDataParam("of") String outputFormat, @FormDataParam("snps") String snps) {
-		return getSnpPhenotypesByPosition(snps, outputFormat);
+	public Response getSnpPhenotypesByNameByPost(@FormDataParam("of") String outputFormat, @FormDataParam("snps") String snps) {
+		return getSnpPhenotypesByName(snps, outputFormat);
 	}
 	
-	public Response getSnpPhenotypesByPosition(String snps, String outputFormat) {
+	public Response getSnpPhenotypesByName(String snps, String outputFormat) {
 		try {
 			checkVersionAndSpecies();
 			SnpDBAdaptor snpDBAdaptor = dbAdaptorFactory.getSnpDBAdaptor(this.species, this.version);
-			return generateResponse(snps, "SNP_PHENOTYPE", snpDBAdaptor.getAllSnpPhenotypeAnnotationListBySnpNameList(StringUtils.toList(snps, ",")));
+			long t0 = System.currentTimeMillis();
+			List<List<SnpPhenotypeAnnotation>> snpPhenotypeAnnotList = snpDBAdaptor.getAllSnpPhenotypeAnnotationListBySnpNameList(StringUtils.toList(snps, ","));
+			logger.debug("getSnpPhenotypesByName: "+(System.currentTimeMillis()-t0)+"ms");
+			return generateResponse(snps, "SNP_PHENOTYPE", snpPhenotypeAnnotList);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getSnpPhenotypesByPositionByGet", e.toString());

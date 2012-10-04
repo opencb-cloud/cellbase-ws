@@ -29,7 +29,6 @@ import org.bioinfo.commons.Config;
 import org.bioinfo.commons.log.Logger;
 import org.bioinfo.commons.utils.ListUtils;
 import org.bioinfo.commons.utils.StringUtils;
-import org.bioinfo.http.HttpUtils;
 import org.bioinfo.infrared.lib.impl.DBAdaptorFactory;
 import org.bioinfo.infrared.lib.impl.hibernate.HibernateDBAdaptorFactory;
 import org.bioinfo.infrared.lib.io.output.StringWriter;
@@ -142,21 +141,23 @@ public class GenericRestWSServer implements IWSServer {
 		headers.put("TRANSCRIPT", "Ensembl ID,external name,external name source,biotype,status,chromosome,start,end,strand,coding region start,coding region end,cdna coding start,cdna coding end,description".replaceAll(",", "\t"));
 		headers.put("EXON", "Ensembl ID,chromosome,start,end,strand".replaceAll(",", "\t"));
 		headers.put("SNP", "rsID,chromosome,position,Ensembl consequence type,SO consequence type,sequence".replaceAll(",", "\t"));
+		headers.put("SNP_PHENOTYPE", "SNP name,source,associated gene name,risk allele,risk allele freq in controls,p-value,phenotype name,phenotype description,study name,study type,study URL,study description".replaceAll(",", "\t"));
+		headers.put("SNP_POPULATION_FREQUENCY", "SNP name,population,source,ref allele,ref allele freq,other allele,other allele freq,ref allele homozygote,ref allele homozygote freq,allele heterozygote,allele heterozygote freq,ref other allele homozygote, ref other allele homozygote freq".replaceAll(",", "\t"));
+		headers.put("SNP_REGULATORY", "SNP name,feature name,feature type,chromsome,start,end,strand,Ensembl transcript ID,Ensembl gene ID,gene name,biotype".replaceAll(",", "\t"));
+		headers.put("GENOMIC_VARIANT_EFFECT", "chromosome,position,reference allele,alternative allele,feature ID,feature name,feature type,feature chromsomome,feature start,feature end,feature strand,SNP name,ancestral allele,alternative allele,Ensembl gene ID,Ensembl transcript ID,gene name,SO consequence type ID,SO consequence type name,consequence type description,consequence type category,aminoacid position,aminoacid change,codon change".replaceAll(",", "\t"));
+		headers.put("SNP_CONSEQUENCE_TYPE", "SNP name,chromosome,start,end,strand,allele,transcript ID,gene,SO accession,SO term,label,description".replaceAll(",", "\t"));
+		headers.put("MUTATION", "chromosome,start,end,gene_name,uniprot_name,ensembl_transcript,primary_site,site_subtype,primary_histology,mutation_cds,mutation_aa,mutation_description,mutation_zigosity,pubmed_id,description,source".replaceAll(",", "\t"));
+		headers.put("STRUCTURAL_VARIATION", "display_id,chromosome,start,end,strand,so_term,study_name,study_url,study_description,source,source_description".replaceAll(",", "\t"));
 		headers.put("TFBS", "TF name,target gene name,chromosome,start,end,cell type,sequence,score".replaceAll(",", "\t"));
 		headers.put("MIRNA_GENE", "miRBase accession,miRBase ID,status,sequence,source".replaceAll(",", "\t"));
 		headers.put("MIRNA_MATURE", "miRBase accession,miRBase ID,sequence".replaceAll(",", "\t"));
 		headers.put("MIRNA_TARGET", "miRBase ID,gene target name,chromosome,start,end,strand,pubmed ID,source".replaceAll(",", "\t"));
 		headers.put("MIRNA_DISEASE", "miRBase ID,disease name,pubmed ID,description".replaceAll(",", "\t"));
 		headers.put("REGULATORY_REGION", "name,type,chromosome,start,end,cell type,source".replaceAll(",", "\t"));
-		headers.put("CONSEQUENCE_TYPE", "chromosome,start,end,feature ID,feature name,consequence type,biotype,feature chromosome,feature start,feature end,feature strand,snp ID,ancestral allele,alternative allele,gene Ensembl ID,Ensembl transcript ID,gene name,SO consequence type ID,SO consequence type name,consequence type description,consequence type category,aminoacid change,codon change".replaceAll(",", "\t"));
-		headers.put("SNP_CONSEQUENCE_TYPE", "SNP name,chromosome,start,end,strand,allele,transcript ID,gene,SO accession,SO term,label,description".replaceAll(",", "\t"));
 		headers.put("PROTEIN", "UniProt accession,protein name,full name,gene name,organism".replaceAll(",", "\t"));
 		headers.put("PROTEIN_FEATURE", "feature type,aa start,aa end,original,variation,identifier,description".replaceAll(",", "\t"));
 		headers.put("XREF", "ID,description".replaceAll(",", "\t"));
 		headers.put("PATHWAY", "".replaceAll(",", "\t"));
-		headers.put("SNP_PHENOTYPE", "SNP name,source,associated gene name,risk allele,risk allele freq in controls,p-value,phenotype name,phenotype description,study name,study type,study URL,study description".replaceAll(",", "\t"));
-		headers.put("SNP_POPULATION_FREQUENCY", "SNP name,population,source,ref allele,ref allele freq,other allele,other allele freq,ref allele homozygote,ref allele homozygote freq,allele heterozygote,allele heterozygote freq,ref other allele homozygote, ref other allele homozygote freq".replaceAll(",", "\t"));
-		headers.put("SNP_REGULATORY", "SNP name,feature name,feature type,chromsome,start,end,strand,Ensembl transcript ID,Ensembl gene ID,gene name,biotype".replaceAll(",", "\t"));
 	}
 	
 	@Deprecated
@@ -498,12 +499,12 @@ public class GenericRestWSServer implements IWSServer {
 
 	protected Response createErrorResponse(String method, String errorMessage) {
 		if(!errorMessage.contains("Species") && !errorMessage.contains("Version")) {
-			StringBuilder message = new StringBuilder();
-			message.append("URI: "+uriInfo.getAbsolutePath().toString()).append("\n");
-			message.append("Method: "+httpServletRequest.getMethod()+" "+method).append("\n");
-			message.append("Message: "+errorMessage).append("\n");
-			message.append("Remote Addr: http://ipinfodb.com/ip_locator.php?ip="+httpServletRequest.getRemoteAddr()).append("\n");
-			HttpUtils.send("correo.cipf.es", "fsalavert@cipf.es", "babelomics@cipf.es", "Infrared error notice", message.toString());
+//			StringBuilder message = new StringBuilder();
+//			message.append("URI: "+uriInfo.getAbsolutePath().toString()).append("\n");
+//			message.append("Method: "+httpServletRequest.getMethod()+" "+method).append("\n");
+//			message.append("Message: "+errorMessage).append("\n");
+//			message.append("Remote Addr: http://ipinfodb.com/ip_locator.php?ip="+httpServletRequest.getRemoteAddr()).append("\n");
+//			HttpUtils.send("correo.cipf.es", "fsalavert@cipf.es", "babelomics@cipf.es", "Infrared error notice", message.toString());
 		}
 		String error = "An error occurred: "+errorMessage;
 		if(outputFormat.equalsIgnoreCase("json")){
@@ -531,17 +532,17 @@ public class GenericRestWSServer implements IWSServer {
 
 	private List<Species> getSpeciesList() {
 		List<Species> speciesList = new ArrayList<Species>(11);
-		speciesList.add(new Species("hsa", "human", "Homo sapiens", "GRCh37"));
+		speciesList.add(new Species("hsa", "human", "Homo sapiens", "GRCh37.p7"));
 		speciesList.add(new Species("mmu", "mouse", "Mus musculus", "NCBIM37"));
 		speciesList.add(new Species("rno", "rat", "Rattus norvegicus", "RGSC 3.4"));
-		speciesList.add(new Species("cfa", "dog", "Canis familiaris", "CanFam 2.0"));
-		speciesList.add(new Species("ssc", "pig", "Sus scrofa", "Sscrofa9"));
 		speciesList.add(new Species("dre", "zebrafish", "Danio rerio", "Zv9"));
-		speciesList.add(new Species("dme", "fruitfly", "Drosophila melanogaster", "BDGP 5"));
-		speciesList.add(new Species("aga", "mosquito", "Anopheles gambiae", "AgamP3"));
-		speciesList.add(new Species("cel", "worm", "Caenorhabditis elegans", "WS220"));
-		speciesList.add(new Species("pfa", "malaria parasite", "Plasmodium falciparum", "2.1.4"));
+		speciesList.add(new Species("cel", "worm", "Caenorhabditis elegans", "WS230"));
+		speciesList.add(new Species("dme", "fruitfly", "Drosophila melanogaster", "BDGP 5.39"));
 		speciesList.add(new Species("sce", "yeast", "Saccharomyces cerevisiae", "EF 4"));
+		speciesList.add(new Species("cfa", "dog", "Canis familiaris", "CanFam 2.0"));
+		speciesList.add(new Species("ssc", "pig", "Sus scrofa", "Sscrofa10.2"));
+		speciesList.add(new Species("aga", "mosquito", "Anopheles gambiae", "AgamP3"));
+		speciesList.add(new Species("pfa", "malaria parasite", "Plasmodium falciparum", "3D7"));
 		
 		return speciesList;
 	}

@@ -17,7 +17,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import org.bioinfo.infrared.core.cellbase.ConservedRegion;
+import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.infrared.core.cellbase.CpGIsland;
 import org.bioinfo.infrared.core.cellbase.ExonToTranscript;
 import org.bioinfo.infrared.core.cellbase.Gene;
@@ -97,7 +97,7 @@ public class RegionWSServer extends GenericRestWSServer {
 
 	@GET
 	@Path("/{chrRegionId}/gene")
-	public Response getGenesByRegion(@PathParam("chrRegionId") String chregionId, @DefaultValue("false") @QueryParam("transcript") String transcripts) {
+	public Response getGenesByRegion(@PathParam("chrRegionId") String chregionId, @DefaultValue("false") @QueryParam("transcript") String transcripts, @DefaultValue("") @QueryParam("biotype") String biotype) {
 		try {
 			checkVersionAndSpecies();
 			GeneDBAdaptor geneDBAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species, this.version);
@@ -111,9 +111,14 @@ public class RegionWSServer extends GenericRestWSServer {
 				return resp;
 			}else {
 				if(transcripts != null && transcripts.equalsIgnoreCase("true") && outputFormat.equalsIgnoreCase("json")) {
-					
-					List<List<Gene>> geneListList = geneDBAdaptor.getAllByRegionList(regions);
-					
+
+					List<List<Gene>> geneListList = null;
+					if(biotype != null && !biotype.equals("")) {
+						geneListList = geneDBAdaptor.getAllByRegionList(regions, StringUtils.toList(biotype, ","));
+					}else {
+						geneListList = geneDBAdaptor.getAllByRegionList(regions);
+					}
+
 					// Getting Gene IDs
 					List<List<String>> geneStringList = new ArrayList<List<String>>(geneListList.size() * geneListList.get(0).size());
 					for(int i=0; i<geneListList.size(); i++) {
@@ -145,7 +150,7 @@ public class RegionWSServer extends GenericRestWSServer {
 							response.append("\"source\":"+"\""+geneList.get(j).getSource()+"\",");
 							response.append("\"description\":"+"\""+geneList.get(j).getDescription()+"\",");
 							response.append("\"transcripts\":[");
-							
+
 							for(Transcript trans: geneList.get(j).getTranscripts()) {
 								response.append(gson.toJson(trans));
 								// remove last '}'
@@ -177,11 +182,15 @@ public class RegionWSServer extends GenericRestWSServer {
 					}
 					response.replace(response.length()-1, response.length(), "");
 					response.append("]");
-//					return generateResponse(chregionId, "GENE", geneDBAdaptor.getAllByRegionList(regions));		
-//					return generateResponse(chregionId, "GENE", Arrays.asList(response));
+					//					return generateResponse(chregionId, "GENE", geneDBAdaptor.getAllByRegionList(regions));		
+					//					return generateResponse(chregionId, "GENE", Arrays.asList(response));
 					return createOkResponse(response.toString());
 				}else {
-					return generateResponse(chregionId, "GENE", geneDBAdaptor.getAllByRegionList(regions));					
+					if(biotype != null && !biotype.equals("")) {
+						return generateResponse(chregionId, "GENE", geneDBAdaptor.getAllByRegionList(regions, StringUtils.toList(biotype, ",")));
+					}else {
+						return generateResponse(chregionId, "GENE", geneDBAdaptor.getAllByRegionList(regions));
+					}
 				}
 			}
 		} catch (Exception e) {
@@ -189,16 +198,20 @@ public class RegionWSServer extends GenericRestWSServer {
 			return createErrorResponse("getGenesByRegion", e.toString());
 		}
 	}
-	
+
 
 	@GET
 	@Path("/{chrRegionId}/transcript")
-	public Response getTranscriptByRegion(@PathParam("chrRegionId") String chregionId) {
+	public Response getTranscriptByRegion(@PathParam("chrRegionId") String chregionId, @DefaultValue("") @QueryParam("biotype") String biotype) {
 		try {
 			checkVersionAndSpecies();
 			TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species, this.version);
 			List<Region> regions = Region.parseRegions(chregionId);
-			return generateResponse(chregionId, "TRANSCRIPT", transcriptDBAdaptor.getAllByRegionList(regions));
+			if(biotype != null && !biotype.equals("")) {
+				return generateResponse(chregionId, "TRANSCRIPT", transcriptDBAdaptor.getAllByRegionList(regions, StringUtils.toList(biotype, ",")));
+			}else {
+				return generateResponse(chregionId, "TRANSCRIPT", transcriptDBAdaptor.getAllByRegionList(regions));
+			}
 		}catch(Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getTranscriptByRegion", e.toString());
@@ -236,6 +249,14 @@ public class RegionWSServer extends GenericRestWSServer {
 				//				logger.info("Old histogram: "+(System.currentTimeMillis()-t1)+",  resp: "+resp.toString());
 				return resp;
 			}else {
+				// remove regions bigger than 10Mb
+				if(regions != null) {
+					for(Region region: regions) {
+						if((region.getEnd() - region.getStart()) > 10000000) {
+							return createErrorResponse("getSNpByRegion", "Regions must be smaller than 10Mb");
+						}
+					}
+				}
 				return generateResponse(chregionId, "SNP", snpDBAdaptor.getAllByRegionList(regions));
 			}
 
@@ -244,6 +265,64 @@ public class RegionWSServer extends GenericRestWSServer {
 			return createErrorResponse("getSnpByRegion", e.toString());
 		}
 	}
+
+	
+
+	@GET
+	@Path("/{chrRegionId}/mutation")
+	public Response getMutationByRegion(@PathParam("chrRegionId") String query) {
+		try {
+			checkVersionAndSpecies();
+			MutationDBAdaptor mutationDBAdaptor =  dbAdaptorFactory.getMutationDBAdaptor(this.species, this.version);
+			List<Region> regions = Region.parseRegions(query);
+
+			if (hasHistogramQueryParam()){
+				List<IntervalFeatureFrequency> intervalList = mutationDBAdaptor.getAllIntervalFrequencies(regions.get(0), getHistogramIntervalSize()); 
+				return  generateResponse(query, intervalList);
+			}else{
+				List<List<MutationPhenotypeAnnotation>> mutationList = mutationDBAdaptor.getAllByRegionList(regions);
+				return this.generateResponse(query, "MUTATION", mutationList);
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			return createErrorResponse("getMutationByRegion", e.toString());
+		}
+	}
+
+	
+	@GET
+	@Path("/{chrRegionId}/structural_variation")
+	public Response getStructuralVariationByRegion(@PathParam("chrRegionId") String query, @QueryParam("min_length") Integer minLength, @QueryParam("max_length") Integer maxLength) {
+		try {
+			checkVersionAndSpecies();
+			StructuralVariationDBAdaptor structuralVariationDBAdaptor = dbAdaptorFactory.getStructuralVariationDBAdaptor(this.species, this.version);
+			List<Region> regions = Region.parseRegions(query);
+
+			if (hasHistogramQueryParam()){
+				List<IntervalFeatureFrequency> intervalList = structuralVariationDBAdaptor.getAllIntervalFrequencies(regions.get(0), getHistogramIntervalSize()); 
+				return generateResponse(query, intervalList);
+			}else{
+				List<List<StructuralVariation>> structuralVariationList = null;
+				if(minLength == null && maxLength == null) {
+					structuralVariationList = structuralVariationDBAdaptor.getAllByRegionList(regions);					
+				}else {
+					if(minLength == null) {
+						minLength = 1;
+					}
+					if(maxLength == null) {
+						maxLength = Integer.MAX_VALUE;
+					}
+					structuralVariationList = structuralVariationDBAdaptor.getAllByRegionList(regions, minLength, maxLength);
+				}
+				return this.generateResponse(query, "STRUCTURAL_VARIATION", structuralVariationList);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return createErrorResponse("getStructuralVariationByRegion", e.toString());
+		}
+	}
+
 
 	@GET
 	@Path("/{chrRegionId}/cytoband")
@@ -268,12 +347,12 @@ public class RegionWSServer extends GenericRestWSServer {
 			List<Region> regions = Region.parseRegions(chregionId);
 			GenomeSequenceDBAdaptor genomeSequenceDBAdaptor =  dbAdaptorFactory.getGenomeSequenceDBAdaptor(this.species, this.version);
 			int strand = 1;
-//			String result;
+			//			String result;
 			try {
 				strand = Integer.parseInt(strandParam);
-//				List<GenomeSequence> gs = genomeSequenceDBAdaptor.getByRegionList(regions, strand);
-//				if(gs != null && gs.size() > 0) {
-//				}
+				//				List<GenomeSequence> gs = genomeSequenceDBAdaptor.getByRegionList(regions, strand);
+				//				if(gs != null && gs.size() > 0) {
+				//				}
 			}catch(Exception e) {
 				strand = 1;
 				logger.warn("RegionWSServer: method getSequence could not convert strand to integer");
@@ -313,7 +392,7 @@ public class RegionWSServer extends GenericRestWSServer {
 
 			if (hasHistogramQueryParam()){
 				List<IntervalFeatureFrequency> intervalList = tfbsDBAdaptor.getAllTfIntervalFrequencies(regions.get(0), getHistogramIntervalSize()); 
-				return  generateResponse(query, intervalList);
+				return generateResponse(query, intervalList);
 			}else{
 				List<List<Tfbs>> tfList = tfbsDBAdaptor.getAllByRegionList(regions);
 				return this.generateResponse(query, "TFBS", tfList);
@@ -369,9 +448,10 @@ public class RegionWSServer extends GenericRestWSServer {
 		}
 	}
 
+	
 	@GET
-	@Path("/{chrRegionId}/mirnatarget")
-	public Response getMirnaTargetByRegion(@PathParam("chrRegionId") String query) {
+	@Path("/{chrRegionId}/mirna_target")
+	public Response getMirnaTargetByRegion(@PathParam("chrRegionId") String query, @DefaultValue("") @QueryParam("source") String source) {
 		try {
 			checkVersionAndSpecies();
 			MirnaDBAdaptor mirnaDBAdaptor = dbAdaptorFactory.getMirnaDBAdaptor(this.species, this.version);
@@ -393,9 +473,31 @@ public class RegionWSServer extends GenericRestWSServer {
 		}
 	}
 
+	
+	@GET
+	@Path("/{chrRegionId}/cpg_island")
+	public Response getCpgIslandByRegion(@PathParam("chrRegionId") String query) {
+		try {
+			checkVersionAndSpecies();
+			CpGIslandDBAdaptor cpGIslandDBAdaptor =  dbAdaptorFactory.getCpGIslandDBAdaptor(this.species, this.version);
+			List<Region> regions = Region.parseRegions(query);
+			
+			if (hasHistogramQueryParam()){
+				List<IntervalFeatureFrequency> intervalList = cpGIslandDBAdaptor.getAllIntervalFrequencies(regions.get(0), getHistogramIntervalSize()); 
+				return  generateResponse(query, intervalList);
+			}else{
+				List<List<CpGIsland>> cpGIslandList = cpGIslandDBAdaptor.getAllByRegionList(regions);
+				return this.generateResponse(query, cpGIslandList);
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			return createErrorResponse("getCpgIslandByRegion", e.toString());
+		}
+	}
 
 	@GET
-	@Path("/{chrRegionId}/conservedregion")
+	@Path("/{chrRegionId}/conserved_region")
 	public Response getConservedRegionByRegion(@PathParam("chrRegionId") String query) {
 		try {
 			checkVersionAndSpecies();
@@ -404,99 +506,17 @@ public class RegionWSServer extends GenericRestWSServer {
 
 			if (hasHistogramQueryParam()){
 				List<IntervalFeatureFrequency> intervalList = regulatoryRegionDBAdaptor.getAllConservedRegionIntervalFrequencies(regions.get(0), getHistogramIntervalSize()); 
-				return  generateResponse(query, intervalList);
+				return generateResponse(query, intervalList);
 			}else{
-				List<List<ConservedRegion>> ConservedRegionList = regulatoryRegionDBAdaptor.getAllConservedRegionByRegionList(regions);
-				return this.generateResponse(query, ConservedRegionList);
+				return this.generateResponse(query, regulatoryRegionDBAdaptor.getAllConservedRegionByRegionList(regions));
 			}
-
-
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getConservedRegionByRegion", e.toString());
 		}
-		//		try {
-		//			List<Region> regions = Region.parseRegions(chregionId);
-		//			MirnaDBAdaptor adaptor = dbAdaptorFactory.getMirnaDBAdaptor(this.species);
-		//			return this.generateResponse(chregionId, adaptor.getAllMiRnaTargetsByRegionList(regions));
-		//		} catch (Exception e) {
-		//			e.printStackTrace();
-		//			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
-		//		}
 	}
 
-	@GET
-	@Path("/{chrRegionId}/mutation")
-	public Response getMutationByRegion(@PathParam("chrRegionId") String query) {
-		try {
-			checkVersionAndSpecies();
-			MutationDBAdaptor mutationDBAdaptor =  dbAdaptorFactory.getMutationDBAdaptor(this.species, this.version);
-			List<Region> regions = Region.parseRegions(query);
 
-			if (hasHistogramQueryParam()){
-				List<IntervalFeatureFrequency> intervalList = mutationDBAdaptor.getAllIntervalFrequencies(regions.get(0), getHistogramIntervalSize()); 
-				return  generateResponse(query, intervalList);
-			}else{
-				List<List<MutationPhenotypeAnnotation>> mutationList = mutationDBAdaptor.getAllByRegionList(regions);
-				return this.generateResponse(query, mutationList);
-			}
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			return createErrorResponse("getMutationByRegion", e.toString());
-		}
-	}
-
-	@GET
-	@Path("/{chrRegionId}/cpgisland")
-	public Response getCpgIslandByRegion(@PathParam("chrRegionId") String query) {
-		try {
-			checkVersionAndSpecies();
-			CpGIslandDBAdaptor cpGIslandDBAdaptor =  dbAdaptorFactory.getCpGIslandDBAdaptor(this.species, this.version);
-			List<Region> regions = Region.parseRegions(query);
-
-			if (hasHistogramQueryParam()){
-				List<IntervalFeatureFrequency> intervalList = cpGIslandDBAdaptor.getAllIntervalFrequencies(regions.get(0), getHistogramIntervalSize()); 
-				return  generateResponse(query, intervalList);
-			}else{
-				List<List<CpGIsland>> cpGIslandList = cpGIslandDBAdaptor.getAllByRegionList(regions);
-				return this.generateResponse(query, cpGIslandList);
-			}
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			return createErrorResponse("getCpgIslandByRegion", e.toString());
-		}
-	}
-
-	@GET
-	@Path("/{chrRegionId}/structural_variation")
-	public Response getStructuralVariationByRegion(@PathParam("chrRegionId") String query) {
-		try {
-			checkVersionAndSpecies();
-			StructuralVariationDBAdaptor structuralVariationDBAdaptor = dbAdaptorFactory.getStructuralVariationDBAdaptor(this.species, this.version);
-			List<Region> regions = Region.parseRegions(query);
-
-			if (hasHistogramQueryParam()){
-				List<IntervalFeatureFrequency> intervalList = structuralVariationDBAdaptor.getAllIntervalFrequencies(regions.get(0), getHistogramIntervalSize()); 
-				return  generateResponse(query, intervalList);
-			}else{
-				List<List<StructuralVariation>> structuralVariationList = structuralVariationDBAdaptor.getAllByRegionList(regions);
-				return this.generateResponse(query, structuralVariationList);
-			}
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			return createErrorResponse("getStructuralVariationByRegion", e.toString());
-		}
-	}
-	
-	@GET
-	@Path("/{chrRegionId}/structuralvariation")
-	@Deprecated
-	public Response getStructuralVariationByRegionOld(@PathParam("chrRegionId") String query) {
-		return getStructuralVariationByRegion(query);
-	}
 
 	@GET
 	@Path("/{chrRegionId}/peptide")
@@ -506,52 +526,52 @@ public class RegionWSServer extends GenericRestWSServer {
 			List<Region> regions = Region.parseRegions(region);
 			boolean isUTR = false;
 			List<String> peptide = new ArrayList<String>(0);
-//			GenomicRegionFeatureDBAdaptor genomicRegionFeatureDBAdaptor = dbAdaptorFactory.getFeatureMapDBAdaptor(this.species);
-//			if (regions != null && !regions.get(0).equals("")){
-//				for (Region reg: regions){
-//					List<FeatureMap> featureMapList = genomicRegionFeatureDBAdaptor.getFeatureMapsByRegion(reg);
-//					if(featureMapList != null){
-//						for(FeatureMap featureMap: featureMapList) {
-//							String line = "";
-//							if(featureMap.getFeatureType().equalsIgnoreCase("5_prime_utr") || featureMap.getFeatureType().equalsIgnoreCase("3_prime_utr")) {
-//								isUTR = true;
-//								line = featureMap.getTranscriptStableId()+"\tNo-coding\t\t";
-//								peptide.add(line);
-//							}else{
-//								isUTR = false;
-//								if(featureMap.getFeatureType().equalsIgnoreCase("exon")) {
-//									if (!isUTR && featureMap.getBiotype().equalsIgnoreCase("protein_coding")) {
-//										System.out.println("Exon: "+featureMap.getFeatureId());
-//										System.out.println("Phase: "+featureMap.getExonPhase());
-//										if(!featureMap.getExonPhase().equals("") && !featureMap.getExonPhase().equals("-1")) {
-//											System.out.println("with phase");
-//											int aaPositionStart = -1;
-//											int aaPositionEnd = -1;
-//											if(featureMap.getStrand().equals("1")) {
-//												aaPositionStart = ((reg.getStart()-featureMap.getStart()+1+featureMap.getExonCdnaCodingStart()-featureMap.getTranscriptCdnaCodingStart())/3)+1;
-//												aaPositionEnd = ((reg.getEnd()-featureMap.getStart()+1+featureMap.getExonCdnaCodingStart()-featureMap.getTranscriptCdnaCodingStart())/3)+1;
-//											}else {
-//												aaPositionStart = ((featureMap.getEnd()-reg.getStart()+1+featureMap.getExonCdnaCodingStart()-featureMap.getTranscriptCdnaCodingStart())/3)+1;
-//												aaPositionEnd = ((featureMap.getEnd()-reg.getEnd()+1+featureMap.getExonCdnaCodingStart()-featureMap.getTranscriptCdnaCodingStart())/3)+1;
-//											}
-//											line = featureMap.getTranscriptStableId()+"\t"+"Protein"+"\t"+aaPositionStart+"\t"+aaPositionEnd;
-//											peptide.add(line);
-//										}else{
-//											if(!featureMap.getExonPhase().equals("") && !featureMap.getExonPhase().equals("-1")) {
-//												
-//											}
-//										}
-//									}
-//								}
-//							}
-//						}
-//					}
-//				}
-//				
-//			}
+			//			GenomicRegionFeatureDBAdaptor genomicRegionFeatureDBAdaptor = dbAdaptorFactory.getFeatureMapDBAdaptor(this.species);
+			//			if (regions != null && !regions.get(0).equals("")){
+			//				for (Region reg: regions){
+			//					List<FeatureMap> featureMapList = genomicRegionFeatureDBAdaptor.getFeatureMapsByRegion(reg);
+			//					if(featureMapList != null){
+			//						for(FeatureMap featureMap: featureMapList) {
+			//							String line = "";
+			//							if(featureMap.getFeatureType().equalsIgnoreCase("5_prime_utr") || featureMap.getFeatureType().equalsIgnoreCase("3_prime_utr")) {
+			//								isUTR = true;
+			//								line = featureMap.getTranscriptStableId()+"\tNo-coding\t\t";
+			//								peptide.add(line);
+			//							}else{
+			//								isUTR = false;
+			//								if(featureMap.getFeatureType().equalsIgnoreCase("exon")) {
+			//									if (!isUTR && featureMap.getBiotype().equalsIgnoreCase("protein_coding")) {
+			//										System.out.println("Exon: "+featureMap.getFeatureId());
+			//										System.out.println("Phase: "+featureMap.getExonPhase());
+			//										if(!featureMap.getExonPhase().equals("") && !featureMap.getExonPhase().equals("-1")) {
+			//											System.out.println("with phase");
+			//											int aaPositionStart = -1;
+			//											int aaPositionEnd = -1;
+			//											if(featureMap.getStrand().equals("1")) {
+			//												aaPositionStart = ((reg.getStart()-featureMap.getStart()+1+featureMap.getExonCdnaCodingStart()-featureMap.getTranscriptCdnaCodingStart())/3)+1;
+			//												aaPositionEnd = ((reg.getEnd()-featureMap.getStart()+1+featureMap.getExonCdnaCodingStart()-featureMap.getTranscriptCdnaCodingStart())/3)+1;
+			//											}else {
+			//												aaPositionStart = ((featureMap.getEnd()-reg.getStart()+1+featureMap.getExonCdnaCodingStart()-featureMap.getTranscriptCdnaCodingStart())/3)+1;
+			//												aaPositionEnd = ((featureMap.getEnd()-reg.getEnd()+1+featureMap.getExonCdnaCodingStart()-featureMap.getTranscriptCdnaCodingStart())/3)+1;
+			//											}
+			//											line = featureMap.getTranscriptStableId()+"\t"+"Protein"+"\t"+aaPositionStart+"\t"+aaPositionEnd;
+			//											peptide.add(line);
+			//										}else{
+			//											if(!featureMap.getExonPhase().equals("") && !featureMap.getExonPhase().equals("-1")) {
+			//												
+			//											}
+			//										}
+			//									}
+			//								}
+			//							}
+			//						}
+			//					}
+			//				}
+			//				
+			//			}
 			return createOkResponse(StringWriter.serialize(peptide));
-//			return generateResponse(region, exonIds);
-			
+			//			return generateResponse(region, exonIds);
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getPeptideByRegion", e.toString());
@@ -594,44 +614,44 @@ public class RegionWSServer extends GenericRestWSServer {
 		return createOkResponse(sb.toString());
 	}
 
-//	private class GeneListDeserializer implements JsonSerializer<List> {
-//
-//		@Override
-//		public JsonElement serialize(List geneListList, Type typeOfSrc, JsonSerializationContext context) {
-//			System.out.println("GeneListDeserializer - gene JSON elem: ");
-//			Gson gsonLocal = gson = new GsonBuilder().serializeNulls().setExclusionStrategies(new FeatureExclusionStrategy()).create();
-//			//logger.debug("SnpWSCLient - FeatureListDeserializer - json FeatureList<SNP> size: "+json.getAsJsonArray().size());
-//			List<List<Gene>> snps = new ArrayList<List<Gene>>(json.getAsJsonArray().size());
-//			List<Gene> geneList;
-//			JsonArray ja = new JsonArray();
-//			for(JsonElement geneArray: json.getAsJsonArray()) {
-//				System.out.println("GeneListDeserializer - gene JSON elem: ");
-//				geneList = new ArrayList<Gene>(geneArray.getAsJsonArray().size());
-//				for(JsonElement gene: geneArray.getAsJsonArray()) {
-//					geneList.add(gsonLocal.fromJson(gene, Gene.class));					
-//				}
-//				snps.add(geneList);
-//			}
-//			return null;
-//		}
-//		
-//		@Override
-//		public List<List<Gene>> deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-//			System.out.println("GeneListDeserializer - gene JSON elem: ");
-//			Gson gsonLocal = gson = new GsonBuilder().serializeNulls().setExclusionStrategies(new FeatureExclusionStrategy()).create();
-//			//logger.debug("SnpWSCLient - FeatureListDeserializer - json FeatureList<SNP> size: "+json.getAsJsonArray().size());
-//			List<List<Gene>> snps = new ArrayList<List<Gene>>(json.getAsJsonArray().size());
-//			List<Gene> geneList;
-//			for(JsonElement geneArray: json.getAsJsonArray()) {
-//				System.out.println("GeneListDeserializer - gene JSON elem: ");
-//				geneList = new ArrayList<Gene>(geneArray.getAsJsonArray().size());
-//				for(JsonElement gene: geneArray.getAsJsonArray()) {
-//					geneList.add(gsonLocal.fromJson(gene, Gene.class));					
-//				}
-//				snps.add(geneList);
-//			}
-//			return snps;
-//		}
-//	}
-	
+	//	private class GeneListDeserializer implements JsonSerializer<List> {
+	//
+	//		@Override
+	//		public JsonElement serialize(List geneListList, Type typeOfSrc, JsonSerializationContext context) {
+	//			System.out.println("GeneListDeserializer - gene JSON elem: ");
+	//			Gson gsonLocal = gson = new GsonBuilder().serializeNulls().setExclusionStrategies(new FeatureExclusionStrategy()).create();
+	//			//logger.debug("SnpWSCLient - FeatureListDeserializer - json FeatureList<SNP> size: "+json.getAsJsonArray().size());
+	//			List<List<Gene>> snps = new ArrayList<List<Gene>>(json.getAsJsonArray().size());
+	//			List<Gene> geneList;
+	//			JsonArray ja = new JsonArray();
+	//			for(JsonElement geneArray: json.getAsJsonArray()) {
+	//				System.out.println("GeneListDeserializer - gene JSON elem: ");
+	//				geneList = new ArrayList<Gene>(geneArray.getAsJsonArray().size());
+	//				for(JsonElement gene: geneArray.getAsJsonArray()) {
+	//					geneList.add(gsonLocal.fromJson(gene, Gene.class));					
+	//				}
+	//				snps.add(geneList);
+	//			}
+	//			return null;
+	//		}
+	//		
+	//		@Override
+	//		public List<List<Gene>> deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+	//			System.out.println("GeneListDeserializer - gene JSON elem: ");
+	//			Gson gsonLocal = gson = new GsonBuilder().serializeNulls().setExclusionStrategies(new FeatureExclusionStrategy()).create();
+	//			//logger.debug("SnpWSCLient - FeatureListDeserializer - json FeatureList<SNP> size: "+json.getAsJsonArray().size());
+	//			List<List<Gene>> snps = new ArrayList<List<Gene>>(json.getAsJsonArray().size());
+	//			List<Gene> geneList;
+	//			for(JsonElement geneArray: json.getAsJsonArray()) {
+	//				System.out.println("GeneListDeserializer - gene JSON elem: ");
+	//				geneList = new ArrayList<Gene>(geneArray.getAsJsonArray().size());
+	//				for(JsonElement gene: geneArray.getAsJsonArray()) {
+	//					geneList.add(gsonLocal.fromJson(gene, Gene.class));					
+	//				}
+	//				snps.add(geneList);
+	//			}
+	//			return snps;
+	//		}
+	//	}
+
 }
