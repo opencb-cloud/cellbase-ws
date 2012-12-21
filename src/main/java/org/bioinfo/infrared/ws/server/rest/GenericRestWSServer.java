@@ -31,6 +31,7 @@ import org.bioinfo.commons.utils.ListUtils;
 import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.infrared.lib.impl.DBAdaptorFactory;
 import org.bioinfo.infrared.lib.impl.hibernate.HibernateDBAdaptorFactory;
+import org.bioinfo.infrared.lib.impl.mongo.MongoDBAdaptorFactory;
 import org.bioinfo.infrared.lib.io.output.StringWriter;
 import org.bioinfo.infrared.ws.server.rest.exception.SpeciesException;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
@@ -89,7 +90,8 @@ public class GenericRestWSServer implements IWSServer {
 	 */
 	protected static DBAdaptorFactory dbAdaptorFactory;
 	static{
-		dbAdaptorFactory = new HibernateDBAdaptorFactory();
+//		dbAdaptorFactory = new HibernateDBAdaptorFactory();
+		dbAdaptorFactory = new MongoDBAdaptorFactory();
 		System.out.println("static1");
 	}
 	
