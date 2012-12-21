@@ -157,7 +157,8 @@ public class GeneWSServer extends GenericRestWSServer {
 		try {
 			checkVersionAndSpecies();
 			TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species, this.version);
-			return generateResponse(query, "TRANSCRIPT", Arrays.asList(transcriptDBAdaptor.getAllByNameList(StringUtils.toList(query, ","))));
+//			return generateResponse(query, "TRANSCRIPT", Arrays.asList(transcriptDBAdaptor.getAllByNameList(StringUtils.toList(query, ","))));
+			return generateResponse(query, "TRANSCRIPT", transcriptDBAdaptor.getAllByNameList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getTranscriptsByEnsemblId", e.toString());
@@ -265,7 +266,7 @@ public class GeneWSServer extends GenericRestWSServer {
 					}
 				}
 				else{
-					ensemblIds.add(null);
+//					ensemblIds.add(null);
 				}
 			}
 			

@@ -236,12 +236,13 @@ public class RegionWSServer extends GenericRestWSServer {
 
 	@GET
 	@Path("/{chrRegionId}/snp")
-	public Response getSnpByRegion(@PathParam("chrRegionId") String chregionId) {
+	public Response getSnpByRegion(@PathParam("chrRegionId") String chregionId, @QueryParam("consequence_type") String consequenceTypes) {
 		try {
 			checkVersionAndSpecies();
 			SnpDBAdaptor snpDBAdaptor = dbAdaptorFactory.getSnpDBAdaptor(this.species, this.version);
 			List<Region> regions = Region.parseRegions(chregionId);
-
+			List<String> consequenceTypeList = StringUtils.toList(consequenceTypes);
+				
 			if(hasHistogramQueryParam()){
 				//				long t1 = System.currentTimeMillis();
 				//				Response resp = generateResponse(chregionId, getHistogramByFeatures(dbAdaptor.getAllByRegionList(regions)));
@@ -257,7 +258,11 @@ public class RegionWSServer extends GenericRestWSServer {
 						}
 					}
 				}
-				return generateResponse(chregionId, "SNP", snpDBAdaptor.getAllByRegionList(regions));
+				if(consequenceTypeList != null && consequenceTypeList.size() > 0) {
+					return generateResponse(chregionId, "SNP", snpDBAdaptor.getAllByRegionList(regions, consequenceTypeList));
+				}else {
+					return generateResponse(chregionId, "SNP", snpDBAdaptor.getAllByRegionList(regions));					
+				}
 			}
 
 		}catch(Exception e) {
