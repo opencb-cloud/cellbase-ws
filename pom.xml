@@ -3,33 +3,59 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.bioinfo</groupId>
 	<artifactId>infrared-ws-server</artifactId>
-	<version>0.2.0-beta</version>
+	<version>0.4.1</version>
 	<packaging>war</packaging>
 	<dependencies>
 		<dependency>
 			<groupId>org.bioinfo</groupId>
-			<artifactId>infrared-lib</artifactId>
-			<version>1.2.0</version>
+			<artifactId>bioinfo-commons</artifactId>
+			<version>0.10.0</version>
+			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.bioinfo</groupId>
-			<artifactId>bioinfo-commons</artifactId>
-			<version>0.10.0</version>
+			<artifactId>bioinfo-formats</artifactId>
+			<version>0.4.0</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.bioinfo</groupId>
+			<artifactId>bioinfo-http</artifactId>
+			<version>0.1.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.bioinfo</groupId>
+			<artifactId>infrared-lib</artifactId>
+			<version>2.1.1</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.0</version>
+		</dependency>
+		<!-- <dependency>
+			<groupId>com.sun.jersey</groupId>
+			<artifactId>jersey-server</artifactId>
+			<version>1.12</version>
+			<scope>compile</scope>
+		</dependency> -->
+		<dependency>
+			<groupId>com.sun.jersey</groupId>
+			<artifactId>jersey-servlet</artifactId>
+			<version>1.13</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.sun.jersey.contribs</groupId>
+			<artifactId>jersey-multipart</artifactId>
+			<version>1.13</version>
 		</dependency>
 		<dependency>
 			<groupId>com.sun.jersey</groupId>
 			<artifactId>jersey-client</artifactId>
-			<version>1.4</version>
-		</dependency>
-		<dependency>
-			<groupId>com.sun.jersey</groupId>
-			<artifactId>jersey-server</artifactId>
-			<version>1.4</version>
-		</dependency>
-		<dependency>
-			<groupId>com.google.code.gson</groupId>
-			<artifactId>gson</artifactId>
-			<version>1.6</version>
+			<version>1.13</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>javax.servlet</groupId>
@@ -40,13 +66,14 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.8.1</version>
-			<scope>provided</scope>
+			<version>4.8.2</version>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
+
 	<build>
 		<sourceDirectory>src</sourceDirectory>
-		<finalName>infrared-ws-server</finalName>
+		<finalName>cellbase</finalName>
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -68,7 +95,15 @@
 				</configuration>
 			</plugin>
 		</plugins>
+		<extensions>
+			<extension>
+				<groupId>org.apache.maven.wagon</groupId>
+				<artifactId>wagon-ssh</artifactId>
+				<version>1.0-beta-7</version>
+			</extension>
+		</extensions>
 	</build>
+
 	<repositories>
 		<repository>
 			<id>maven2-repository.dev.java.net</id>
@@ -77,6 +112,7 @@
 			<layout>default</layout>
 		</repository>
 	</repositories>
+
 	<distributionManagement>
 		<repository>
 			<id>default</id>

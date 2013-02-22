@@ -1,290 +1,288 @@
 package org.bioinfo.infrared.ws.server.rest.feature;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import javassist.expr.Instanceof;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.bioinfo.commons.utils.StringUtils;
-import org.bioinfo.infrared.core.common.FeatureList;
-import org.bioinfo.infrared.core.variation.AnnotatedSNP;
-import org.bioinfo.infrared.core.variation.Omega;
-import org.bioinfo.infrared.core.variation.SNP;
-import org.bioinfo.infrared.core.variation.VariationFrequency;
-import org.bioinfo.infrared.variation.AnnotatedSnpDBManager;
-import org.bioinfo.infrared.variation.OmegaDBManager;
-import org.bioinfo.infrared.variation.SNPDBManager;
-import org.bioinfo.infrared.variation.VariationFrequencyDBManager;
+import org.bioinfo.infrared.core.cellbase.Snp;
+import org.bioinfo.infrared.core.cellbase.SnpPhenotypeAnnotation;
+import org.bioinfo.infrared.core.cellbase.SnpPopulationFrequency;
+import org.bioinfo.infrared.core.cellbase.SnpToTranscript;
+import org.bioinfo.infrared.lib.api.SnpDBAdaptor;
+import org.bioinfo.infrared.lib.api.TfbsDBAdaptor;
+import org.bioinfo.infrared.lib.api.TranscriptDBAdaptor;
+import org.bioinfo.infrared.lib.common.GenomicVariant;
+import org.bioinfo.infrared.lib.common.Position;
+import org.bioinfo.infrared.lib.common.SnpRegulatoryConsequenceType;
 import org.bioinfo.infrared.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.infrared.ws.server.rest.exception.VersionException;
 
-import com.google.gson.reflect.TypeToken;
+import com.sun.jersey.multipart.FormDataParam;
 
 @Path("/{version}/{species}/feature/snp")
 @Produces("text/plain")
 public class SnpWSServer extends GenericRestWSServer {
 	
-	public SnpWSServer(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo) throws VersionException, IOException {
-		super(version, species, uriInfo);
+	public SnpWSServer(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo, @Context HttpServletRequest hsr) throws VersionException, IOException {
+		super(version, species, uriInfo, hsr);
 	}
-	
-	@GET
-	@Path("/{snpId}")
-	public Response getByIds(@PathParam("snpId") String snpIds) {
-		return getSNPListByIds(snpIds);
-	}
-	
-	@GET
-	@Path("/list")
-	public Response getListIds() {
-		try {
-			SNPDBManager snpDbManager = new SNPDBManager(infraredDBConnector);
-			List<String> snplist = null;
-			if(uriInfo.getQueryParameters().get("consequence_type") != null) {
-				List<String> consequenceTypes = StringUtils.toList(uriInfo.getQueryParameters().get("consequence_type").get(0), ",");
-				snplist = snpDbManager.getAllNamesByConsequenceTypes(consequenceTypes);
-			}else {
-				snplist = snpDbManager.getAllNames();
-			}
-			return generateResponseList2(snplist);
-		} catch (Exception e) {
-			return generateErrorMessage(e.toString());
-		}
-	}
-	
+
 	@GET
 	@Path("/{snpId}/info")
-	public Response getSNPListByIds(@PathParam("snpId") String snpIds) {
+	public Response getByEnsemblId(@PathParam("snpId") String query) {
 		try {
-			List<String> ids = StringUtils.toList(snpIds, ",");
-			SNPDBManager snpDbManager = new SNPDBManager(infraredDBConnector);
-			FeatureList<SNP> snplist = snpDbManager.getByNames(ids);
-			//return generateResponse(createResultString(ids, snplist), outputFormat, compress);
-			this.listType = new TypeToken<FeatureList<SNP>>() {}.getType();
-			return generateResponse2(snplist, outputFormat, compress);
+			checkVersionAndSpecies();
+			SnpDBAdaptor adapter = dbAdaptorFactory.getSnpDBAdaptor(this.species, this.version);
+			return  generateResponse(query, "SNP", adapter.getAllBySnpIdList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
-			return generateErrorMessage(e.toString());
+			e.printStackTrace();
+			return createErrorResponse("getByEnsemblId", e.toString());
 		}
 	}
 
+	//	private int snpId;
+	//	private String name;
+	//	private String chromosome;
+	//	private int start;
+	//	private int end;
+	//	private String strand;
+	//	private int mapWeight;
+	//	private String alleleString;
+	//	private String ancestralAllele;
+	//	private String source;
+	//	private String displaySoConsequence;
+	//	private String soConsequenceType;
+	//	private String displayConsequence;
+	//	private String sequence;
+	@GET
+	@Path("/{snpId}/fullinfo")
+	public Response getFullInfoById(@PathParam("snpId") String query) {
+		try {
+			checkVersionAndSpecies();
+			SnpDBAdaptor snpDBAdaptor = dbAdaptorFactory.getSnpDBAdaptor(this.species, this.version);
+			
+			
+			List<List<Snp>> snpListList = snpDBAdaptor.getAllBySnpIdList(StringUtils.toList(query, ","));
+			List<List<SnpToTranscript>> snpToTranscript = snpDBAdaptor.getAllSnpToTranscriptList(StringUtils.toList(query, ","));
+			List<List<SnpPopulationFrequency>> snpPopulation = snpDBAdaptor.getAllSnpPopulationFrequencyList(StringUtils.toList(query, ","));
+			List<List<SnpPhenotypeAnnotation>> snpPhenotype = snpDBAdaptor.getAllSnpPhenotypeAnnotationListBySnpNameList(StringUtils.toList(query, ","));
+			
+//			List<List<Transcript>> transcripts = new ArrayList<List<Transcript>>(StringUtils.toList(query, ",").size());
+//			for (int i = 0; i < snpToTranscript.size(); i++) {
+//				List<Transcript> transcript = new ArrayList<Transcript>();
+//				for (int j = 0; j < snpToTranscript.get(i).size(); j++) {
+//					transcript.add(snpToTranscript.get(i).get(j).getTranscript());
+//				}
+//				transcripts.add(transcript);
+//			}
+			
+			StringBuilder response = new StringBuilder();
+			response.append("[");
+			for (int i = 0; i < snpListList.size(); i++) {
+				response.append("[");
+				boolean removeComma = false;
+				for (int j = 0; j < snpListList.get(i).size(); j++) {
+					removeComma = true;
+					response.append("{");
+					response.append("\"name\":"+"\""+snpListList.get(i).get(j).getName()+"\",");
+					response.append("\"chromosome\":"+"\""+snpListList.get(i).get(j).getChromosome()+"\",");
+					response.append("\"start\":"+snpListList.get(i).get(j).getStart()+",");
+					response.append("\"end\":"+snpListList.get(i).get(j).getEnd()+",");
+					response.append("\"strand\":"+"\""+snpListList.get(i).get(j).getStrand()+"\",");
+					response.append("\"mapWeight\":"+snpListList.get(i).get(j).getEnd()+",");
+					response.append("\"alleleString\":"+"\""+snpListList.get(i).get(j).getAlleleString()+"\",");
+					response.append("\"ancestralAllele\":"+"\""+snpListList.get(i).get(j).getAncestralAllele()+"\",");
+					response.append("\"source\":"+"\""+snpListList.get(i).get(j).getSource()+"\",");
+					response.append("\"displaySoConsequence\":"+"\""+snpListList.get(i).get(j).getDisplaySoConsequence()+"\",");
+					response.append("\"soConsequenceType\":"+"\""+snpListList.get(i).get(j).getSoConsequenceType()+"\",");
+					response.append("\"displayConsequence\":"+"\""+snpListList.get(i).get(j).getDisplayConsequence()+"\",");
+					response.append("\"sequence\":"+"\""+snpListList.get(i).get(j).getSequence()+"\",");
+					response.append("\"population\":"+gson.toJson(snpPopulation.get(i))+",");
+					
+					String aux = gson.toJson(snpToTranscript.get(i));
+//					System.out.println(aux);
+					for (int k = 0; k < snpToTranscript.get(i).size(); k++) {
+						aux = aux.replace("\"snpToTranscriptId\":"+snpToTranscript.get(i).get(k).getSnpToTranscriptId(), "\"transcript\":"+gson.toJson(snpToTranscript.get(i).get(k).getTranscript())+", \"consequenceType\":"+gson.toJson(snpToTranscript.get(i).get(k).getConsequenceType()));
+					}
+					response.append("\"snptotranscript\":"+aux+",");
+//					System.out.println(aux);
+					
+					response.append("\"phenotype\":"+gson.toJson(snpPhenotype.get(i))+"");
+					response.append("},");
+				}
+				if(removeComma){
+					response.replace(response.length()-1, response.length(), "");
+				}
+				response.append("],");
+			}
+			response.replace(response.length()-1, response.length(), "");
+			response.append("]");
+			return  generateResponse(query,Arrays.asList(response));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return createErrorResponse("getFullInfoById", e.toString());
+		}
+	}	
+	
 	@GET
 	@Path("/{snpId}/consequence_type")
-	public Response getAllFilteredByConsequenceType(@PathParam("snpId") String snpIds) {
+	public Response getConsequenceTypeByGetMethod(@PathParam("snpId") String snpId) {
+		return getConsequenceType(snpId);
+	}
+	
+	@POST
+	@Path("/consequence_type")
+	public Response getConsequenceTypeByPostMethod(@QueryParam("id") String snpId) {
+		return getConsequenceType(snpId);
+	}
+
+	private Response getConsequenceType(String snpId) {
 		try {
-			List<String> ids = StringUtils.toList(snpIds, ",");
-			FeatureList<SNP> snplist;
-			SNPDBManager snpDbManager = new SNPDBManager(infraredDBConnector);
-			if(uriInfo.getQueryParameters().get("consequencetype") != null) {
-				List<String> consequenceTypes = StringUtils.toList(uriInfo.getQueryParameters().get("consequence_type").get(0), ",");
-				snplist = snpDbManager.getAllFilteredByConsequenceType(ids, consequenceTypes);
-			}else {
-				snplist = snpDbManager.getByNames(ids);
-			}
-			//return generateResponse(createResultString(ids, snplist), outputFormat, compress);
-			this.listType = new TypeToken<FeatureList<SNP>>() {}.getType();
-			return generateResponse2(snplist, outputFormat, compress);
+			checkVersionAndSpecies();
+			SnpDBAdaptor snpDBAdaptor = dbAdaptorFactory.getSnpDBAdaptor(species, version);
+			return generateResponse(snpId, "SNP_CONSEQUENCE_TYPE", snpDBAdaptor.getAllConsequenceTypesBySnpIdList(StringUtils.toList(snpId, ",")));
 		} catch (Exception e) {
-			return generateErrorMessage(e.toString());
+			e.printStackTrace();
+			return createErrorResponse("getConsequenceTypeByPostMethod", e.toString());
 		}
 	}
 	
+	
+	
 	@GET
-	@Path("/{snpId}/annotated")
-	public Response getAnnotatedSNPListByIds(@PathParam("snpId") String snpIds) {
+	@Path("/{snpId}/regulatory")
+	public Response getRegulatoryByGetMethod(@PathParam("snpId") String snpId) {
+		return getRegulatoryType(snpId);
+	}
+	
+	@POST
+	@Path("/regulatory")
+	public Response getRegulatoryTypeByPostMethod(@QueryParam("id") String snpId) {
+		return getRegulatoryType(snpId);
+	}
+
+	private Response getRegulatoryType(String snpId) {
 		try {
-			List<String> ids = StringUtils.toList(snpIds, ",");
-			AnnotatedSnpDBManager annotatedSnpDBManager = new AnnotatedSnpDBManager(infraredDBConnector);
-			List<FeatureList<AnnotatedSNP>> snplist = annotatedSnpDBManager.getAllByIds(ids);
-			this.listType = new TypeToken<List<FeatureList<AnnotatedSNP>>>() {}.getType();
-			return generateResponse2(snplist, outputFormat, compress);
+			checkVersionAndSpecies();
+			SnpDBAdaptor snpDBAdaptor = dbAdaptorFactory.getSnpDBAdaptor(species, version);
+			return generateResponse(snpId, "SNP_REGULATORY", snpDBAdaptor.getAllSnpRegulatoryBySnpNameList(StringUtils.toList(snpId, ",")));
+//			return generateResponse(snpId, "", snpDBAdaptor.getAllSnpRegulatoryBySnpNameList(StringUtils.toList(snpId, ",")));
 		} catch (Exception e) {
-			return generateErrorMessage(e.toString());
+			e.printStackTrace();
+			return createErrorResponse("getConsequenceTypeByPostMethod", e.toString());
 		}
 	}
-
+	
+	
+	
 	@GET
-	@Path("/{snpId}/frequency")
-	public Response getFrequencies(@PathParam("snpId") String snpIds) {
+	@Path("/{snpId}/phenotype")
+	public Response getSnpPhenotypesByNameByGet(@PathParam("snpId") String snps) {
+		return getSnpPhenotypesByName(snps, outputFormat);
+	}
+
+	@POST
+	@Consumes({MediaType.MULTIPART_FORM_DATA, MediaType.APPLICATION_FORM_URLENCODED})//MediaType.MULTIPART_FORM_DATA, 
+	@Path("/phenotype")
+	public Response getSnpPhenotypesByNameByPost(@FormDataParam("of") String outputFormat, @FormDataParam("snps") String snps) {
+		return getSnpPhenotypesByName(snps, outputFormat);
+	}
+	
+	public Response getSnpPhenotypesByName(String snps, String outputFormat) {
 		try {
-			List<String> ids = StringUtils.toList(snpIds, ",");
-			FeatureList<VariationFrequency> snplist;
-			VariationFrequencyDBManager variationFrequencyDbManager = new VariationFrequencyDBManager(infraredDBConnector);
-			if(uriInfo.getQueryParameters().get("population") != null) {
-				List<String> populations = StringUtils.toList(uriInfo.getQueryParameters().get("populations").get(0), ",");
-				snplist = variationFrequencyDbManager.getBySnpIds(ids);
-			}else {
-				snplist = variationFrequencyDbManager.getBySnpIds(ids);
-			}
-			//return generateResponse(createResultString(ids, snplist), outputFormat, compress);
-			this.listType = new TypeToken<FeatureList<VariationFrequency>>() {}.getType();
-			return generateResponse2(snplist, outputFormat, compress);
+			checkVersionAndSpecies();
+			SnpDBAdaptor snpDBAdaptor = dbAdaptorFactory.getSnpDBAdaptor(this.species, this.version);
+			long t0 = System.currentTimeMillis();
+			List<List<SnpPhenotypeAnnotation>> snpPhenotypeAnnotList = snpDBAdaptor.getAllSnpPhenotypeAnnotationListBySnpNameList(StringUtils.toList(snps, ","));
+			logger.debug("getSnpPhenotypesByName: "+(System.currentTimeMillis()-t0)+"ms");
+			return generateResponse(snps, "SNP_PHENOTYPE", snpPhenotypeAnnotList);
 		} catch (Exception e) {
-			return generateErrorMessage(e.toString());
+			e.printStackTrace();
+			return createErrorResponse("getSnpPhenotypesByPositionByGet", e.toString());
 		}
 	}
 	
+	
+	
+	
 	@GET
-	@Path("/{snpId}/allele_frequency")
-	public Response getAlleleFrequencies(@PathParam("snpId") String snpIds) {
+	@Path("/{snpId}/sequence")
+	public Response getSequence(@PathParam("snpId") String query) {
 		try {
-			List<String> ids = StringUtils.toList(snpIds, ",");
-			FeatureList<VariationFrequency> snplist;
-			VariationFrequencyDBManager variationFrequencyDbManager = new VariationFrequencyDBManager(infraredDBConnector);
-			if(uriInfo.getQueryParameters().get("population") != null) {
-				List<String> populations = StringUtils.toList(uriInfo.getQueryParameters().get("populations").get(0), ",");
-				snplist = variationFrequencyDbManager.getBySnpIds(ids);
-			}else {
-				snplist = variationFrequencyDbManager.getBySnpIds(ids);
-			}
-			//return generateResponse(createResultString(ids, snplist), outputFormat, compress);
-			this.listType = new TypeToken<FeatureList<VariationFrequency>>() {}.getType();
-			return generateResponse2(snplist, outputFormat, compress);
+			return  null;
 		} catch (Exception e) {
-			return generateErrorMessage(e.toString());
+			e.printStackTrace();
+			return createErrorResponse("getSequence", e.toString());
 		}
 	}
 	
+
 	@GET
-	@Path("/{snpId}/genotype_frequency")
-	public Response getGenotypeFrequencies(@PathParam("snpId") String snpIds) {
+	@Path("/{snpId}/population_frequency")
+	public Response getPopulationFrequency(@PathParam("snpId") String snpId) {
 		try {
-			List<String> ids = StringUtils.toList(snpIds, ",");
-			FeatureList<VariationFrequency> snplist;
-			VariationFrequencyDBManager variationFrequencyDbManager = new VariationFrequencyDBManager(infraredDBConnector);
-			if(uriInfo.getQueryParameters().get("population") != null) {
-				List<String> populations = StringUtils.toList(uriInfo.getQueryParameters().get("populations").get(0), ",");
-				snplist = variationFrequencyDbManager.getBySnpIds(ids);
-			}else {
-				snplist = variationFrequencyDbManager.getBySnpIds(ids);
-			}
-			//return generateResponse(createResultString(ids, snplist), outputFormat, compress);
-			this.listType = new TypeToken<FeatureList<VariationFrequency>>() {}.getType();
-			return generateResponse2(snplist, outputFormat, compress);
+			checkVersionAndSpecies();
+			SnpDBAdaptor snpDBAdaptor = dbAdaptorFactory.getSnpDBAdaptor(species, version);
+			return generateResponse(snpId, "SNP_POPULATION_FREQUENCY", snpDBAdaptor.getAllSnpPopulationFrequencyList(StringUtils.toList(snpId, ",")));
 		} catch (Exception e) {
-			return generateErrorMessage(e.toString());
+			e.printStackTrace();
+			return createErrorResponse("getPopulationFrequency", e.toString());
 		}
 	}
 	
-
 	@GET
-	@Path("/{snpId}/functional")
-	public Response getFunctionalSnps(@PathParam("snpId") String snpIds) {
+	@Path("/{snpId}/xref")
+	public Response getXrefs(@PathParam("snpId") String query) {
 		try {
-			List<String> snps = StringUtils.toList(snpIds, ",");
-			OmegaDBManager omegaDbManager = new OmegaDBManager(infraredDBConnector);
-			List<FeatureList<Omega>> omegas;
-			if(uriInfo.getQueryParameters().get("min") != null && uriInfo.getQueryParameters().get("max") != null) {
-				omegas = omegaDbManager.getAllBySnpIds(snps, Double.parseDouble(uriInfo.getQueryParameters().get("min").get(0)), Double.parseDouble(uriInfo.getQueryParameters().get("max").get(0)));
-			}else{
-				omegas = omegaDbManager.getAllBySnpIds(snps);
-			}
-//			return generateResponse(createResultString(snps, omegas), outputFormat, compress);
-			this.listType = new TypeToken<List<FeatureList<Omega>>>() {}.getType();
-			return generateResponse2(omegas, outputFormat, compress);
-		}catch (Exception e) {
-			return generateErrorMessage(e.toString());
+			checkVersionAndSpecies();
+			TfbsDBAdaptor tfbsDBAdaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species, this.version);
+			return  generateResponse(query, "XREF", tfbsDBAdaptor.getAllByTargetGeneNameList(StringUtils.toList(query, ",")));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return createErrorResponse("getXrefs", e.toString());
 		}
 	}
 	
-	@Deprecated
 	@GET
-	@Path("/{snpId}/omegas")
-	public Response getAllBySnpIds(@PathParam("snpId") String snpIds) {
-		try {
-			List<String> snps = StringUtils.toList(snpIds, ",");
-			OmegaDBManager omegaDbManager = new OmegaDBManager(infraredDBConnector);
-			List<FeatureList<Omega>> omegas;
-			if(uriInfo.getQueryParameters().get("min") != null && uriInfo.getQueryParameters().get("max") != null) {
-				omegas = omegaDbManager.getAllBySnpIds(snps, Double.parseDouble(uriInfo.getQueryParameters().get("min").get(0)), Double.parseDouble(uriInfo.getQueryParameters().get("max").get(0)));
-			}else{
-				omegas = omegaDbManager.getAllBySnpIds(snps);
-			}
-//			return generateResponse(createResultString(snps, omegas), outputFormat, compress);
-			this.listType = new TypeToken<List<FeatureList<Omega>>>() {}.getType();
-			return generateResponse2(omegas, outputFormat, compress);
-		}catch (Exception e) {
-			return generateErrorMessage(e.toString());
-		}
+	public Response getHelp() {
+		return help();
 	}
-
-
-
-
-
-
-	//	public Response getSnpsByRegion() {
-	//		try {
-	//			connect();
-	//			omegaDbManager = new SNPDBManager(infraredDBConnector);
-	//			FeatureList<SNP> snps;
-	//			String region = uriInfo.getPathParameters().get("region").get(0);
-	//			String[] items = region.split("[:-]");
-	//			if(items.length == 3) {
-	//				snps = omegaDbManager.getAllByLocation(items[0], Integer.parseInt(items[1]), Integer.parseInt(items[2]));
-	//			}else {
-	//				snps = omegaDbManager.getAllByConsequenceType("NON_SYNONYMOUS_CODING");
-	//			}
-	//			return generateResponse(ListUtils.toString(snps, querySeparator), outputFormat, compress);
-	//		} catch (Exception e) {
-	//			return generateErrorMessage(e.toString());
-	//		}
-	//	}
-
-	//	public Response getSnpsByConsequenceType2() {
-	//		try {
-	//			connect();
-	//			snpDbManager = new SNPDBManager(infraredDBConnector);
-	//			
-	//			if(uriInfo.getQueryParameters().get("consequencetype") != null) {
-	//				FeatureList<SNP> snps = snpDbManager.getAllByConsequenceType(uriInfo.getQueryParameters().get("consequencetype").get(0));
-	//				return generateResponse(ListUtils.toString(snps, querySeparator), outputFormat, compress);
-	//			}else {
-	//				return generateResponse(ListUtils.toString(snpDbManager.getAllConsequenceTypes(), querySeparator), outputFormat, compress);
-	//			}
-	//		} catch (Exception e) {
-	//			return generateErrorMessage(e.toString());
-	//		}
-	//	}
-
-	//	public Response getSpliceSites() {
-	//		try {
-	//			connect();
-	//			spliceSiteDbManager = new SpliceSiteDBManager(infraredDBConnector);
-	//			if(uriInfo.getQueryParameters().get("consequencetype") != null) {
-	//				FeatureList<SNP> snps = snpDbManager.getAllByConsequenceType(uriInfo.getQueryParameters().get("consequencetype").get(0));
-	//				return generateResponse(ListUtils.toString(snps, querySeparator), outputFormat, compress);
-	//			}else {
-	//				return generateResponse(ListUtils.toString(snpDbManager.getAllConsequenceTypes(), querySeparator), outputFormat, compress);
-	//			}
-	//		} catch (Exception e) {
-	//			return generateErrorMessage(e.toString());
-	//		}
-	//	}
-
-	@Override
-	protected boolean isValidSpecies(String species) {
-		if("hsa".equalsIgnoreCase(species) || "mmu".equalsIgnoreCase(species) || "rno".equalsIgnoreCase(species)) {
-			return true;
-		}
-		return false;
-	}
-
-//	private String createVariationResultString(List<String> ids, FeatureList<SNP> features) {
-//		StringBuilder result = new StringBuilder();
-//		for(int i=0; i<ids.size(); i++) {
-//			if(features.get(i) != null) {
-//				result.append(ids.get(i)).append("\t").append(features.get(i).getChromosome()+"\t"+features.get(i).getStart()+"\t"+features.get(i).getEnd()+"\t"+features.get(i).getStrand()+"\t"+features.get(i).getAllele()+"\t"+features.get(i).getConsequenceTypeList()+"\t"+features.get(i).getSequence()).append(querySeparator);
-//			}else {
-//				result.append(ids.get(i)).append("\t").append("not found").append(querySeparator);
-//			}
-//		}
-//		return result.toString().trim();
-//	}
 	
+	@GET
+	@Path("/help")
+	public Response help() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("Input:\n");
+		sb.append("SNP format: rsID.\n\n\n");
+		sb.append("Resources:\n");
+		sb.append("- info: Get SNP information: name, position, consequence type, adjacent nucleotides, ...\n");
+		sb.append(" Output columns: rsID, chromosome, position, Ensembl consequence type, SO consequence type, sequence.\n\n");
+		sb.append("- consequence_type: Get SNP effect on the transcript\n");
+		sb.append(" Output columns: chromosome, start, end, feature ID, feature name, consequence type, biotype, feature chromosome, feature start, feature end, feature strand, snp ID, ancestral allele, alternative allele, gene Ensembl ID, Ensembl transcript ID, gene name, SO consequence type ID, SO consequence type name, consequence type description, consequence type category, aminoacid change, codon change.\n\n");
+		sb.append("- population_frequency: Get the allelic and genotypic frequencies for this SNP acroos populations.\n\n");
+		sb.append("- phenotype: Get the phenotypes that have been previously associated to this SNP.\n\n");
+		sb.append("- xref: Get the external references for this SNP.\n\n\n");
+		sb.append("Documentation:\n");
+		sb.append("http://docs.bioinfo.cipf.es/projects/cellbase/wiki/Feature_rest_ws_api#SNP");
+		
+		return createOkResponse(sb.toString());
+	}
+
 }

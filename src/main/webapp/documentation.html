@@ -138,7 +138,7 @@ Genomic
 			<h7>http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/genomic/region/2:1000-1200000,5:234234-4564564,21/gene</h7></a>
 			
 			<a href="http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/genomic/region/5:234234-4564564,21?biotype=protein_coding,misc_RNA">
-			<h7>http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/genomic/region/5:234234-4564564,21?biotype=protein_coding,misc_RNA</a></h7>
+			<h7>http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/genomic/region/5:234234-4564564,21?biotype=protein_coding,misc_RNA</h7></a>
 			<br /><br />
 			
 <!-- SNPS ********************************************************************************************************-->
@@ -157,7 +157,7 @@ Genomic
 			<h7>http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/genomic/region/2:1000-1200000,5:234234-4564564,21/snp</h7></a><br />
 			
 			<a href="http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/genomic/region/5:1-800000/snp?consequencetype=3PRIME_UTR,UPSTREAM">
-			<h7>http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/genomic/region/5:1-800000/snp?consequencetype=3PRIME_UTR,UPSTREAM</a><br />
+			<h7>http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/genomic/region/5:1-800000/snp?consequencetype=3PRIME_UTR,UPSTREAM</h7></a><br />
 			
 			<a href="http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/genomic/position/5:11784,10:60325/snp">
 			<h7>http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/genomic/position/5:11784,10:60325/snp</h7></a>
@@ -178,7 +178,7 @@ Genomic
 			<br />Some examples:<br />
 			
 			<a href="http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/genomic/position/2:128175992,4:156832030,X:33229755,1:169823221/consequencetype">
-			<pre><h7>http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/genomic/position/2:128175992,4:156832030,X:33229755,1:169823221/consequencetype</pre></h7></a>
+			<pre><h7>http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/genomic/position/2:128175992,4:156832030,X:33229755,1:169823221/consequencetype</h7></pre></a>
 			<br />
 						
 <!-- Splice Site *************************************************************************************************-->
@@ -225,7 +225,7 @@ Genomic
 			<h7>http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/genomic/position/1:893801,9:785426,6:46096774/tfbs?filter=jaspar</h7></a>
 			
 			<a href="http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/genomic/position/2:128175992,4:156832030,X:33229755/tfbs?filter=oreganno">
-			<pre><h7>http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/genomic/position/2:128175992,4:156832030,X:33229755/tfbs?filter=oreganno</h7></a></pre>
+			<pre><h7>http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/genomic/position/2:128175992,4:156832030,X:33229755/tfbs?filter=oreganno</h7></pre></a>
 			<br />
 			
 			<a href="http://bioinfo.cipf.es/infrared-ws/src/main/webapp/documentation.html"><img src="img/backtotop/handmade.jpeg" alt="Back to top"
@@ -316,10 +316,10 @@ Variation
 			<br />Some examples:</p>
 			
 			<a href="http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/variation/rs6311,rs8181239,rs6313,rs3874697,rs3121179,rs9635634/consequencetype">
-			<pre><h7>http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/variation/rs6311,rs8181239,rs6313,rs3874697,rs3121179,rs9635634/consequencetype</h7></a></pre>
+			<pre><h7>http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/variation/rs6311,rs8181239,rs6313,rs3874697,rs3121179,rs9635634/consequencetype</h7></pre></a>
 			
 			<a href="http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/variation/rs6311,rs8181239,rs6313,rs3874697,rs3121179,rs9635634/consequencetype?consequencetype=5PRIME_UTR,UPSTREAM">
-			<h7>http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/variation/rs6311,rs8181239,rs6313,rs3874697,rs3121179,rs9635634/consequencetype?consequencetype=5PRIME_UTR,UPSTREAM</h7></a>
+			<pre><h7>http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/variation/rs6311,rs8181239,rs6313,rs3874697,rs3121179,rs9635634/consequencetype?consequencetype=5PRIME_UTR,UPSTREAM</h7></pre></a>
 			<br /><br />
 			
 			<a href="http://bioinfo.cipf.es/infrared-ws/src/main/webapp/documentation.html"><img src="img/backtotop/handmade.jpeg" alt="Back to top"
@@ -355,16 +355,13 @@ Variation
 			<p>It is possible to <b>filter by range of values</b> just indicating the <i>minimum</i> and the <i>maximum</i> 
 			values of omega. The query, then, will be:</p>
 			
-			<pre><h7><b>http://bioinfo.cipf.es/infrared-ws/api/{version}/{specie}/variation/{variation_IDs}/omegas?min={minimum}&max={maximum}</b></h7></pre>
+			<pre><h7><b>http://bioinfo.cipf.es/infrared-ws/rest/{version}/{specie}/variation/{variation_IDs}/omegas?min={minimum} max={maximum}</b></h7></pre>
 			
 			Some examples:<br />
 			
 			<a href="http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/variation/variation/rs1006954,rs10065269,rs10062026,rs1005190,rs10048853/omegas">
 			<pre><h7>http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/variation/variation/rs1006954,rs10065269,rs10062026,rs1005190,rs10048853/omegas</h7></pre></a>
 			
-			<a href="http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/variation/rs1006954,rs10065269,rs10062026,rs1005190,rs10048853/omegas?min=0.01&max=0.2">
-			<pre><h7>http://bioinfo.cipf.es/infrared-ws/api/v1/hsa/variation/rs1006954,rs10062026,rs1005190,rs10048853/omegas?min=0.01&max=0.2</h7></pre></a>
-			<br /><br />
 
 			<a href="http://bioinfo.cipf.es/infrared-ws/src/main/webapp/documentation.html"><img src="img/backtotop/handmade.jpeg" alt="Back to top"
 			style="float: right; border: none;"/></a>
