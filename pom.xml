@@ -2,8 +2,8 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.bioinfo</groupId>
-	<artifactId>infrared-ws-server</artifactId>
-	<version>0.4.1</version>
+	<artifactId>cellbase-ws</artifactId>
+	<version>0.5.0</version>
 	<packaging>war</packaging>
 	<dependencies>
 		<dependency>
@@ -26,9 +26,14 @@
 		<dependency>
 			<groupId>org.bioinfo</groupId>
 			<artifactId>cellbase-lib</artifactId>
-			<version>2.1.1</version>
+			<version>3.0.0</version>
 			<scope>compile</scope>
 		</dependency>
+		<dependency>
+            <groupId>org.bioinfo</groupId>
+            <artifactId>infrared-core</artifactId>
+            <version>2.1.1</version>
+        </dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
@@ -43,18 +48,18 @@
 		<dependency>
 			<groupId>com.sun.jersey</groupId>
 			<artifactId>jersey-servlet</artifactId>
-			<version>1.13</version>
+			<version>1.17</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.sun.jersey.contribs</groupId>
 			<artifactId>jersey-multipart</artifactId>
-			<version>1.13</version>
+			<version>1.17</version>
 		</dependency>
 		<dependency>
 			<groupId>com.sun.jersey</groupId>
 			<artifactId>jersey-client</artifactId>
-			<version>1.13</version>
+			<version>1.17</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -72,20 +77,25 @@
 		<dependency>
 			<groupId>org.mongodb</groupId>
 			<artifactId>mongo-java-driver</artifactId>
-			<version>2.9.1</version>
+			<version>2.9.3</version>
 		</dependency>
+		  <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+            <version>3.6.10.Final</version>
+        </dependency>
 	</dependencies>
 
 	<build>
-		<sourceDirectory>src</sourceDirectory>
+		<sourceDirectory>src/main/java</sourceDirectory>
 		<finalName>cellbase</finalName>
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>2.3.2</version>
 				<configuration>
-					<source>1.6</source>
-					<target>1.6</target>
+					<source>1.7</source>
+					<target>1.7</target>
 					<showDeprecation>true</showDeprecation>
 					<showWarnings>true</showWarnings>
 					<encoding>UTF-8</encoding>
