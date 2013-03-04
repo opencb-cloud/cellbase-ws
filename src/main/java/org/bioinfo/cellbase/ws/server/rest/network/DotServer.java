@@ -9,8 +9,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.bioinfo.cellbase.lib.api.BioPaxDBAdaptor;
-import org.bioinfo.cellbase.lib.impl.DBAdaptorFactory;
-import org.bioinfo.cellbase.lib.impl.hibernate.HibernateDBAdaptorFactory;
 import org.bioinfo.formats.core.graph.dot.Dot;
 import org.bioinfo.formats.core.graph.dot.Edge;
 import org.bioinfo.formats.core.graph.dot.Node;
@@ -44,8 +42,8 @@ public class DotServer {
 	}
 	
 	public DotServer(String species) {
-		DBAdaptorFactory dbAdaptorFactory = new HibernateDBAdaptorFactory();
-		dbAdaptor = dbAdaptorFactory.getBioPaxDBAdaptor(species);
+//		DBAdaptorFactory dbAdaptorFactory = new HibernateDBAdaptorFactory();
+//		dbAdaptor = dbAdaptorFactory.getBioPaxDBAdaptor(species);
 	}
 	
 	//=========================================================================

@@ -20,9 +20,9 @@ import org.bioinfo.cellbase.lib.api.GeneDBAdaptor;
 import org.bioinfo.cellbase.lib.api.ProteinDBAdaptor;
 import org.bioinfo.cellbase.lib.api.TfbsDBAdaptor;
 import org.bioinfo.cellbase.lib.api.TranscriptDBAdaptor;
+import org.bioinfo.cellbase.lib.common.core.Gene;
 import org.bioinfo.cellbase.ws.server.rest.exception.VersionException;
 import org.bioinfo.commons.utils.StringUtils;
-import org.bioinfo.infrared.core.cellbase.Gene;
 import org.bioinfo.infrared.core.cellbase.Protein;
 import org.bioinfo.infrared.core.cellbase.ProteinFeature;
 import org.bioinfo.infrared.core.cellbase.ProteinXref;
@@ -69,8 +69,8 @@ public class TfWSServer extends RegulatoryWSServer {
 			List<String> externalNameList = new ArrayList<String>();
 			for(List<Gene> geneList : geneListList) {
 				if(geneList != null && geneList.size() > 0) {
-					ensemblGeneList.add(geneList.get(0).getStableId());
-					externalNameList.add(geneList.get(0).getExternalName());
+					ensemblGeneList.add(geneList.get(0).getId());
+					externalNameList.add(geneList.get(0).getName());
 				}else {
 					ensemblGeneList.add("");
 					externalNameList.add("");

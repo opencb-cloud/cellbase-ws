@@ -3,6 +3,7 @@ package org.bioinfo.cellbase.ws.server.rest;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.StringWriter;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,8 +27,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.bioinfo.cellbase.lib.impl.DBAdaptorFactory;
-import org.bioinfo.cellbase.lib.impl.mongo.MongoDBAdaptorFactory;
-import org.bioinfo.cellbase.lib.io.output.StringWriter;
+import org.bioinfo.cellbase.lib.impl.mongodb.MongoDBAdaptorFactory;
 import org.bioinfo.cellbase.ws.server.rest.exception.SpeciesException;
 import org.bioinfo.cellbase.ws.server.rest.exception.VersionException;
 import org.bioinfo.cellbase.ws.server.rest.utils.Species;
@@ -429,9 +429,9 @@ public class GenericRestWSServer implements IWSServer {
 					// String[] query.split(",");
 					mediaType = MediaType.valueOf("text/plain");
 					if(headerTag != null && headers.containsKey(headerTag) && outputHeader != null && outputHeader.equalsIgnoreCase("true")) {
-						response = "#" + headers.get(headerTag) + "\n" + StringWriter.serialize(features);					
+//						response = "#" + headers.get(headerTag) + "\n" + StringWriter.serialize(features);					
 					}else {
-						response = StringWriter.serialize(features);						
+//						response = StringWriter.serialize(features);						
 					}
 					//				}
 				}
