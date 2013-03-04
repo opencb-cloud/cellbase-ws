@@ -25,10 +25,10 @@ import org.bioinfo.cellbase.lib.api.SnpDBAdaptor;
 import org.bioinfo.cellbase.lib.api.TfbsDBAdaptor;
 import org.bioinfo.cellbase.lib.api.TranscriptDBAdaptor;
 import org.bioinfo.cellbase.lib.api.XRefsDBAdaptor;
+import org.bioinfo.cellbase.lib.common.core.Gene;
 import org.bioinfo.cellbase.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.cellbase.ws.server.rest.exception.VersionException;
 import org.bioinfo.commons.utils.StringUtils;
-import org.bioinfo.infrared.core.cellbase.Gene;
 import org.bioinfo.infrared.core.cellbase.MirnaTarget;
 import org.bioinfo.infrared.core.cellbase.MutationPhenotypeAnnotation;
 import org.bioinfo.infrared.core.cellbase.ProteinFeature;
@@ -115,9 +115,9 @@ public class GeneWSServer extends GenericRestWSServer {
 				for(int j = 0; j < geneListList.get(i).size(); j++) {
 					removeComma = true;
 					response.append("{");
-					response.append("\"stableId\":"+"\""+geneListList.get(i).get(j).getStableId()+"\",");
-					response.append("\"externalName\":"+"\""+geneListList.get(i).get(j).getExternalName()+"\",");
-					response.append("\"externalDb\":"+"\""+geneListList.get(i).get(j).getExternalDb()+"\",");
+					response.append("\"stableId\":"+"\""+geneListList.get(i).get(j).getId()+"\",");
+					response.append("\"externalName\":"+"\""+geneListList.get(i).get(j).getName()+"\",");
+//					response.append("\"externalDb\":"+"\""+geneListList.get(i).get(j).getExternalDb()+"\",");
 					response.append("\"biotype\":"+"\""+geneListList.get(i).get(j).getBiotype()+"\",");
 					response.append("\"status\":"+"\""+geneListList.get(i).get(j).getStatus()+"\",");
 					response.append("\"chromosome\":"+"\""+geneListList.get(i).get(j).getChromosome()+"\",");
@@ -261,7 +261,7 @@ public class GeneWSServer extends GenericRestWSServer {
 			for(List<Gene> list : geneList) {
 				if(list.size() > 0){
 					for(Gene gene : list) {
-						ensemblIds.add(gene.getStableId());
+						ensemblIds.add(gene.getId());
 					}
 				}
 				else{

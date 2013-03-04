@@ -1,6 +1,7 @@
 package org.bioinfo.cellbase.ws.server.rest.genomic;
 
 import java.io.IOException;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -32,19 +33,18 @@ import org.bioinfo.cellbase.lib.api.TranscriptDBAdaptor;
 import org.bioinfo.cellbase.lib.common.GenomeSequenceFeature;
 import org.bioinfo.cellbase.lib.common.IntervalFeatureFrequency;
 import org.bioinfo.cellbase.lib.common.Region;
-import org.bioinfo.cellbase.lib.io.output.StringWriter;
+import org.bioinfo.cellbase.lib.common.core.Gene;
+import org.bioinfo.cellbase.lib.common.core.Transcript;
 import org.bioinfo.cellbase.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.cellbase.ws.server.rest.exception.VersionException;
 import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.infrared.core.cellbase.CpGIsland;
 import org.bioinfo.infrared.core.cellbase.ExonToTranscript;
-import org.bioinfo.infrared.core.cellbase.Gene;
 import org.bioinfo.infrared.core.cellbase.MirnaTarget;
 import org.bioinfo.infrared.core.cellbase.MutationPhenotypeAnnotation;
 import org.bioinfo.infrared.core.cellbase.RegulatoryRegion;
 import org.bioinfo.infrared.core.cellbase.StructuralVariation;
 import org.bioinfo.infrared.core.cellbase.Tfbs;
-import org.bioinfo.infrared.core.cellbase.Transcript;
 
 @Path("/{version}/{species}/genomic/region")
 @Produces("text/plain")
@@ -124,7 +124,7 @@ public class RegionWSServer extends GenericRestWSServer {
 					for(int i=0; i<geneListList.size(); i++) {
 						geneStringList.add(new ArrayList<String>());
 						for(int j=0; j<geneListList.get(i).size(); j++) {
-							geneStringList.get(i).add(geneListList.get(i).get(j).getStableId());
+							geneStringList.get(i).add(geneListList.get(i).get(j).getId());
 						}	
 					}
 					StringBuilder response = new StringBuilder();
@@ -138,9 +138,9 @@ public class RegionWSServer extends GenericRestWSServer {
 						for(int j = 0; j < geneList.size(); j++) {
 							removeComma = true;
 							response.append("{");
-							response.append("\"stableId\":"+"\""+geneList.get(j).getStableId()+"\",");
-							response.append("\"externalName\":"+"\""+geneList.get(j).getExternalName()+"\",");
-							response.append("\"externalDb\":"+"\""+geneList.get(j).getExternalDb()+"\",");
+							response.append("\"stableId\":"+"\""+geneList.get(j).getId()+"\",");
+							response.append("\"externalName\":"+"\""+geneList.get(j).getName()+"\",");
+//							response.append("\"externalDb\":"+"\""+geneList.get(j).getExternalDb()+"\",");
 							response.append("\"biotype\":"+"\""+geneList.get(j).getBiotype()+"\",");
 							response.append("\"status\":"+"\""+geneList.get(j).getStatus()+"\",");
 							response.append("\"chromosome\":"+"\""+geneList.get(j).getChromosome()+"\",");
@@ -156,18 +156,18 @@ public class RegionWSServer extends GenericRestWSServer {
 								// remove last '}'
 								response.replace(response.length()-1, response.length(), "");
 								response.append(",\"exonToTranscripts\":[");
-								for(ExonToTranscript e2t: trans.getExonToTranscripts()) { 
-									response.append(gson.toJson(e2t));
-									// remove last '}'
-									response.replace(response.length()-1, response.length(), "");
-									response.append(",\"exon\":{");
-									response.append("\"stableId\":\""+e2t.getExon().getStableId()+"\",");
-									response.append("\"chromosome\":\""+e2t.getExon().getChromosome()+"\",");
-									response.append("\"start\":\""+e2t.getExon().getStart()+"\",");
-									response.append("\"end\":\""+e2t.getExon().getEnd()+"\",");
-									response.append("\"strand\":\""+e2t.getExon().getStrand()+"\"");
-									response.append("}},");
-								}
+//								for(ExonToTranscript e2t: trans.getExonToTranscripts()) { 
+//									response.append(gson.toJson(e2t));
+//									// remove last '}'
+//									response.replace(response.length()-1, response.length(), "");
+//									response.append(",\"exon\":{");
+//									response.append("\"stableId\":\""+e2t.getExon().getStableId()+"\",");
+//									response.append("\"chromosome\":\""+e2t.getExon().getChromosome()+"\",");
+//									response.append("\"start\":\""+e2t.getExon().getStart()+"\",");
+//									response.append("\"end\":\""+e2t.getExon().getEnd()+"\",");
+//									response.append("\"strand\":\""+e2t.getExon().getStrand()+"\"");
+//									response.append("}},");
+//								}
 								response.replace(response.length()-1, response.length(), "");
 								response.append("]},");
 							}
@@ -574,7 +574,7 @@ public class RegionWSServer extends GenericRestWSServer {
 			//				}
 			//				
 			//			}
-			return createOkResponse(StringWriter.serialize(peptide));
+			return createOkResponse("");
 			//			return generateResponse(region, exonIds);
 
 		} catch (Exception e) {
