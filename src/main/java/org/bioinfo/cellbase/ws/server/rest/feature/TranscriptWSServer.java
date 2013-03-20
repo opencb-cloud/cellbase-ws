@@ -16,25 +16,15 @@ import javax.ws.rs.core.UriInfo;
 
 import org.bioinfo.cellbase.lib.api.ExonDBAdaptor;
 import org.bioinfo.cellbase.lib.api.GeneDBAdaptor;
-import org.bioinfo.cellbase.lib.api.MirnaDBAdaptor;
 import org.bioinfo.cellbase.lib.api.MutationDBAdaptor;
 import org.bioinfo.cellbase.lib.api.ProteinDBAdaptor;
-import org.bioinfo.cellbase.lib.api.SnpDBAdaptor;
-import org.bioinfo.cellbase.lib.api.TfbsDBAdaptor;
 import org.bioinfo.cellbase.lib.api.TranscriptDBAdaptor;
-import org.bioinfo.cellbase.lib.api.XRefsDBAdaptor;
-import org.bioinfo.cellbase.lib.common.core.Gene;
+import org.bioinfo.cellbase.lib.common.core.Exon;
+import org.bioinfo.cellbase.lib.common.variation.MutationPhenotypeAnnotation;
 import org.bioinfo.cellbase.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.cellbase.ws.server.rest.exception.VersionException;
 import org.bioinfo.commons.utils.StringUtils;
-import org.bioinfo.infrared.core.cellbase.Exon;
-import org.bioinfo.infrared.core.cellbase.MirnaTarget;
-import org.bioinfo.infrared.core.cellbase.MutationPhenotypeAnnotation;
-import org.bioinfo.infrared.core.cellbase.ProteinFeature;
-import org.bioinfo.infrared.core.cellbase.Snp;
-import org.bioinfo.infrared.core.cellbase.Tfbs;
-import org.bioinfo.infrared.core.cellbase.Transcript;
-import org.bioinfo.infrared.core.cellbase.Xref;
+import org.bioinfo.formats.parser.uniprot.v140jaxb.FeatureType;
 
 @Path("/{version}/{species}/feature/transcript")
 @Produces("text/plain")
@@ -257,7 +247,7 @@ public class TranscriptWSServer extends GenericRestWSServer {
 		try {
 			checkVersionAndSpecies();
 			ProteinDBAdaptor proteinAdaptor = dbAdaptorFactory.getProteinDBAdaptor(this.species, this.version);
-			List<List<ProteinFeature>> geneList = proteinAdaptor.getAllProteinFeaturesByProteinXrefList(StringUtils.toList(query, ","));
+			List<List<FeatureType>> geneList = proteinAdaptor.getAllProteinFeaturesByProteinXrefList(StringUtils.toList(query, ","));
 			return generateResponse(query, "PROTEIN_FEATURE", geneList);
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -17,17 +17,15 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import org.bioinfo.cellbase.lib.api.BioPaxDBAdaptor;
+import org.bioinfo.cellbase.lib.api.PathwayDBAdaptor;
 import org.bioinfo.cellbase.lib.api.TfbsDBAdaptor;
+import org.bioinfo.cellbase.lib.common.pathway.Interaction;
 import org.bioinfo.cellbase.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.cellbase.ws.server.rest.exception.VersionException;
 import org.bioinfo.commons.io.utils.IOUtils;
 import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.formats.core.graph.dot.Dot;
-import org.bioinfo.infrared.core.biopax.v3.BioEntity;
-import org.bioinfo.infrared.core.biopax.v3.Interaction;
-import org.bioinfo.infrared.core.biopax.v3.NameEntity;
-import org.bioinfo.infrared.core.biopax.v3.Pathway;
+import org.bioinfo.formats.parser.biopax.core.Pathway;
 
 import com.google.gson.Gson;
 
@@ -38,7 +36,7 @@ public class PathwayWSServer extends GenericRestWSServer {
 	public PathwayWSServer(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo, @Context HttpServletRequest hsr) throws VersionException, IOException {
 		super(version, species, uriInfo, hsr);
 	}
-
+/*
 	@GET
 	@Path("/list")
 	public Response getAllPathways(@QueryParam("subpathways") String subpathways, @QueryParam("search") String search) {
@@ -50,7 +48,7 @@ public class PathwayWSServer extends GenericRestWSServer {
 			}
 			
 			StringBuilder sb = new StringBuilder();
-			BioPaxDBAdaptor bioPaxDBAdaptor = dbAdaptorFactory.getBioPaxDBAdaptor(this.species, this.version);
+			PathwayDBAdaptor bioPaxDBAdaptor = dbAdaptorFactory.getPathwayDBAdaptor(this.species, this.version);
 			List<Pathway> pathways = bioPaxDBAdaptor.getPathways("Reactome", search, onlyTopLevel);
 			return generateResponse("", pathways);
 		} catch (Exception e) {
@@ -65,8 +63,8 @@ public class PathwayWSServer extends GenericRestWSServer {
 		try {
 			checkVersionAndSpecies();
 			StringBuilder sb = new StringBuilder();
-			BioPaxDBAdaptor dbAdaptor = dbAdaptorFactory.getBioPaxDBAdaptor(this.species, this.version);
-			Pathway pathway = dbAdaptor.getPathway(query, "Reactome");
+			PathwayDBAdaptor bioPaxDBAdaptor = dbAdaptorFactory.getPathwayDBAdaptor(this.species, this.version);
+			Pathway pathway = bioPaxDBAdaptor.getPathway(query, "Reactome");
 			return generateResponse("", Arrays.asList(pathway));
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -81,8 +79,8 @@ public class PathwayWSServer extends GenericRestWSServer {
 	public Response getPathwayImage(@PathParam("pathwayId") String query) {
 		try {
 			checkVersionAndSpecies();
-			BioPaxDBAdaptor dbAdaptor = dbAdaptorFactory.getBioPaxDBAdaptor(this.species, this.version);
-			Pathway pathway = dbAdaptor.getPathway(query, "Reactome");
+			PathwayDBAdaptor bioPaxDBAdaptor = dbAdaptorFactory.getPathwayDBAdaptor(this.species, this.version);
+			Pathway pathway = bioPaxDBAdaptor.getPathway(query, "Reactome");
 			
 			if (pathway!=null) {
 				String contentType = "image/jpeg";
@@ -249,7 +247,7 @@ public class PathwayWSServer extends GenericRestWSServer {
 		}
 		return name;
 	}
-	
+	*/
 	@GET
 	public Response getHelp() {
 		return help();

@@ -22,12 +22,12 @@ import org.bioinfo.cellbase.lib.api.TfbsDBAdaptor;
 import org.bioinfo.cellbase.lib.api.TranscriptDBAdaptor;
 import org.bioinfo.cellbase.lib.common.core.Gene;
 import org.bioinfo.cellbase.lib.common.core.Transcript;
+import org.bioinfo.cellbase.lib.common.regulatory.Pwm;
 import org.bioinfo.cellbase.ws.server.rest.exception.VersionException;
 import org.bioinfo.commons.utils.StringUtils;
-import org.bioinfo.infrared.core.cellbase.Protein;
-import org.bioinfo.infrared.core.cellbase.ProteinFeature;
-import org.bioinfo.infrared.core.cellbase.ProteinXref;
-import org.bioinfo.infrared.core.cellbase.Pwm;
+import org.bioinfo.formats.parser.uniprot.v140jaxb.DbReferenceType;
+import org.bioinfo.formats.parser.uniprot.v140jaxb.FeatureType;
+import org.bioinfo.formats.parser.uniprot.v140jaxb.Protein;
 
 
 @Path("/{version}/{species}/regulatory/tf")
@@ -82,8 +82,8 @@ public class TfWSServer extends RegulatoryWSServer {
 			List<List<Gene>> targetGeneList = geneDBAdaptor.getAllByTfList(StringUtils.toList(query, ","));
 			List<List<Pwm>> pwmGeneList =  tfbsDBAdaptor.getAllPwmByTfGeneNameList(StringUtils.toList(query, ","));
 			
-			List<List<ProteinXref>> proteinXrefList = proteinDBAdaptor.getAllProteinXrefsByProteinNameList(externalNameList);
-			List<List<ProteinFeature>> proteinFeature = proteinDBAdaptor.getAllProteinFeaturesByProteinXrefList(externalNameList);
+			List<List<DbReferenceType>> proteinXrefList = proteinDBAdaptor.getAllProteinXrefsByProteinNameList(externalNameList);
+			List<List<FeatureType>> proteinFeature = proteinDBAdaptor.getAllProteinFeaturesByProteinXrefList(externalNameList);
 			
 			StringBuilder response = new StringBuilder();
 			response.append("[");

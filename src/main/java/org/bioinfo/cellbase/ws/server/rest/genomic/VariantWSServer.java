@@ -28,11 +28,11 @@ import org.bioinfo.cellbase.lib.api.SnpDBAdaptor;
 import org.bioinfo.cellbase.lib.common.GenomicVariant;
 import org.bioinfo.cellbase.lib.common.GenomicVariantConsequenceType;
 import org.bioinfo.cellbase.lib.common.Position;
+import org.bioinfo.cellbase.lib.common.core.Transcript;
+import org.bioinfo.cellbase.lib.common.variation.MutationPhenotypeAnnotation;
 import org.bioinfo.cellbase.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.cellbase.ws.server.rest.exception.VersionException;
 import org.bioinfo.commons.utils.StringUtils;
-import org.bioinfo.infrared.core.cellbase.MutationPhenotypeAnnotation;
-import org.bioinfo.infrared.core.cellbase.Transcript;
 
 import com.sun.jersey.api.client.ClientResponse.Status;
 import com.sun.jersey.multipart.FormDataParam;

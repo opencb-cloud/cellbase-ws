@@ -16,10 +16,10 @@ import javax.ws.rs.core.UriInfo;
 
 import org.bioinfo.cellbase.lib.api.ExonDBAdaptor;
 import org.bioinfo.cellbase.lib.api.TranscriptDBAdaptor;
+import org.bioinfo.cellbase.lib.common.core.Exon;
 import org.bioinfo.cellbase.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.cellbase.ws.server.rest.exception.VersionException;
 import org.bioinfo.commons.utils.StringUtils;
-import org.bioinfo.infrared.core.cellbase.Exon;
 
 @Path("/{version}/{species}/feature/exon")
 @Produces("text/plain")

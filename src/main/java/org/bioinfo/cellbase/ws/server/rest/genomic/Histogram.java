@@ -3,8 +3,8 @@ package org.bioinfo.cellbase.ws.server.rest.genomic;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bioinfo.infrared.core.cellbase.Gene;
-import org.bioinfo.infrared.core.cellbase.RegulatoryRegion;
+import org.bioinfo.cellbase.lib.common.core.Gene;
+import org.bioinfo.cellbase.lib.common.regulatory.RegulatoryRegion;
 
 @Deprecated
 public class Histogram {

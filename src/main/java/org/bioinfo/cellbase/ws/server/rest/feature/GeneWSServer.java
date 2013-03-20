@@ -2,7 +2,6 @@ package org.bioinfo.cellbase.ws.server.rest.feature;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -26,16 +25,11 @@ import org.bioinfo.cellbase.lib.api.TfbsDBAdaptor;
 import org.bioinfo.cellbase.lib.api.TranscriptDBAdaptor;
 import org.bioinfo.cellbase.lib.api.XRefsDBAdaptor;
 import org.bioinfo.cellbase.lib.common.core.Gene;
+import org.bioinfo.cellbase.lib.common.variation.MutationPhenotypeAnnotation;
+import org.bioinfo.cellbase.lib.common.variation.Snp;
 import org.bioinfo.cellbase.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.cellbase.ws.server.rest.exception.VersionException;
 import org.bioinfo.commons.utils.StringUtils;
-import org.bioinfo.infrared.core.cellbase.MirnaTarget;
-import org.bioinfo.infrared.core.cellbase.MutationPhenotypeAnnotation;
-import org.bioinfo.infrared.core.cellbase.ProteinFeature;
-import org.bioinfo.infrared.core.cellbase.Snp;
-import org.bioinfo.infrared.core.cellbase.Tfbs;
-import org.bioinfo.infrared.core.cellbase.Transcript;
-import org.bioinfo.infrared.core.cellbase.Xref;
 
 @Path("/{version}/{species}/feature/gene")
 @Produces("text/plain")

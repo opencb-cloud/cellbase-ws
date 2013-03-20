@@ -17,10 +17,10 @@ import javax.ws.rs.core.UriInfo;
 import org.bioinfo.cellbase.lib.api.GeneDBAdaptor;
 import org.bioinfo.cellbase.lib.api.SnpDBAdaptor;
 import org.bioinfo.cellbase.lib.api.XRefsDBAdaptor;
+import org.bioinfo.cellbase.lib.common.core.Xref;
 import org.bioinfo.cellbase.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.cellbase.ws.server.rest.exception.VersionException;
 import org.bioinfo.commons.utils.StringUtils;
-import org.bioinfo.infrared.core.cellbase.Xref;
 
 @Path("/{version}/{species}/feature/id")
 @Produces("text/plain")

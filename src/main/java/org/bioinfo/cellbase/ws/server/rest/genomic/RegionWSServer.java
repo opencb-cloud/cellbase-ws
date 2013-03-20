@@ -1,7 +1,6 @@
 package org.bioinfo.cellbase.ws.server.rest.genomic;
 
 import java.io.IOException;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -33,18 +32,15 @@ import org.bioinfo.cellbase.lib.api.TranscriptDBAdaptor;
 import org.bioinfo.cellbase.lib.common.GenomeSequenceFeature;
 import org.bioinfo.cellbase.lib.common.IntervalFeatureFrequency;
 import org.bioinfo.cellbase.lib.common.Region;
-import org.bioinfo.cellbase.lib.common.core.Gene;
-import org.bioinfo.cellbase.lib.common.core.Transcript;
+import org.bioinfo.cellbase.lib.common.core.CpGIsland;
+import org.bioinfo.cellbase.lib.common.regulatory.MirnaTarget;
+import org.bioinfo.cellbase.lib.common.regulatory.RegulatoryRegion;
+import org.bioinfo.cellbase.lib.common.regulatory.Tfbs;
+import org.bioinfo.cellbase.lib.common.variation.MutationPhenotypeAnnotation;
+import org.bioinfo.cellbase.lib.common.variation.StructuralVariation;
 import org.bioinfo.cellbase.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.cellbase.ws.server.rest.exception.VersionException;
 import org.bioinfo.commons.utils.StringUtils;
-import org.bioinfo.infrared.core.cellbase.CpGIsland;
-import org.bioinfo.infrared.core.cellbase.ExonToTranscript;
-import org.bioinfo.infrared.core.cellbase.MirnaTarget;
-import org.bioinfo.infrared.core.cellbase.MutationPhenotypeAnnotation;
-import org.bioinfo.infrared.core.cellbase.RegulatoryRegion;
-import org.bioinfo.infrared.core.cellbase.StructuralVariation;
-import org.bioinfo.infrared.core.cellbase.Tfbs;
 
 @Path("/{version}/{species}/genomic/region")
 @Produces("text/plain")

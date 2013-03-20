@@ -8,21 +8,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.bioinfo.cellbase.lib.api.BioPaxDBAdaptor;
+import org.bioinfo.cellbase.lib.api.PathwayDBAdaptor;
+import org.bioinfo.cellbase.lib.common.pathway.Interaction;
+import org.bioinfo.cellbase.lib.common.pathway.PhysicalEntity;
 import org.bioinfo.formats.core.graph.dot.Dot;
 import org.bioinfo.formats.core.graph.dot.Edge;
 import org.bioinfo.formats.core.graph.dot.Node;
-import org.bioinfo.infrared.core.biopax.v3.BioEntity;
-import org.bioinfo.infrared.core.biopax.v3.Complex;
-import org.bioinfo.infrared.core.biopax.v3.Control;
-import org.bioinfo.infrared.core.biopax.v3.Conversion;
-import org.bioinfo.infrared.core.biopax.v3.Interaction;
-import org.bioinfo.infrared.core.biopax.v3.NameEntity;
-import org.bioinfo.infrared.core.biopax.v3.Pathway;
-import org.bioinfo.infrared.core.biopax.v3.PathwayStep;
-import org.bioinfo.infrared.core.biopax.v3.PhysicalEntity;
-import org.bioinfo.infrared.core.biopax.v3.Protein;
-import org.bioinfo.infrared.core.biopax.v3.Term;
+import org.bioinfo.formats.parser.biopax.core.Control;
+import org.bioinfo.formats.parser.biopax.core.Conversion;
+import org.bioinfo.formats.parser.biopax.core.Pathway;
+import org.bioinfo.formats.parser.uniprot.v140jaxb.Protein;
 
 public class DotServer {
 
@@ -33,7 +28,7 @@ public class DotServer {
 	
 	//private BioPaxServer dbAdaptor = null;
 	
-	BioPaxDBAdaptor dbAdaptor; // = dbAdaptorFactory.getBioPaxDBAdaptor(this.species);
+	PathwayDBAdaptor dbAdaptor; // = dbAdaptorFactory.getBioPaxDBAdaptor(this.species);
 
 	Map<Integer, Boolean> map = new HashMap<Integer, Boolean>();
 	
@@ -49,7 +44,7 @@ public class DotServer {
 	//=========================================================================
 	//	generate DOT
 	//=========================================================================
-	
+	/*
 	public Dot generateDot(Pathway input) {
 		dot = new Dot(getFirstName(input.getBioEntity()), true);
 		dot.setAttribute(Dot.BGCOLOR, "white");
@@ -434,5 +429,5 @@ public class DotServer {
 		}
 		return name;
 	}
-
+*/
 }
