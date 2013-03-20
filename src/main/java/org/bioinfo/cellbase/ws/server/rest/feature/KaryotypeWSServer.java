@@ -15,7 +15,7 @@ import org.bioinfo.cellbase.lib.api.CytobandDBAdaptor;
 import org.bioinfo.cellbase.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.cellbase.ws.server.rest.exception.VersionException;
 import org.bioinfo.commons.utils.StringUtils;
-
+@Deprecated
 @Path("/{version}/{species}/feature/karyotype")
 @Produces("text/plain")
 public class KaryotypeWSServer extends GenericRestWSServer {

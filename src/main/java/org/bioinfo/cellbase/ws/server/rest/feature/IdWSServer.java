@@ -53,7 +53,7 @@ public class IdWSServer extends GenericRestWSServer {
 		try{
 			checkVersionAndSpecies();
 			GeneDBAdaptor x = dbAdaptorFactory.getGeneDBAdaptor(this.species, this.version);
-			return generateResponse(query, "GENE",  x.getAllByNameList(StringUtils.toList(query, ",")));
+			return generateResponse(query, "GENE",  x.getAllByNameList(StringUtils.toList(query, ","),false));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getByEnsemblId", e.toString());
