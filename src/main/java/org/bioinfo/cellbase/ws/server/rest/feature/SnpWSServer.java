@@ -20,7 +20,6 @@ import javax.ws.rs.core.UriInfo;
 import org.bioinfo.cellbase.lib.api.SnpDBAdaptor;
 import org.bioinfo.cellbase.lib.api.TfbsDBAdaptor;
 import org.bioinfo.cellbase.lib.common.variation.Snp;
-import org.bioinfo.cellbase.lib.common.variation.SnpPhenotypeAnnotation;
 import org.bioinfo.cellbase.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.cellbase.ws.server.rest.exception.VersionException;
 import org.bioinfo.commons.utils.StringUtils;
@@ -73,7 +72,7 @@ public class SnpWSServer extends GenericRestWSServer {
 			List<List<Snp>> snpListList = snpDBAdaptor.getAllBySnpIdList(StringUtils.toList(query, ","));
 //			List<List<SnpToTranscript>> snpToTranscript = snpDBAdaptor.getAllSnpToTranscriptList(StringUtils.toList(query, ","));
 //			List<List<SnpPopulationFrequency>> snpPopulation = snpDBAdaptor.getAllSnpPopulationFrequencyList(StringUtils.toList(query, ","));
-			List<List<SnpPhenotypeAnnotation>> snpPhenotype = snpDBAdaptor.getAllSnpPhenotypeAnnotationListBySnpNameList(StringUtils.toList(query, ","));
+//			List<List<SnpPhenotypeAnnotation>> snpPhenotype = snpDBAdaptor.getAllSnpPhenotypeAnnotationListBySnpNameList(StringUtils.toList(query, ","));
 			
 //			List<List<Transcript>> transcripts = new ArrayList<List<Transcript>>(StringUtils.toList(query, ",").size());
 //			for (int i = 0; i < snpToTranscript.size(); i++) {
@@ -115,7 +114,7 @@ public class SnpWSServer extends GenericRestWSServer {
 //					response.append("\"snptotranscript\":"+aux+",");
 //					System.out.println(aux);
 					
-					response.append("\"phenotype\":"+gson.toJson(snpPhenotype.get(i))+"");
+//					response.append("\"phenotype\":"+gson.toJson(snpPhenotype.get(i))+"");//TODO
 					response.append("},");
 				}
 				if(removeComma){
@@ -202,9 +201,11 @@ public class SnpWSServer extends GenericRestWSServer {
 			checkVersionAndSpecies();
 			SnpDBAdaptor snpDBAdaptor = dbAdaptorFactory.getSnpDBAdaptor(this.species, this.version);
 			long t0 = System.currentTimeMillis();
-			List<List<SnpPhenotypeAnnotation>> snpPhenotypeAnnotList = snpDBAdaptor.getAllSnpPhenotypeAnnotationListBySnpNameList(StringUtils.toList(snps, ","));
-			logger.debug("getSnpPhenotypesByName: "+(System.currentTimeMillis()-t0)+"ms");
-			return generateResponse(snps, "SNP_PHENOTYPE", snpPhenotypeAnnotList);
+//			List<List<SnpPhenotypeAnnotation>> snpPhenotypeAnnotList = snpDBAdaptor.getAllSnpPhenotypeAnnotationListBySnpNameList(StringUtils.toList(snps, ","));
+//			logger.debug("getSnpPhenotypesByName: "+(System.currentTimeMillis()-t0)+"ms");
+//			return generateResponse(snps, "SNP_PHENOTYPE", snpPhenotypeAnnotList);
+			
+			return createOkResponse("Mongo TODO");
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getSnpPhenotypesByPositionByGet", e.toString());

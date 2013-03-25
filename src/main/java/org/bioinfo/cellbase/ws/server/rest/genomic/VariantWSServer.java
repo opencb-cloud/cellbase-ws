@@ -144,7 +144,8 @@ public class VariantWSServer extends GenericRestWSServer {
 			for(GenomicVariant gv: variantList) {
 				positionList.add(new Position(gv.getChromosome(), gv.getPosition()));
 			}
-			return generateResponse(variants, "SNP_PHENOTYPE", snpDBAdaptor.getAllSnpPhenotypeAnnotationListByPositionList(positionList));
+//			return generateResponse(variants, "SNP_PHENOTYPE", snpDBAdaptor.getAllSnpPhenotypeAnnotationListByPositionList(positionList));
+			return createOkResponse("Mongo TODO");
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getSnpPhenotypesByPositionByGet", e.toString());
