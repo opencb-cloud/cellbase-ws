@@ -311,7 +311,7 @@ public class RegionWSServer extends GenericRestWSServer {
 				logger.warn("RegionWSServer: method getSequence could not convert strand to integer");
 			}
 			List<GenomeSequenceFeature> a = genomeSequenceDBAdaptor.getByRegionList(regions, strand);
-			return this.generateResponse(chregionId, a);
+			return generateResponse(chregionId, a);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getSequenceByRegion", e.toString());
