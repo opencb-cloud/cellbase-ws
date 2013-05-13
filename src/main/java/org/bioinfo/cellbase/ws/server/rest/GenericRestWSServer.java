@@ -644,6 +644,43 @@ public class GenericRestWSServer implements IWSServer {
 		speciesList.add(new Species("aga", "mosquito", "Anopheles gambiae", "AgamP3"));
 		speciesList.add(new Species("pfa", "malaria parasite", "Plasmodium falciparum", "3D7"));
 
+		speciesList.add(new Species("hsapiens", "", "", ""));
+		speciesList.add(new Species("mmusculus", "", "", ""));
+		speciesList.add(new Species("rnorvegicus", "", "", ""));
+		speciesList.add(new Species("ptroglodytes", "", "", ""));
+		speciesList.add(new Species("ggorilla", "", "", ""));
+		speciesList.add(new Species("pabelii", "", "", ""));
+		speciesList.add(new Species("mmulatta", "", "", ""));
+		speciesList.add(new Species("sscrofa", "", "", ""));
+		speciesList.add(new Species("cfamiliaris", "", "", ""));
+		speciesList.add(new Species("ecaballus", "", "", ""));
+		speciesList.add(new Species("ocuniculus", "", "", ""));
+		speciesList.add(new Species("ggallus", "", "", ""));
+		speciesList.add(new Species("btaurus", "", "", ""));
+		speciesList.add(new Species("fcatus", "", "", ""));
+		speciesList.add(new Species("drerio", "", "", ""));
+		speciesList.add(new Species("cintestinalis", "", "", ""));
+		speciesList.add(new Species("dmelanogaster", "", "", ""));
+		speciesList.add(new Species("dsimulans", "", "", ""));
+		speciesList.add(new Species("dyakuba", "", "", ""));
+		speciesList.add(new Species("agambiae", "", "", ""));
+		speciesList.add(new Species("celegans", "", "", ""));
+		speciesList.add(new Species("scerevisiae", "", "", ""));
+		speciesList.add(new Species("spombe", "", "", ""));
+		speciesList.add(new Species("afumigatus", "", "", ""));
+		speciesList.add(new Species("aniger", "", "", ""));
+		speciesList.add(new Species("anidulans", "", "", ""));
+		speciesList.add(new Species("aoryzae", "", "", ""));
+		speciesList.add(new Species("pfalciparum", "", "", ""));
+		speciesList.add(new Species("lmajor", "", "", ""));
+		speciesList.add(new Species("athaliana", "", "", ""));
+		speciesList.add(new Species("alyrata", "", "", ""));
+		speciesList.add(new Species("bdistachyon", "", "", ""));
+		speciesList.add(new Species("osativa", "", "", ""));
+		speciesList.add(new Species("gmax", "", "", ""));
+		speciesList.add(new Species("vvinifera", "", "", ""));
+		speciesList.add(new Species("zmays", "", "", ""));
+
 		return speciesList;
 	}
 
