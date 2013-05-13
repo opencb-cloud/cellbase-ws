@@ -17,18 +17,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import org.bioinfo.cellbase.lib.api.CpGIslandDBAdaptor;
-import org.bioinfo.cellbase.lib.api.CytobandDBAdaptor;
-import org.bioinfo.cellbase.lib.api.ExonDBAdaptor;
-import org.bioinfo.cellbase.lib.api.GeneDBAdaptor;
-import org.bioinfo.cellbase.lib.api.GenomeSequenceDBAdaptor;
-import org.bioinfo.cellbase.lib.api.MirnaDBAdaptor;
-import org.bioinfo.cellbase.lib.api.MutationDBAdaptor;
-import org.bioinfo.cellbase.lib.api.RegulatoryRegionDBAdaptor;
-import org.bioinfo.cellbase.lib.api.SnpDBAdaptor;
-import org.bioinfo.cellbase.lib.api.StructuralVariationDBAdaptor;
-import org.bioinfo.cellbase.lib.api.TfbsDBAdaptor;
-import org.bioinfo.cellbase.lib.api.TranscriptDBAdaptor;
+import org.bioinfo.cellbase.lib.api.*;
 import org.bioinfo.cellbase.lib.common.GenomeSequenceFeature;
 import org.bioinfo.cellbase.lib.common.IntervalFeatureFrequency;
 import org.bioinfo.cellbase.lib.common.Region;
@@ -380,30 +369,30 @@ public class RegionWSServer extends GenericRestWSServer {
 			@DefaultValue("") @QueryParam("type") String type) {
 		try {
 			checkVersionAndSpecies();
-			RegulatoryRegionDBAdaptor regulatoryRegionDBAdaptor = dbAdaptorFactory.getRegulatoryRegionDBAdaptor(
-					this.species, this.version);
+			RegulationDBAdaptor regulationDBAdaptor = dbAdaptorFactory.getRegulationDBAdaptor(
+                    this.species, this.version);
 			/**
 			 * type ["open chromatin", "Polymerase", "HISTONE",
 			 * "Transcription Factor"]
 			 **/
 			List<Region> regions = Region.parseRegions(chregionId);
 
-			if (hasHistogramQueryParam()) {
-				// return generateResponse(chregionId,
-				// getHistogramByFeatures(results));
-				return generateResponse(chregionId,
-						regulatoryRegionDBAdaptor.getAllRegulatoryRegionIntervalFrequencies(regions.get(0),
-								getHistogramIntervalSize(), type));
-			} else {
-				List<List<RegulatoryRegion>> results;
-				if (type.equals("")) {
-					results = regulatoryRegionDBAdaptor.getAllByRegionList(regions);
-				} else {
-					results = regulatoryRegionDBAdaptor.getAllByRegionList(regions, Arrays.asList(type.split(",")));
-				}
-				return generateResponse(chregionId, "REGULATORY_REGION", results);
-			}
-
+//			if (hasHistogramQueryParam()) {
+//				// return generateResponse(chregionId,
+//				// getHistogramByFeatures(results));
+//				return generateResponse(chregionId,
+//						regulatoryRegionDBAdaptor.getAllRegulatoryRegionIntervalFrequencies(regions.get(0),
+//								getHistogramIntervalSize(), type));
+//			} else {
+//				List<List<RegulatoryRegion>> results;
+//				if (type.equals("")) {
+//					results = regulatoryRegionDBAdaptor.getAllByRegionList(regions);
+//				} else {
+//					results = regulatoryRegionDBAdaptor.getAllByRegionList(regions, Arrays.asList(type.split(",")));
+//				}
+//				return generateResponse(chregionId, "REGULATORY_REGION", results);
+//			}
+            return generateResponse(chregionId, regulationDBAdaptor.getByRegionList(regions, Arrays.asList(type.split(","))));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getRegulatoryByRegion", e.toString());
