@@ -26,7 +26,7 @@ import org.bioinfo.cellbase.lib.api.TranscriptDBAdaptor;
 import org.bioinfo.cellbase.lib.api.XRefsDBAdaptor;
 import org.bioinfo.cellbase.lib.common.core.Gene;
 import org.bioinfo.cellbase.lib.common.variation.MutationPhenotypeAnnotation;
-import org.bioinfo.cellbase.lib.common.variation.Snp;
+//import org.bioinfo.cellbase.lib.common.variation.Snp;
 import org.bioinfo.cellbase.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.cellbase.ws.server.rest.exception.VersionException;
 import org.bioinfo.commons.utils.StringUtils;
@@ -170,7 +170,7 @@ public class GeneWSServer extends GenericRestWSServer {
 			checkVersionAndSpecies();
 			
 			SnpDBAdaptor snpAdaptor = dbAdaptorFactory.getSnpDBAdaptor(this.species, this.version);
-			List<List<Snp>> result = snpAdaptor.getAllByGeneNameList(StringUtils.toList(query, ","));
+//			List<List<Snp>> result = snpAdaptor.getAllByGeneNameList(StringUtils.toList(query, ","));
 			
 //			GeneDBAdaptor geneAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species, this.version);
 //			List<List<Gene>> geneList = geneAdaptor.getAllByNameList(StringUtils.toList(query, ","));
@@ -184,7 +184,8 @@ public class GeneWSServer extends GenericRestWSServer {
 //				result.add(resultSNP);
 //			}
 			
-			return generateResponse(query, "SNP", result);
+//			return generateResponse(query, "SNP", result);
+			return null;
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getSNPByGene", e.toString());

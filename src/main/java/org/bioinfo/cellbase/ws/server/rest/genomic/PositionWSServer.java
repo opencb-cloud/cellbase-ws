@@ -102,7 +102,8 @@ public class PositionWSServer extends GenericRestWSServer {
 			checkVersionAndSpecies();
 			List<Position> positionList = Position.parsePositions(query);
 			SnpDBAdaptor snpAdaptor = dbAdaptorFactory.getSnpDBAdaptor(this.species, this.version);
-			return  generateResponse(query,  snpAdaptor.getAllByPositionList(positionList));
+//			return  generateResponse(query,  snpAdaptor.getAllByPositionList(positionList));
+			return  null;
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getSNPByPosition", e.toString());

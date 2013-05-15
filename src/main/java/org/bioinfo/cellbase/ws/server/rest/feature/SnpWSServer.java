@@ -19,7 +19,8 @@ import javax.ws.rs.core.UriInfo;
 
 import org.bioinfo.cellbase.lib.api.SnpDBAdaptor;
 import org.bioinfo.cellbase.lib.api.TfbsDBAdaptor;
-import org.bioinfo.cellbase.lib.common.variation.Snp;
+//import org.bioinfo.cellbase.lib.common.variation.Snp;
+import org.bioinfo.cellbase.lib.api.VariationDBAdaptor;
 import org.bioinfo.cellbase.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.cellbase.ws.server.rest.exception.VersionException;
 import org.bioinfo.commons.utils.StringUtils;
@@ -39,8 +40,8 @@ public class SnpWSServer extends GenericRestWSServer {
 	public Response getByEnsemblId(@PathParam("snpId") String query) {
 		try {
 			checkVersionAndSpecies();
-			SnpDBAdaptor adapter = dbAdaptorFactory.getSnpDBAdaptor(this.species, this.version);
-			return  generateResponse(query, "SNP", adapter.getAllBySnpIdList(StringUtils.toList(query, ",")));
+			VariationDBAdaptor variationDBAdaptor = dbAdaptorFactory.getVariationDBAdaptor(this.species, this.version);
+			return  generateResponse(query, "SNP", variationDBAdaptor.getByIdList(StringUtils.toList(query, ",")));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getByEnsemblId", e.toString());
@@ -69,7 +70,7 @@ public class SnpWSServer extends GenericRestWSServer {
 			SnpDBAdaptor snpDBAdaptor = dbAdaptorFactory.getSnpDBAdaptor(this.species, this.version);
 			
 			
-			List<List<Snp>> snpListList = snpDBAdaptor.getAllBySnpIdList(StringUtils.toList(query, ","));
+//			List<List<Snp>> snpListList = snpDBAdaptor.getAllBySnpIdList(StringUtils.toList(query, ","));
 //			List<List<SnpToTranscript>> snpToTranscript = snpDBAdaptor.getAllSnpToTranscriptList(StringUtils.toList(query, ","));
 //			List<List<SnpPopulationFrequency>> snpPopulation = snpDBAdaptor.getAllSnpPopulationFrequencyList(StringUtils.toList(query, ","));
 //			List<List<SnpPhenotypeAnnotation>> snpPhenotype = snpDBAdaptor.getAllSnpPhenotypeAnnotationListBySnpNameList(StringUtils.toList(query, ","));
@@ -83,48 +84,49 @@ public class SnpWSServer extends GenericRestWSServer {
 //				transcripts.add(transcript);
 //			}
 			
-			StringBuilder response = new StringBuilder();
-			response.append("[");
-			for (int i = 0; i < snpListList.size(); i++) {
-				response.append("[");
-				boolean removeComma = false;
-				for (int j = 0; j < snpListList.get(i).size(); j++) {
-					removeComma = true;
-					response.append("{");
-					response.append("\"name\":"+"\""+snpListList.get(i).get(j).getName()+"\",");
-					response.append("\"chromosome\":"+"\""+snpListList.get(i).get(j).getChromosome()+"\",");
-					response.append("\"start\":"+snpListList.get(i).get(j).getStart()+",");
-					response.append("\"end\":"+snpListList.get(i).get(j).getEnd()+",");
-					response.append("\"strand\":"+"\""+snpListList.get(i).get(j).getStrand()+"\",");
-					response.append("\"mapWeight\":"+snpListList.get(i).get(j).getEnd()+",");
-					response.append("\"alleleString\":"+"\""+snpListList.get(i).get(j).getAlleleString()+"\",");
-					response.append("\"ancestralAllele\":"+"\""+snpListList.get(i).get(j).getAncestralAllele()+"\",");
-					response.append("\"source\":"+"\""+snpListList.get(i).get(j).getSource()+"\",");
-					response.append("\"displaySoConsequence\":"+"\""+snpListList.get(i).get(j).getDisplaySoConsequence()+"\",");
-					response.append("\"soConsequenceType\":"+"\""+snpListList.get(i).get(j).getSoConsequenceType()+"\",");
-					response.append("\"displayConsequence\":"+"\""+snpListList.get(i).get(j).getDisplayConsequence()+"\",");
-					response.append("\"sequence\":"+"\""+snpListList.get(i).get(j).getSequence()+"\",");
+//			StringBuilder response = new StringBuilder();
+//			response.append("[");
+//			for (int i = 0; i < snpListList.size(); i++) {
+//				response.append("[");
+//				boolean removeComma = false;
+//				for (int j = 0; j < snpListList.get(i).size(); j++) {
+//					removeComma = true;
+//					response.append("{");
+//					response.append("\"name\":"+"\""+snpListList.get(i).get(j).getName()+"\",");
+//					response.append("\"chromosome\":"+"\""+snpListList.get(i).get(j).getChromosome()+"\",");
+//					response.append("\"start\":"+snpListList.get(i).get(j).getStart()+",");
+//					response.append("\"end\":"+snpListList.get(i).get(j).getEnd()+",");
+//					response.append("\"strand\":"+"\""+snpListList.get(i).get(j).getStrand()+"\",");
+//					response.append("\"mapWeight\":"+snpListList.get(i).get(j).getEnd()+",");
+//					response.append("\"alleleString\":"+"\""+snpListList.get(i).get(j).getAlleleString()+"\",");
+//					response.append("\"ancestralAllele\":"+"\""+snpListList.get(i).get(j).getAncestralAllele()+"\",");
+//					response.append("\"source\":"+"\""+snpListList.get(i).get(j).getSource()+"\",");
+//					response.append("\"displaySoConsequence\":"+"\""+snpListList.get(i).get(j).getDisplaySoConsequence()+"\",");
+//					response.append("\"soConsequenceType\":"+"\""+snpListList.get(i).get(j).getSoConsequenceType()+"\",");
+//					response.append("\"displayConsequence\":"+"\""+snpListList.get(i).get(j).getDisplayConsequence()+"\",");
+//					response.append("\"sequence\":"+"\""+snpListList.get(i).get(j).getSequence()+"\",");
 //					response.append("\"population\":"+gson.toJson(snpPopulation.get(i))+",");
-					
-//					String aux = gson.toJson(snpToTranscript.get(i));
+//
+////					String aux = gson.toJson(snpToTranscript.get(i));
+//////					System.out.println(aux);
+////					for (int k = 0; k < snpToTranscript.get(i).size(); k++) {
+////						aux = aux.replace("\"snpToTranscriptId\":"+snpToTranscript.get(i).get(k).getSnpToTranscriptId(), "\"transcript\":"+gson.toJson(snpToTranscript.get(i).get(k).getTranscript())+", \"consequenceType\":"+gson.toJson(snpToTranscript.get(i).get(k).getConsequenceType()));
+////					}
+////					response.append("\"snptotranscript\":"+aux+",");
 ////					System.out.println(aux);
-//					for (int k = 0; k < snpToTranscript.get(i).size(); k++) {
-//						aux = aux.replace("\"snpToTranscriptId\":"+snpToTranscript.get(i).get(k).getSnpToTranscriptId(), "\"transcript\":"+gson.toJson(snpToTranscript.get(i).get(k).getTranscript())+", \"consequenceType\":"+gson.toJson(snpToTranscript.get(i).get(k).getConsequenceType()));
-//					}
-//					response.append("\"snptotranscript\":"+aux+",");
-//					System.out.println(aux);
-					
-//					response.append("\"phenotype\":"+gson.toJson(snpPhenotype.get(i))+"");//TODO
-					response.append("},");
-				}
-				if(removeComma){
-					response.replace(response.length()-1, response.length(), "");
-				}
-				response.append("],");
-			}
-			response.replace(response.length()-1, response.length(), "");
-			response.append("]");
-			return  generateResponse(query,Arrays.asList(response));
+//
+////					response.append("\"phenotype\":"+gson.toJson(snpPhenotype.get(i))+"");//TODO
+//					response.append("},");
+//				}
+//				if(removeComma){
+//					response.replace(response.length()-1, response.length(), "");
+//				}
+//				response.append("],");
+//			}
+//			response.replace(response.length()-1, response.length(), "");
+//			response.append("]");
+//			return  generateResponse(query,Arrays.asList(response));
+			return  null;
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getFullInfoById", e.toString());
@@ -173,7 +175,8 @@ public class SnpWSServer extends GenericRestWSServer {
 		try {
 			checkVersionAndSpecies();
 			SnpDBAdaptor snpDBAdaptor = dbAdaptorFactory.getSnpDBAdaptor(species, version);
-			return generateResponse(snpId, "SNP_REGULATORY", snpDBAdaptor.getAllSnpRegulatoryBySnpNameList(StringUtils.toList(snpId, ",")));
+//			return generateResponse(snpId, "SNP_REGULATORY", snpDBAdaptor.getAllSnpRegulatoryBySnpNameList(StringUtils.toList(snpId, ",")));
+			return null;
 //			return generateResponse(snpId, "", snpDBAdaptor.getAllSnpRegulatoryBySnpNameList(StringUtils.toList(snpId, ",")));
 		} catch (Exception e) {
 			e.printStackTrace();

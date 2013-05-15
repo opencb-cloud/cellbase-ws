@@ -66,7 +66,8 @@ public class IdWSServer extends GenericRestWSServer {
 		try{
 			checkVersionAndSpecies();
 			SnpDBAdaptor x = dbAdaptorFactory.getSnpDBAdaptor(this.species, this.version);
-			return generateResponse(query, "SNP",  x.getAllBySnpIdList(StringUtils.toList(query, ",")));
+//			return generateResponse(query, "SNP",  x.getAllBySnpIdList(StringUtils.toList(query, ",")));
+			return null;
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getByEnsemblId", e.toString());

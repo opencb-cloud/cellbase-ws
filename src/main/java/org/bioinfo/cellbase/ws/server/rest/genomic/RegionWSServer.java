@@ -170,38 +170,37 @@ public class RegionWSServer extends GenericRestWSServer {
 
 	@GET
 	@Path("/{chrRegionId}/snp")
-	public Response getSnpByRegion(@PathParam("chrRegionId") String chregionId,
-			@QueryParam("consequence_type") String consequenceTypes) {
+	public Response getSnpByRegion(@PathParam("chrRegionId") String chregionId, @DefaultValue("") @QueryParam("consequence_type") String consequenceTypes) {
 		try {
 			checkVersionAndSpecies();
-			SnpDBAdaptor snpDBAdaptor = dbAdaptorFactory.getSnpDBAdaptor(this.species, this.version);
+			VariationDBAdaptor variationDBAdaptor = dbAdaptorFactory.getVariationDBAdaptor(this.species, this.version);
 			List<Region> regions = Region.parseRegions(chregionId);
-			List<String> consequenceTypeList = StringUtils.toList(consequenceTypes);
 
-			if (hasHistogramQueryParam()) {
-				// long t1 = System.currentTimeMillis();
-				// Response resp = generateResponse(chregionId,
-				// getHistogramByFeatures(dbAdaptor.getAllByRegionList(regions)));
-				Response resp = generateResponse(chregionId,
-						snpDBAdaptor.getAllIntervalFrequencies(regions.get(0), getHistogramIntervalSize()));
-				// logger.info("Old histogram: "+(System.currentTimeMillis()-t1)+",  resp: "+resp.toString());
-				return resp;
-			} else {
-				// remove regions bigger than 10Mb
-				if (regions != null) {
-					for (Region region : regions) {
-						if ((region.getEnd() - region.getStart()) > 10000000) {
-							return createErrorResponse("getSNpByRegion", "Regions must be smaller than 10Mb");
-						}
-					}
-				}
-				if (consequenceTypeList != null && consequenceTypeList.size() > 0) {
-					return generateResponse(chregionId, "SNP",
-							snpDBAdaptor.getAllByRegionList(regions, consequenceTypeList));
+//			if (hasHistogramQueryParam()) {
+//				// long t1 = System.currentTimeMillis();
+//				// Response resp = generateResponse(chregionId,
+//				// getHistogramByFeatures(dbAdaptor.getAllByRegionList(regions)));
+//				Response resp = generateResponse(chregionId,
+//						snpDBAdaptor.getAllIntervalFrequencies(regions.get(0), getHistogramIntervalSize()));
+//				// logger.info("Old histogram: "+(System.currentTimeMillis()-t1)+",  resp: "+resp.toString());
+//				return resp;
+//			} else {
+//				// remove regions bigger than 10Mb
+//				if (regions != null) {
+//					for (Region region : regions) {
+//						if ((region.getEnd() - region.getStart()) > 10000000) {
+//							return createErrorResponse("getSNpByRegion", "Regions must be smaller than 10Mb");
+//						}
+//					}
+//				}
+				if (consequenceTypes.equals("")) {
+                    return generateResponse(chregionId, variationDBAdaptor.getByRegionList(regions));
 				} else {
-					return generateResponse(chregionId, "SNP", snpDBAdaptor.getAllByRegionList(regions));
+                    return generateResponse(chregionId, variationDBAdaptor.getByRegionList(regions, Arrays.asList(consequenceTypes.split(","))));
 				}
-			}
+//			}
+
+
 
 		} catch (Exception e) {
 			e.printStackTrace();
