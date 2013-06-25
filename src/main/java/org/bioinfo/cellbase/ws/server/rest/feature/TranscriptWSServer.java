@@ -6,10 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -39,9 +36,13 @@ import com.google.gson.JsonParser;
 @Produces("text/plain")
 public class TranscriptWSServer extends GenericRestWSServer {
 
+    private List<String> exclude = new ArrayList<>();
+
 	public TranscriptWSServer(@PathParam("version") String version, @PathParam("species") String species,
-			@Context UriInfo uriInfo, @Context HttpServletRequest hsr) throws VersionException, IOException {
+                              @DefaultValue("") @QueryParam("exclude") String exclude,
+                              @Context UriInfo uriInfo, @Context HttpServletRequest hsr) throws VersionException, IOException {
 		super(version, species, uriInfo, hsr);
+        this.exclude = Arrays.asList(exclude.trim().split(","));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -83,7 +84,7 @@ public class TranscriptWSServer extends GenericRestWSServer {
 			checkVersionAndSpecies();
 			GeneDBAdaptor geneDBAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species, this.version);
 			List<String> queryStrList = StringUtils.toList(query, ",");
-			List<List<Gene>> queryGeneList = geneDBAdaptor.getAllByNameList(queryStrList, true);
+			List<List<Gene>> queryGeneList = geneDBAdaptor.getAllByNameList(queryStrList, exclude);
 
 			JsonArray qlist = new JsonArray();
 
@@ -248,7 +249,7 @@ public class TranscriptWSServer extends GenericRestWSServer {
 			checkVersionAndSpecies();
 			GeneDBAdaptor geneDBAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species, this.version);
 			return generateResponse(query, "GENE",
-					geneDBAdaptor.getAllByNameList(StringUtils.toList(query, ","), false));
+					geneDBAdaptor.getAllByNameList(StringUtils.toList(query, ","), exclude));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getGeneByTranscriptIdList", e.toString());

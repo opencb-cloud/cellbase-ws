@@ -1,17 +1,12 @@
 package org.bioinfo.cellbase.ws.server.rest.feature;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -30,9 +25,14 @@ import com.sun.jersey.multipart.FormDataParam;
 @Path("/{version}/{species}/feature/snp")
 @Produces("text/plain")
 public class SnpWSServer extends GenericRestWSServer {
-	
-	public SnpWSServer(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo, @Context HttpServletRequest hsr) throws VersionException, IOException {
+
+    private List<String> exclude = new ArrayList<>();
+
+	public SnpWSServer(@PathParam("version") String version, @PathParam("species") String species,
+                       @DefaultValue("") @QueryParam("exclude") String exclude,
+                       @Context UriInfo uriInfo, @Context HttpServletRequest hsr) throws VersionException, IOException {
 		super(version, species, uriInfo, hsr);
+        this.exclude = Arrays.asList(exclude.trim().split(","));
 	}
 
 	@GET
@@ -41,7 +41,7 @@ public class SnpWSServer extends GenericRestWSServer {
 		try {
 			checkVersionAndSpecies();
 			VariationDBAdaptor variationDBAdaptor = dbAdaptorFactory.getVariationDBAdaptor(this.species, this.version);
-			return  generateResponse(query, "SNP", variationDBAdaptor.getByIdList(StringUtils.toList(query, ",")));
+			return  generateResponse(query, "SNP", variationDBAdaptor.getByIdList(StringUtils.toList(query, ","), exclude));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getByEnsemblId", e.toString());
