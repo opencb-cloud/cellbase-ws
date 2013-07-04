@@ -2,6 +2,7 @@ package org.bioinfo.cellbase.ws.server.rest.feature;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -14,19 +15,16 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.core.Variant;
 
-import org.bioinfo.cellbase.lib.api.ExonDBAdaptor;
-import org.bioinfo.cellbase.lib.api.GeneDBAdaptor;
-import org.bioinfo.cellbase.lib.api.MirnaDBAdaptor;
-import org.bioinfo.cellbase.lib.api.MutationDBAdaptor;
-import org.bioinfo.cellbase.lib.api.ProteinDBAdaptor;
-import org.bioinfo.cellbase.lib.api.SnpDBAdaptor;
-import org.bioinfo.cellbase.lib.api.TfbsDBAdaptor;
-import org.bioinfo.cellbase.lib.api.TranscriptDBAdaptor;
-import org.bioinfo.cellbase.lib.api.XRefsDBAdaptor;
+import org.bioinfo.cellbase.lib.api.*;
+import org.bioinfo.cellbase.lib.common.Region;
+import org.bioinfo.cellbase.lib.common.core.Exon;
 import org.bioinfo.cellbase.lib.common.core.Gene;
+import org.bioinfo.cellbase.lib.common.core.Transcript;
 import org.bioinfo.cellbase.lib.common.variation.MutationPhenotypeAnnotation;
 //import org.bioinfo.cellbase.lib.common.variation.Snp;
+import org.bioinfo.cellbase.lib.common.variation.Variation;
 import org.bioinfo.cellbase.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.cellbase.ws.server.rest.exception.VersionException;
 import org.bioinfo.commons.utils.StringUtils;
@@ -35,8 +33,13 @@ import org.bioinfo.commons.utils.StringUtils;
 @Produces("text/plain")
 public class GeneWSServer extends GenericRestWSServer {
 
-	public GeneWSServer(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo, @Context HttpServletRequest hsr) throws VersionException, IOException {
+    private List<String> exclude = new ArrayList<>();
+
+	public GeneWSServer(@PathParam("version") String version, @PathParam("species") String species,
+                        @DefaultValue("") @QueryParam("exclude") String exclude,
+                        @Context UriInfo uriInfo, @Context HttpServletRequest hsr) throws VersionException, IOException {
 		super(version, species, uriInfo, hsr);
+        this.exclude = Arrays.asList(exclude.trim().split(","));
 	}
 
 	@GET
@@ -58,7 +61,7 @@ public class GeneWSServer extends GenericRestWSServer {
 		try {
 			checkVersionAndSpecies();
 			GeneDBAdaptor geneDBAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species, this.version);
-			return generateResponse(query, "GENE", geneDBAdaptor.getAllByNameList(StringUtils.toList(query, ","),false));
+			return generateResponse(query, "GENE", geneDBAdaptor.getAllByNameList(StringUtils.toList(query, ","),exclude));
 			//	return generateResponse(query, Arrays.asList(this.getGeneDBAdaptor().getAllByEnsemblIdList(StringUtils.toList(query, ","))));
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -73,7 +76,7 @@ public class GeneWSServer extends GenericRestWSServer {
 			checkVersionAndSpecies();
 			
 			GeneDBAdaptor geneDBAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species, this.version);
-			return generateResponse(query, "GENE", geneDBAdaptor.getAllByNameList(StringUtils.toList(query, ","), true));
+			return generateResponse(query, "GENE", geneDBAdaptor.getAllByNameList(StringUtils.toList(query, ","), exclude));
 			
 			
 //			GeneDBAdaptor geneDBAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species, this.version);
@@ -150,12 +153,14 @@ public class GeneWSServer extends GenericRestWSServer {
 	@SuppressWarnings("unchecked")
 	@GET
 	@Path("/{geneId}/transcript")
-	public Response getTranscriptsByEnsemblId(@PathParam("geneId") String query) {
+	public Response getTranscriptsByXref(@PathParam("geneId") String query) {
 		try {
 			checkVersionAndSpecies();
-			TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species, this.version);
-//			return generateResponse(query, "TRANSCRIPT", Arrays.asList(transcriptDBAdaptor.getAllByNameList(StringUtils.toList(query, ","))));
-			return generateResponse(query, "TRANSCRIPT", transcriptDBAdaptor.getAllByNameList(StringUtils.toList(query, ",")));
+
+            TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species, this.version);
+            List<List<List<Transcript>>> transcriptsList = transcriptDBAdaptor.getAllByNameList(StringUtils.toList(query, ","),exclude);
+
+			return generateResponse(query, "TRANSCRIPT", transcriptsList);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getTranscriptsByEnsemblId", e.toString());
@@ -168,24 +173,29 @@ public class GeneWSServer extends GenericRestWSServer {
 	public Response getSNPByGene(@PathParam("geneId") String query) {
 		try {
 			checkVersionAndSpecies();
-			
-			SnpDBAdaptor snpAdaptor = dbAdaptorFactory.getSnpDBAdaptor(this.species, this.version);
-//			List<List<Snp>> result = snpAdaptor.getAllByGeneNameList(StringUtils.toList(query, ","));
-			
-//			GeneDBAdaptor geneAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species, this.version);
-//			List<List<Gene>> geneList = geneAdaptor.getAllByNameList(StringUtils.toList(query, ","));
-//			List<List<Snp>> result = new ArrayList<List<Snp>>();
+
+			GeneDBAdaptor geneDBAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species, this.version);
+            List<String> geneExclude = Arrays.asList("_id", "id", "name", "biotype", "status", "strand", "source", "description", "transcripts", "mirna");
+			List<List<Gene>> geneList = geneDBAdaptor.getAllByNameList(StringUtils.toList(query, ","), geneExclude);
+
+			VariationDBAdaptor variationDBAdaptor = dbAdaptorFactory.getVariationDBAdaptor(this.species, this.version);
+			List<List<List<Variation>>> result = new ArrayList<List<List<Variation>>>();
+
+//            if (consequenceTypes.equals("")) {
+//
+//            }
+//			List<List<Variant>> result = variationDBAdaptor.getByX(StringUtils.toList(query, ","));
 //			SnpDBAdaptor snpAdaptor = dbAdaptorFactory.getSnpDBAdaptor(this.species, this.version);
-//			for(List<Gene> list: geneList) {
-//				List<Snp> resultSNP = new ArrayList<Snp>();
-//				for(Gene gene: list) {
-//					resultSNP.addAll(snpAdaptor.getAllByRegion(new Region(gene.getChromosome(), gene.getStart(), gene.getEnd())));
-//				}
-//				result.add(resultSNP);
-//			}
+
+			for(List<Gene> genes: geneList) {
+				List<List<Variation>> snps = new ArrayList<List<Variation>>();
+				for(Gene gene: genes) {
+                    snps.add(variationDBAdaptor.getByRegion(gene.getChromosome(), gene.getStart(), gene.getEnd(), null, exclude));
+				}
+                result.add(snps);
+			}
 			
-//			return generateResponse(query, "SNP", result);
-			return null;
+			return generateResponse(query, "SNP", result);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getSNPByGene", e.toString());
@@ -253,23 +263,9 @@ public class GeneWSServer extends GenericRestWSServer {
 	public Response getExonByGene(@PathParam("geneId") String query) {
 		try {
 			checkVersionAndSpecies();
-			GeneDBAdaptor geneDBAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species, this.version);
-			List<List<Gene>> geneList = geneDBAdaptor.getAllByNameList(StringUtils.toList(query, ","),false);
-
-			List<String> ensemblIds = new ArrayList<String>();
-			for(List<Gene> list : geneList) {
-				if(list.size() > 0){
-					for(Gene gene : list) {
-						ensemblIds.add(gene.getId());
-					}
-				}
-				else{
-//					ensemblIds.add(null);
-				}
-			}
-			
 			ExonDBAdaptor exonDBAdaptor = dbAdaptorFactory.getExonDBAdaptor(this.species, this.version);
-			return  generateResponse(query, "EXON", exonDBAdaptor.getByEnsemblGeneIdList(ensemblIds));
+			List<List<List<Exon>>> exonList = exonDBAdaptor.getAllByNameList(StringUtils.toList(query, ","), exclude);
+			return  generateResponse(query, "EXON", exonList);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getExonByGene", e.toString());

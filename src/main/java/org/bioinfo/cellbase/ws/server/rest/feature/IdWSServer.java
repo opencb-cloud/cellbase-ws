@@ -1,6 +1,8 @@
 package org.bioinfo.cellbase.ws.server.rest.feature;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -16,6 +18,7 @@ import javax.ws.rs.core.UriInfo;
 
 import org.bioinfo.cellbase.lib.api.GeneDBAdaptor;
 import org.bioinfo.cellbase.lib.api.SnpDBAdaptor;
+import org.bioinfo.cellbase.lib.api.VariationDBAdaptor;
 import org.bioinfo.cellbase.lib.api.XRefsDBAdaptor;
 import org.bioinfo.cellbase.lib.common.core.Xref;
 import org.bioinfo.cellbase.ws.server.rest.GenericRestWSServer;
@@ -25,9 +28,14 @@ import org.bioinfo.commons.utils.StringUtils;
 @Path("/{version}/{species}/feature/id")
 @Produces("text/plain")
 public class IdWSServer extends GenericRestWSServer {
-	
-	public IdWSServer(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo, @Context HttpServletRequest hsr) throws VersionException, IOException {
+
+    private List<String> exclude = new ArrayList<>();
+
+	public IdWSServer(@PathParam("version") String version, @PathParam("species") String species,
+                      @DefaultValue("") @QueryParam("exclude") String exclude,
+                      @Context UriInfo uriInfo, @Context HttpServletRequest hsr) throws VersionException, IOException {
 		super(version, species, uriInfo, hsr);
+        this.exclude = Arrays.asList(exclude.trim().split(","));
 	}
 	
 	@GET
@@ -53,7 +61,7 @@ public class IdWSServer extends GenericRestWSServer {
 		try{
 			checkVersionAndSpecies();
 			GeneDBAdaptor x = dbAdaptorFactory.getGeneDBAdaptor(this.species, this.version);
-			return generateResponse(query, "GENE",  x.getAllByNameList(StringUtils.toList(query, ","),false));
+			return generateResponse(query, "GENE",  x.getAllByNameList(StringUtils.toList(query, ","),exclude));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getByEnsemblId", e.toString());
@@ -65,9 +73,8 @@ public class IdWSServer extends GenericRestWSServer {
 	public Response getSnpByFeatureId(@PathParam("id") String query) {
 		try{
 			checkVersionAndSpecies();
-			SnpDBAdaptor x = dbAdaptorFactory.getSnpDBAdaptor(this.species, this.version);
-//			return generateResponse(query, "SNP",  x.getAllBySnpIdList(StringUtils.toList(query, ",")));
-			return null;
+			VariationDBAdaptor variationDBAdaptor = dbAdaptorFactory.getVariationDBAdaptor(this.species, this.version);
+            return generateResponse(query, "SNP",  variationDBAdaptor.getByIdList(StringUtils.toList(query, ","),exclude));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getByEnsemblId", e.toString());

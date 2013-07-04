@@ -37,9 +37,13 @@ public class RegionWSServer extends GenericRestWSServer {
 	// private int histogramIntervalSize = 1000000;
 	private int histogramIntervalSize = 200000;
 
+    private List<String> exclude = new ArrayList<>();
+
 	public RegionWSServer(@PathParam("version") String version, @PathParam("species") String species,
-			@Context UriInfo uriInfo, @Context HttpServletRequest hsr) throws VersionException, IOException {
+                          @DefaultValue("") @QueryParam("exclude") String exclude,
+			                @Context UriInfo uriInfo, @Context HttpServletRequest hsr) throws VersionException, IOException {
 		super(version, species, uriInfo, hsr);
+        this.exclude = Arrays.asList(exclude.trim().split(","));
 	}
 
 	// private RegulatoryRegionDBAdaptor regulatoryRegionDBAdaptor =
@@ -175,33 +179,24 @@ public class RegionWSServer extends GenericRestWSServer {
 			checkVersionAndSpecies();
 			VariationDBAdaptor variationDBAdaptor = dbAdaptorFactory.getVariationDBAdaptor(this.species, this.version);
 			List<Region> regions = Region.parseRegions(chregionId);
+            // remove regions bigger than 10Mb
+//            if (regions != null) {
+//                for (Region region : regions) {
+//                    if ((region.getEnd() - region.getStart()) > 10000000) {
+//                        return createErrorResponse("getSNpByRegion", "Regions must be smaller than 10Mb");
+//                    }
+//                }
+//            }
 
-//			if (hasHistogramQueryParam()) {
-//				// long t1 = System.currentTimeMillis();
-//				// Response resp = generateResponse(chregionId,
-//				// getHistogramByFeatures(dbAdaptor.getAllByRegionList(regions)));
-//				Response resp = generateResponse(chregionId,
-//						snpDBAdaptor.getAllIntervalFrequencies(regions.get(0), getHistogramIntervalSize()));
-//				// logger.info("Old histogram: "+(System.currentTimeMillis()-t1)+",  resp: "+resp.toString());
-//				return resp;
-//			} else {
-//				// remove regions bigger than 10Mb
-//				if (regions != null) {
-//					for (Region region : regions) {
-//						if ((region.getEnd() - region.getStart()) > 10000000) {
-//							return createErrorResponse("getSNpByRegion", "Regions must be smaller than 10Mb");
-//						}
-//					}
-//				}
-				if (consequenceTypes.equals("")) {
-                    return generateResponse(chregionId, variationDBAdaptor.getByRegionList(regions));
-				} else {
-                    return generateResponse(chregionId, variationDBAdaptor.getByRegionList(regions, Arrays.asList(consequenceTypes.split(","))));
-				}
-//			}
-
-
-
+            if (hasHistogramQueryParam()) {
+                return createOkResponse(variationDBAdaptor.getAllIntervalFrequencies(regions.get(0), getHistogramIntervalSize()));
+            } else {
+                if (consequenceTypes.equals("")) {
+                    return generateResponse(chregionId, variationDBAdaptor.getByRegionList(regions, exclude));
+                } else {
+                    return generateResponse(chregionId, variationDBAdaptor.getByRegionList(regions, Arrays.asList(consequenceTypes.split(",")),exclude));
+                }
+            }
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getSnpByRegion", e.toString());
@@ -469,6 +464,31 @@ public class RegionWSServer extends GenericRestWSServer {
 			return createErrorResponse("getConservedRegionByRegion", e.toString());
 		}
 	}
+
+    @GET
+    @Path("/{chrRegionId}/conserved_region2")
+    public Response getConservedRegionByRegion2(@PathParam("chrRegionId") String query) {
+        try {
+            checkVersionAndSpecies();
+
+            ConservedRegionDBAdaptor conservedRegionDBAdaptor = dbAdaptorFactory.getConservedRegionDBAdaptor(this.species, this.version);
+            List<Region> regions = Region.parseRegions(query);
+
+//            if (hasHistogramQueryParam()) {
+//                List<IntervalFeatureFrequency> intervalList = regulatoryRegionDBAdaptor
+//                        .getAllConservedRegionIntervalFrequencies(regions.get(0), getHistogramIntervalSize());
+//                return generateResponse(query, intervalList);
+//            } else {
+//                return this.generateResponse(query,
+//                        regulatoryRegionDBAdaptor.getAllConservedRegionByRegionList(regions));
+//            }
+            return generateResponse(query, conservedRegionDBAdaptor.getByRegionList(regions));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return createErrorResponse("getConservedRegionByRegion2", e.toString());
+        }
+    }
 
 	@GET
 	@Path("/{chrRegionId}/peptide")
