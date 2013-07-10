@@ -1,49 +1,30 @@
 package org.bioinfo.cellbase.ws.server.rest;
 
+import java.awt.PageAttributes.MediaType;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Type;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.logging.Logger;
 import java.util.zip.ZipOutputStream;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-import javax.ws.rs.core.Response.ResponseBuilder;
+import javax.xml.ws.Response;
 
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
-import org.bioinfo.cellbase.lib.impl.DBAdaptorFactory;
-import org.bioinfo.cellbase.lib.impl.mongodb.MongoDBAdaptorFactory;
 import org.bioinfo.cellbase.ws.server.rest.exception.SpeciesException;
 import org.bioinfo.cellbase.ws.server.rest.exception.VersionException;
 import org.bioinfo.cellbase.ws.server.rest.utils.Species;
-import org.bioinfo.commons.Config;
-import org.bioinfo.commons.utils.ListUtils;
-import org.bioinfo.commons.utils.StringUtils;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
+import sun.security.krb5.Config;
+
+import com.sun.xml.internal.ws.util.StringUtils;
 
 @Path("/{version}")
 @Produces("text/plain")
@@ -245,7 +226,7 @@ public class GenericRestWSServer implements IWSServer {
 
 		// mediaType = MediaType.valueOf("text/plain");
 		gson = new GsonBuilder().serializeNulls().setExclusionStrategies(new FeatureExclusionStrategy()).create();
-
+		
 		// logger = new Logger();
 		// logger.setLevel(Logger.DEBUG_LEVEL);
 		logger.debug("GenericrestWSServer init method");
