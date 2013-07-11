@@ -1,6 +1,5 @@
 package org.bioinfo.cellbase.ws.server.rest;
 
-import java.awt.PageAttributes.MediaType;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -13,18 +12,35 @@ import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
-import java.util.logging.Logger;
 import java.util.zip.ZipOutputStream;
 
-import javax.xml.ws.Response;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
+import javax.ws.rs.core.UriInfo;
 
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Logger;
+import org.bioinfo.cellbase.lib.impl.DBAdaptorFactory;
+import org.bioinfo.cellbase.lib.impl.dbquery.QueryOptions;
+import org.bioinfo.cellbase.lib.impl.mongodb.MongoDBAdaptorFactory;
 import org.bioinfo.cellbase.ws.server.rest.exception.SpeciesException;
 import org.bioinfo.cellbase.ws.server.rest.exception.VersionException;
 import org.bioinfo.cellbase.ws.server.rest.utils.Species;
+import org.bioinfo.commons.Config;
+import org.bioinfo.commons.utils.ListUtils;
+import org.bioinfo.commons.utils.StringUtils;
 
-import sun.security.krb5.Config;
-
-import com.sun.xml.internal.ws.util.StringUtils;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 
 @Path("/{version}")
 @Produces("text/plain")
@@ -39,6 +55,10 @@ public class GenericRestWSServer implements IWSServer {
 	// Common output parameters
 	protected String resultSeparator;
 	protected String querySeparator;
+
+	protected QueryOptions queryOptions;
+	//	protected List<String> exclude = new ArrayList<>();
+	//	protected List<String> include = new ArrayList<>();
 
 	// output format file type: null or txt or text, xml, excel
 	protected String fileFormat;
@@ -63,10 +83,12 @@ public class GenericRestWSServer implements IWSServer {
 
 	protected Type listType;
 
-	// private MediaType mediaType;
-	protected Gson gson;
+//	protected static Gson gson;
+	protected static ObjectMapper jsonObjectMapper;
+	protected static ObjectWriter jsonObjectWriter; 
+
 	// protected Logger logger;
-	protected Logger logger = Logger.getLogger(this.getClass().getSimpleName());
+	protected Logger logger = Logger.getLogger(this.getClass());
 
 	private static final String NEW_LINE = "newline";
 	private static final String TAB = "tab";
@@ -83,6 +105,10 @@ public class GenericRestWSServer implements IWSServer {
 		// dbAdaptorFactory = new HibernateDBAdaptorFactory();
 		dbAdaptorFactory = new MongoDBAdaptorFactory();
 		System.out.println("static1");
+
+//		gson = new GsonBuilder().serializeNulls().setExclusionStrategies(new FeatureExclusionStrategy()).create();
+		jsonObjectMapper = new ObjectMapper();
+		jsonObjectWriter = jsonObjectMapper.writer();
 	}
 
 	/**
@@ -92,10 +118,10 @@ public class GenericRestWSServer implements IWSServer {
 	 */
 	protected static Config config;
 	protected static Map<String, Set<String>> availableVersionSpeciesMap; // stores
-																			// species
-																			// for
-																			// each
-																			// version
+	// species
+	// for
+	// each
+	// version
 	static {
 		try {
 			config = new Config(ResourceBundle.getBundle("org.bioinfo.infrared.ws.application"));
@@ -135,39 +161,39 @@ public class GenericRestWSServer implements IWSServer {
 		headers = new HashMap<String, String>();
 		headers.put("GENE",
 				"Ensembl gene,external name,external name source,biotype,status,chromosome,start,end,strand,source,description"
-						.replaceAll(",", "\t"));
+				.replaceAll(",", "\t"));
 		headers.put(
 				"TRANSCRIPT",
 				"Ensembl ID,external name,external name source,biotype,status,chromosome,start,end,strand,coding region start,coding region end,cdna coding start,cdna coding end,description"
-						.replaceAll(",", "\t"));
+				.replaceAll(",", "\t"));
 		headers.put("EXON", "Ensembl ID,chromosome,start,end,strand".replaceAll(",", "\t"));
 		headers.put("SNP",
 				"rsID,chromosome,position,Ensembl consequence type,SO consequence type,sequence".replaceAll(",", "\t"));
 		headers.put(
 				"SNP_PHENOTYPE",
 				"SNP name,source,associated gene name,risk allele,risk allele freq in controls,p-value,phenotype name,phenotype description,study name,study type,study URL,study description"
-						.replaceAll(",", "\t"));
+				.replaceAll(",", "\t"));
 		headers.put(
 				"SNP_POPULATION_FREQUENCY",
 				"SNP name,population,source,ref allele,ref allele freq,other allele,other allele freq,ref allele homozygote,ref allele homozygote freq,allele heterozygote,allele heterozygote freq,ref other allele homozygote, ref other allele homozygote freq"
-						.replaceAll(",", "\t"));
+				.replaceAll(",", "\t"));
 		headers.put("SNP_REGULATORY",
 				"SNP name,feature name,feature type,chromsome,start,end,strand,Ensembl transcript ID,Ensembl gene ID,gene name,biotype"
-						.replaceAll(",", "\t"));
+				.replaceAll(",", "\t"));
 		headers.put(
 				"GENOMIC_VARIANT_EFFECT",
 				"chromosome,position,reference allele,alternative allele,feature ID,feature name,feature type,feature chromsomome,feature start,feature end,feature strand,SNP name,ancestral allele,alternative allele,Ensembl gene ID,Ensembl transcript ID,gene name,SO consequence type ID,SO consequence type name,consequence type description,consequence type category,aminoacid position,aminoacid change,codon change"
-						.replaceAll(",", "\t"));
+				.replaceAll(",", "\t"));
 		headers.put("SNP_CONSEQUENCE_TYPE",
 				"SNP name,chromosome,start,end,strand,allele,transcript ID,gene,SO accession,SO term,label,description"
-						.replaceAll(",", "\t"));
+				.replaceAll(",", "\t"));
 		headers.put(
 				"MUTATION",
 				"chromosome,start,end,gene_name,uniprot_name,ensembl_transcript,primary_site,site_subtype,primary_histology,mutation_cds,mutation_aa,mutation_description,mutation_zigosity,pubmed_id,description,source"
-						.replaceAll(",", "\t"));
+				.replaceAll(",", "\t"));
 		headers.put("STRUCTURAL_VARIATION",
 				"display_id,chromosome,start,end,strand,so_term,study_name,study_url,study_description,source,source_description"
-						.replaceAll(",", "\t"));
+				.replaceAll(",", "\t"));
 		headers.put("TFBS",
 				"TF name,target gene name,chromosome,start,end,cell type,sequence,score".replaceAll(",", "\t"));
 		headers.put("MIRNA_GENE", "miRBase accession,miRBase ID,status,sequence,source".replaceAll(",", "\t"));
@@ -223,10 +249,10 @@ public class GenericRestWSServer implements IWSServer {
 		// ResourceBundle databaseConfig =
 		// ResourceBundle.getBundle("org.bioinfo.infrared.ws.application");
 		// config = new Config(databaseConfig);
-
-		// mediaType = MediaType.valueOf("text/plain");
-		gson = new GsonBuilder().serializeNulls().setExclusionStrategies(new FeatureExclusionStrategy()).create();
 		
+		
+		// mediaType = MediaType.valueOf("text/plain");
+		queryOptions = new QueryOptions();
 		// logger = new Logger();
 		// logger.setLevel(Logger.DEBUG_LEVEL);
 		logger.debug("GenericrestWSServer init method");
@@ -279,16 +305,18 @@ public class GenericRestWSServer implements IWSServer {
 			querySeparator = "\n";
 		}
 
+		queryOptions.put("exclude", (multivaluedMap.get("exclude") != null) ? Arrays.asList(multivaluedMap.get("exclude").get(0).split(",")) : new ArrayList<String>());
+		queryOptions.put("include", (multivaluedMap.get("include") != null) ? Arrays.asList(multivaluedMap.get("include").get(0).split(",")) : new ArrayList<String>());
+		queryOptions.put("metadata", (multivaluedMap.get("metadata") != null) ? multivaluedMap.get("metadata").get(0).equals("true") : true);
+
 		fileFormat = (multivaluedMap.get("fileformat") != null) ? multivaluedMap.get("fileformat").get(0) : "";
-		outputFormat = (multivaluedMap.get("of") != null) ? multivaluedMap.get("of").get(0) : "txt";
+		outputFormat = (multivaluedMap.get("of") != null) ? multivaluedMap.get("of").get(0) : "json";
 		// outputFormat = (multivaluedMap.get("contentformat") != null) ?
 		// multivaluedMap.get("contentformat").get(0) : "txt";
 		filename = (multivaluedMap.get("filename") != null) ? multivaluedMap.get("filename").get(0) : "result";
-		outputRowNames = (multivaluedMap.get("outputrownames") != null) ? multivaluedMap.get("outputrownames").get(0)
-				: "false";
+		outputRowNames = (multivaluedMap.get("outputrownames") != null) ? multivaluedMap.get("outputrownames").get(0) : "false";
 		outputHeader = (multivaluedMap.get("header") != null) ? multivaluedMap.get("header").get(0) : "true";
-		outputCompress = (multivaluedMap.get("outputcompress") != null) ? multivaluedMap.get("outputcompress").get(0)
-				: "false";
+		outputCompress = (multivaluedMap.get("outputcompress") != null) ? multivaluedMap.get("outputcompress").get(0) : "false";
 
 		user = (multivaluedMap.get("user") != null) ? multivaluedMap.get("user").get(0) : "anonymous";
 		password = (multivaluedMap.get("password") != null) ? multivaluedMap.get("password").get(0) : "";
@@ -389,8 +417,8 @@ public class GenericRestWSServer implements IWSServer {
 		versionMessage.append("Canis familiaris").append("\t").append("Ensembl 65").append("\n");
 		versionMessage.append("...").append("\n\n");
 		versionMessage
-				.append("The rest of nfo will be added soon, sorry for the inconveniences. You can find mor info at:")
-				.append("\n\n").append("http://docs.bioinfo.cipf.es/projects/variant/wiki/Databases");
+		.append("The rest of nfo will be added soon, sorry for the inconveniences. You can find mor info at:")
+		.append("\n\n").append("http://docs.bioinfo.cipf.es/projects/variant/wiki/Databases");
 		return createOkResponse(versionMessage.toString(), MediaType.valueOf("text/plain"));
 	}
 
@@ -401,7 +429,12 @@ public class GenericRestWSServer implements IWSServer {
 		MediaType mediaType = MediaType.valueOf("application/javascript");
 		if (uriInfo.getQueryParameters().get("of") != null
 				&& uriInfo.getQueryParameters().get("of").get(0).equalsIgnoreCase("json")) {
-			return createOkResponse(gson.toJson(speciesList), mediaType);
+			try {
+				return createOkResponse(jsonObjectWriter.writeValueAsString(speciesList), mediaType);
+			} catch (JsonProcessingException e) {
+				e.printStackTrace();
+			}
+			return null;
 		} else {
 			StringBuilder stringBuilder = new StringBuilder();
 			for (Species sp : speciesList) {
@@ -445,8 +478,9 @@ public class GenericRestWSServer implements IWSServer {
 			mediaType = MediaType.TEXT_XML_TYPE;
 			response = ListUtils.toString(features, resultSeparator);
 		case "json":
-			mediaType = MediaType.valueOf("application/json");
-			response = gson.toJson(features);
+			//			mediaType = MediaType.valueOf("application/json");
+			//			response = gson.toJson(features);
+			createJsonResponse(queryString);
 			break;
 		}
 
@@ -508,12 +542,11 @@ public class GenericRestWSServer implements IWSServer {
 		return createResponse(response, mediaType);
 	}
 
+	@Deprecated
 	protected Response createResponse(String response, MediaType mediaType) throws IOException {
-		logger.debug("CellBase - CreateResponse, QueryParams: FileFormat => " + fileFormat + ", OutputFormat => "
-				+ outputFormat + ", Compress => " + outputCompress);
+		logger.debug("CellBase - CreateResponse, QueryParams: FileFormat => " + fileFormat + ", OutputFormat => " + outputFormat + ", Compress => " + outputCompress);
 		logger.debug("CellBase - CreateResponse, Inferred media type: " + mediaType.toString());
-		logger.debug("CellBase - CreateResponse, Response: "
-				+ ((response.length() > 50) ? response.substring(0, 49) + "..." : response));
+		logger.debug("CellBase - CreateResponse, Response: " + ((response.length() > 50) ? response.substring(0, 49) + "..." : response));
 
 		if (fileFormat == null || fileFormat.equalsIgnoreCase("")) {
 			if (outputCompress != null && outputCompress.equalsIgnoreCase("true")
@@ -572,13 +605,16 @@ public class GenericRestWSServer implements IWSServer {
 			// message.toString());
 		}
 		if (outputFormat.equalsIgnoreCase("json")) {
-			JsonObject jsonRes = new JsonObject();
-			jsonRes.addProperty("error", errorMessage);
-			return buildResponse(Response.ok(jsonRes.toString(), MediaType.valueOf("text/plain")));
+			try {
+				return buildResponse(Response.ok(jsonObjectWriter.writeValueAsString(new HashMap<>().put("error", errorMessage)), MediaType.APPLICATION_JSON_TYPE));
+			} catch (JsonProcessingException e) {
+				e.printStackTrace();
+			}
 		} else {
 			String error = "An error occurred: " + errorMessage;
 			return buildResponse(Response.ok(error, MediaType.valueOf("text/plain")));
 		}
+		return null;
 	}
 
 	protected Response createErrorResponse(Object o) {
@@ -590,16 +626,41 @@ public class GenericRestWSServer implements IWSServer {
 		}
 	}
 
-	protected Response createOkResponse(Object o) {
-		return buildResponse(Response.ok(o));
+	protected Response createOkResponse(Object obj) {
+		switch(outputFormat.toLowerCase()) {
+		case "json":
+			long start = System.currentTimeMillis();
+//			Response resp = createOkResponse(gson.toJson(obj), MediaType.APPLICATION_JSON_TYPE);
+			Response resp = null;
+			try {
+				resp = createOkResponse(jsonObjectWriter.writeValueAsString(obj), MediaType.APPLICATION_JSON_TYPE);
+			} catch (JsonProcessingException e) {
+				e.printStackTrace();
+			}
+			System.out.println("createOkResponse JSON parser: "+(System.currentTimeMillis()-start));
+			return resp;
+		case "xml":
+			return createOkResponse(obj, MediaType.APPLICATION_XML_TYPE);
+		default: 
+			return buildResponse(Response.ok(obj));
+		}
 	}
 
-	protected Response createOkResponse(Object o1, MediaType o2) {
-		return buildResponse(Response.ok(o1, o2));
+	protected Response createJsonResponse(Object obj) {
+		try {
+			return buildResponse(Response.ok(jsonObjectWriter.writeValueAsString(obj), MediaType.APPLICATION_JSON_TYPE));
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
-	protected Response createOkResponse(Object o1, MediaType o2, String fileName) {
-		return buildResponse(Response.ok(o1, o2).header("content-disposition", "attachment; filename =" + fileName));
+	protected Response createOkResponse(Object obj, MediaType mediaType) {
+		return buildResponse(Response.ok(obj, mediaType));
+	}
+
+	protected Response createOkResponse(Object obj, MediaType mediaType, String fileName) {
+		return buildResponse(Response.ok(obj, mediaType).header("content-disposition", "attachment; filename =" + fileName));
 	}
 
 	private Response buildResponse(ResponseBuilder responseBuilder) {
@@ -709,16 +770,16 @@ public class GenericRestWSServer implements IWSServer {
 	private String convertToJsonText(String response) {
 		String jsonpQueryParam = (uriInfo.getQueryParameters().get("callbackParam") != null) ? uriInfo
 				.getQueryParameters().get("callbackParam").get(0) : "callbackParam";
-		response = "var " + jsonpQueryParam + " = \"" + response + "\"";
-		return response;
+				response = "var " + jsonpQueryParam + " = \"" + response + "\"";
+				return response;
 	}
 
 	@Deprecated
 	protected String convertToJson(String response) {
 		String jsonpQueryParam = (uriInfo.getQueryParameters().get("callbackParam") != null) ? uriInfo
 				.getQueryParameters().get("callbackParam").get(0) : "callbackParam";
-		response = "var " + jsonpQueryParam + " = (" + response + ")";
-		return response;
+				response = "var " + jsonpQueryParam + " = (" + response + ")";
+				return response;
 	}
 
 	// protected Session getSession(){

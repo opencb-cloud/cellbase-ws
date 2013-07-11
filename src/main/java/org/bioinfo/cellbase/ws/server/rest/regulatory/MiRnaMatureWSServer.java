@@ -77,13 +77,13 @@ public class MiRnaMatureWSServer extends RegulatoryWSServer {
 				if(genes.get(i).size() > 0){
 					response.append("{");
 					response.append("\"mirna\":{");
-					response.append("\"mirnaMature\":"+gson.toJson(mirnaMature.get(i))+",");
-					response.append("\"mirnaGenes\":"+gson.toJson(mirnaGenes.get(i))+"");
+//					response.append("\"mirnaMature\":"+gson.toJson(mirnaMature.get(i))+",");
+//					response.append("\"mirnaGenes\":"+gson.toJson(mirnaGenes.get(i))+"");
 					response.append("},");
-					response.append("\"genes\":"+gson.toJson(genes.get(i))+",");
-					response.append("\"transcripts\":"+gson.toJson(transcripts.get(i))+",");
-					response.append("\"targetGenes\":"+gson.toJson(targetGenes.get(i))+",");
-					response.append("\"mirnaDiseases\":"+gson.toJson(mirnaDiseases.get(i))+"");
+//					response.append("\"genes\":"+gson.toJson(genes.get(i))+",");
+//					response.append("\"transcripts\":"+gson.toJson(transcripts.get(i))+",");
+//					response.append("\"targetGenes\":"+gson.toJson(targetGenes.get(i))+",");
+//					response.append("\"mirnaDiseases\":"+gson.toJson(mirnaDiseases.get(i))+"");
 					response.append("},");
 				}else{
 					response.append("null,");

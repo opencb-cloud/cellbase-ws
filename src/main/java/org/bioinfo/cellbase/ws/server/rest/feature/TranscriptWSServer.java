@@ -6,9 +6,13 @@ import java.util.Arrays;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.*;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
@@ -18,19 +22,12 @@ import org.bioinfo.cellbase.lib.api.MutationDBAdaptor;
 import org.bioinfo.cellbase.lib.api.ProteinDBAdaptor;
 import org.bioinfo.cellbase.lib.api.TranscriptDBAdaptor;
 import org.bioinfo.cellbase.lib.common.core.Exon;
-import org.bioinfo.cellbase.lib.common.core.Gene;
-import org.bioinfo.cellbase.lib.common.core.Transcript;
-import org.bioinfo.cellbase.lib.common.core.Xref;
 import org.bioinfo.cellbase.lib.common.variation.MutationPhenotypeAnnotation;
+import org.bioinfo.cellbase.lib.impl.dbquery.QueryOptions;
 import org.bioinfo.cellbase.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.cellbase.ws.server.rest.exception.VersionException;
 import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.formats.parser.uniprot.v140jaxb.FeatureType;
-
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 @Path("/{version}/{species}/feature/transcript")
 @Produces("text/plain")
@@ -79,46 +76,51 @@ public class TranscriptWSServer extends GenericRestWSServer {
 	@GET
 	@Path("/{transcriptId}/fullinfo")
 	public Response getFullInfoByEnsemblId(@PathParam("transcriptId") String query) {
-
 		try {
-			checkVersionAndSpecies();
+//		return createJsonResponse("{}");
+
+//			checkVersionAndSpecies();
 			GeneDBAdaptor geneDBAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species, this.version);
 			List<String> queryStrList = StringUtils.toList(query, ",");
-			List<List<Gene>> queryGeneList = geneDBAdaptor.getAllByNameList(queryStrList, exclude);
-
-			JsonArray qlist = new JsonArray();
-
-			int i = 0;
-			boolean found = false;
-			for (List<Gene> geneList : queryGeneList) {
-				String queryName = queryStrList.get(i);
-				JsonArray jsonTranscripts = new JsonArray();
-				logger.info(geneList.size());
-				for (Gene gene : geneList) {
-					for (Transcript transcript : gene.getTranscripts()) {
-						for (Xref xref : transcript.getXrefs()) {
-							if (xref.getId().equals(queryName)) {
-								found = true;
-								break;
-							}
-						}
-						if(found){
-							JsonObject jsonTranscript = gson.fromJson(gson.toJson(transcript), JsonElement.class).getAsJsonObject();
-							JsonObject jsonGene = gson.fromJson(gson.toJson(gene), JsonElement.class).getAsJsonObject();
-							jsonGene.remove("transcripts");
-							jsonTranscript.add("gene", jsonGene);
-							jsonTranscripts.add(jsonTranscript);
-							found = false;
-						}
-					}
-				}
-				qlist.add(jsonTranscripts);
-				i++;
-			}
+//			List<List<Gene>> queryGeneList = geneDBAdaptor.getAllByIdList(queryStrList, queryOptions);
+//
+//			JsonArray qlist = new JsonArray();
+//
+//			int i = 0;
+//			boolean found = false;
+//			for (List<Gene> geneList : queryGeneList) {
+//				String queryName = queryStrList.get(i);
+//				JsonArray jsonTranscripts = new JsonArray();
+//				logger.info(geneList.size());
+//				for (Gene gene : geneList) {
+//					for (Transcript transcript : gene.getTranscripts()) {
+//						for (Xref xref : transcript.getXrefs()) {
+//							if (xref.getId().equals(queryName)) {
+//								found = true;
+//								break;
+//							}
+//						}
+//						if(found){
+//							JsonObject jsonTranscript = gson.fromJson(gson.toJson(transcript), JsonElement.class).getAsJsonObject();
+//							JsonObject jsonGene = gson.fromJson(gson.toJson(gene), JsonElement.class).getAsJsonObject();
+//							jsonGene.remove("transcripts");
+//							jsonTranscript.add("gene", jsonGene);
+//							jsonTranscripts.add(jsonTranscript);
+//							found = false;
+//						}
+//					}
+//				}
+//				qlist.add(jsonTranscripts);
+//				i++;
+//			}
 			
-			return createOkResponse(qlist.toString(),MediaType.valueOf("application/json"));
+//			return createOkResponse(qlist.toString());
 
-			// TranscriptDBAdaptor transcriptDBAdaptor =
+			return createOkResponse(geneDBAdaptor.getAllByIdList(queryStrList, queryOptions));
+		
+		
+		
+			// TranscriptDBAdaptor return createOkResponse(qlist.toString());transcriptDBAdaptor =
 			// dbAdaptorFactory.getTranscriptDBAdaptor(this.species,
 			// this.version);
 			// return generateResponse(query, "TRANSCRIPT",
@@ -248,8 +250,13 @@ public class TranscriptWSServer extends GenericRestWSServer {
 		try {
 			checkVersionAndSpecies();
 			GeneDBAdaptor geneDBAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species, this.version);
-			return generateResponse(query, "GENE",
-					geneDBAdaptor.getAllByNameList(StringUtils.toList(query, ","), exclude));
+			
+			QueryOptions queryOptions = new QueryOptions("exclude", exclude);
+			
+			return createJsonResponse(geneDBAdaptor.getAllByIdList(StringUtils.toList(query, ","), queryOptions));
+			
+//			return generateResponse(query, "GENE",
+//					geneDBAdaptor.getAllByNameList(StringUtils.toList(query, ","), exclude));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getGeneByTranscriptIdList", e.toString());

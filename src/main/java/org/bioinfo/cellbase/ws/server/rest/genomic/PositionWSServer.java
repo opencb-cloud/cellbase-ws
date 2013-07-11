@@ -19,8 +19,10 @@ import org.bioinfo.cellbase.lib.api.GeneDBAdaptor;
 import org.bioinfo.cellbase.lib.api.SnpDBAdaptor;
 import org.bioinfo.cellbase.lib.api.TranscriptDBAdaptor;
 import org.bioinfo.cellbase.lib.common.Position;
+import org.bioinfo.cellbase.lib.impl.dbquery.QueryOptions;
 import org.bioinfo.cellbase.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.cellbase.ws.server.rest.exception.VersionException;
+import org.bioinfo.commons.utils.StringUtils;
 
 @Path("/{version}/{species}/genomic/position")
 @Produces("text/plain")
@@ -74,7 +76,12 @@ public class PositionWSServer extends GenericRestWSServer {
 			checkVersionAndSpecies();
 			List<Position> positionList = Position.parsePositions(query);
 			GeneDBAdaptor geneDBAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species, this.version);
-			return generateResponse(query, geneDBAdaptor.getAllByPositionList(positionList));
+			
+			QueryOptions queryOptions = new QueryOptions("exclude", null);
+			
+			return createJsonResponse(geneDBAdaptor.getAllByIdList(StringUtils.toList(query, ","), queryOptions));
+			
+//			return generateResponse(query, geneDBAdaptor.getAllByPositionList(positionList));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getGeneByPosition", e.toString());

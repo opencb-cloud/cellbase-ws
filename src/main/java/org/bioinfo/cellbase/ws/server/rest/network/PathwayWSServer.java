@@ -1,33 +1,18 @@
 package org.bioinfo.cellbase.ws.server.rest.network;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import org.bioinfo.cellbase.lib.api.PathwayDBAdaptor;
-import org.bioinfo.cellbase.lib.api.TfbsDBAdaptor;
-import org.bioinfo.cellbase.lib.common.pathway.Interaction;
 import org.bioinfo.cellbase.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.cellbase.ws.server.rest.exception.VersionException;
-import org.bioinfo.commons.io.utils.IOUtils;
-import org.bioinfo.commons.utils.StringUtils;
-import org.bioinfo.formats.core.graph.dot.Dot;
-import org.bioinfo.formats.parser.biopax.core.Pathway;
-
-import com.google.gson.Gson;
 
 @Path("/{version}/{species}/network/pathway")
 @Produces("text/plain")

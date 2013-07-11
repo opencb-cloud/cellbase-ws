@@ -21,6 +21,7 @@ import org.bioinfo.cellbase.lib.api.SnpDBAdaptor;
 import org.bioinfo.cellbase.lib.api.VariationDBAdaptor;
 import org.bioinfo.cellbase.lib.api.XRefsDBAdaptor;
 import org.bioinfo.cellbase.lib.common.core.Xref;
+import org.bioinfo.cellbase.lib.impl.dbquery.QueryOptions;
 import org.bioinfo.cellbase.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.cellbase.ws.server.rest.exception.VersionException;
 import org.bioinfo.commons.utils.StringUtils;
@@ -60,8 +61,13 @@ public class IdWSServer extends GenericRestWSServer {
 	public Response getGeneByEnsemblId(@PathParam("id") String query) {
 		try{
 			checkVersionAndSpecies();
-			GeneDBAdaptor x = dbAdaptorFactory.getGeneDBAdaptor(this.species, this.version);
-			return generateResponse(query, "GENE",  x.getAllByNameList(StringUtils.toList(query, ","),exclude));
+			GeneDBAdaptor geneDBAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species, this.version);
+			
+			QueryOptions queryOptions = new QueryOptions("exclude", exclude);
+			
+			return createJsonResponse(geneDBAdaptor.getAllByIdList(StringUtils.toList(query, ","), queryOptions));
+			
+//			return generateResponse(query, "GENE",  x.getAllByNameList(StringUtils.toList(query, ","),exclude));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getByEnsemblId", e.toString());

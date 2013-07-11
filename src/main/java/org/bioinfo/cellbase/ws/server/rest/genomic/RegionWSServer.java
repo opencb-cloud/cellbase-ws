@@ -27,6 +27,7 @@ import org.bioinfo.cellbase.lib.common.regulatory.RegulatoryRegion;
 import org.bioinfo.cellbase.lib.common.regulatory.Tfbs;
 import org.bioinfo.cellbase.lib.common.variation.MutationPhenotypeAnnotation;
 import org.bioinfo.cellbase.lib.common.variation.StructuralVariation;
+import org.bioinfo.cellbase.lib.impl.dbquery.QueryOptions;
 import org.bioinfo.cellbase.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.cellbase.ws.server.rest.exception.VersionException;
 import org.bioinfo.commons.utils.StringUtils;
@@ -111,24 +112,24 @@ public class RegionWSServer extends GenericRestWSServer {
 //				logger.info("Old histogram: " + (System.currentTimeMillis() - t1) + ",  resp: " + res.toString());
 				return createOkResponse(res);
 			} else {
-				if (transcripts != null && transcripts.equalsIgnoreCase("true")
-						&& outputFormat.equalsIgnoreCase("json")) {
+				QueryOptions queryOptions = new QueryOptions("biotypes", StringUtils.toList(biotype, ","));
+				queryOptions.put("transcripts", transcripts.equalsIgnoreCase("true"));
+//				return createOkResponse(chregionId, "GENE",	geneDBAdaptor.getAllByRegionList(regions, queryOptions));
+				return createOkResponse(geneDBAdaptor.getAllByRegionList(regions, queryOptions));
+//				if (transcripts != null) {
+//					if (biotype != null && !biotype.equals("")) {
+//					} else {
+//						return generateResponse(chregionId, "GENE", geneDBAdaptor.getAllByRegionList(regions, queryOptions));
+//					}
 
-					if (biotype != null && !biotype.equals("")) {
-						return generateResponse(chregionId, "GENE",
-								geneDBAdaptor.getAllByRegionList(regions, StringUtils.toList(biotype, ","), true));
-					} else {
-						return generateResponse(chregionId, "GENE", geneDBAdaptor.getAllByRegionList(regions, true));
-					}
-
-				} else {
-					if (biotype != null && !biotype.equals("")) {
-						return generateResponse(chregionId, "GENE",
-								geneDBAdaptor.getAllByRegionList(regions, StringUtils.toList(biotype, ","), false));
-					} else {
-						return generateResponse(chregionId, "GENE", geneDBAdaptor.getAllByRegionList(regions, false));
-					}
-				}
+//				} else {
+//					queryOptions.put("transcripts", false);
+//					return createOkResponse(chregionId, "GENE",	geneDBAdaptor.getAllByRegionList(regions, queryOptions));
+////					if (biotype != null && !biotype.equals("")) {
+////					} else {
+////						return generateResponse(chregionId, "GENE", geneDBAdaptor.getAllByRegionList(regions, queryOptions));
+////					}
+//				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -563,8 +564,9 @@ public class RegionWSServer extends GenericRestWSServer {
 
 	@Deprecated
 	private List<?> getHistogramByFeatures(List<?> list) {
-		Histogram histogram = new Histogram(list, this.getHistogramIntervalSize());
-		return histogram.getIntervals();
+//		Histogram histogram = new Histogram(list, this.getHistogramIntervalSize());
+//		return histogram.getIntervals();
+		return null;
 	}
 
 	@GET
