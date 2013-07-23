@@ -13,7 +13,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.bioinfo.cellbase.lib.api.SnpDBAdaptor;
-import org.bioinfo.cellbase.lib.api.TfbsDBAdaptor;
+import org.bioinfo.cellbase.lib.api.RegulatoryRegion.TfbsDBAdaptor;
 //import org.bioinfo.cellbase.lib.common.variation.Snp;
 import org.bioinfo.cellbase.lib.api.VariationDBAdaptor;
 import org.bioinfo.cellbase.ws.server.rest.GenericRestWSServer;

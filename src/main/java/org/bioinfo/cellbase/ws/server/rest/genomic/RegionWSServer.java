@@ -18,12 +18,12 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.bioinfo.cellbase.lib.api.*;
+import org.bioinfo.cellbase.lib.api.RegulatoryRegion.TfbsDBAdaptor;
 import org.bioinfo.cellbase.lib.common.GenomeSequenceFeature;
 import org.bioinfo.cellbase.lib.common.IntervalFeatureFrequency;
 import org.bioinfo.cellbase.lib.common.Region;
 import org.bioinfo.cellbase.lib.common.core.CpGIsland;
 import org.bioinfo.cellbase.lib.common.regulatory.MirnaTarget;
-import org.bioinfo.cellbase.lib.common.regulatory.RegulatoryRegion;
 import org.bioinfo.cellbase.lib.common.regulatory.Tfbs;
 import org.bioinfo.cellbase.lib.common.variation.MutationPhenotypeAnnotation;
 import org.bioinfo.cellbase.lib.common.variation.StructuralVariation;
