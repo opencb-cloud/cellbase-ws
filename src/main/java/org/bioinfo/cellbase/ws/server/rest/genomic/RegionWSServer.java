@@ -49,13 +49,12 @@ public class RegionWSServer extends GenericRestWSServer {
 	// private int histogramIntervalSize = 1000000;
 	private int histogramIntervalSize = 200000;
 
-    private List<String> exclude = new ArrayList<>();
+//    private List<String> exclude = new ArrayList<>();
 
 	public RegionWSServer(@PathParam("version") String version, @PathParam("species") String species,
-                          @DefaultValue("") @QueryParam("exclude") String exclude,
 			                @Context UriInfo uriInfo, @Context HttpServletRequest hsr) throws VersionException, IOException {
 		super(version, species, uriInfo, hsr);
-        this.exclude = Arrays.asList(exclude.trim().split(","));
+//        this.exclude = Arrays.asList(exclude.trim().split(","));
 	}
 
 	// private RegulatoryRegionDBAdaptor regulatoryRegionDBAdaptor =
@@ -105,7 +104,7 @@ public class RegionWSServer extends GenericRestWSServer {
 	@GET
 	@Path("/{chrRegionId}/gene")
 	public Response getGenesByRegion(@PathParam("chrRegionId") String chregionId,
-			@DefaultValue("false") @QueryParam("transcript") String transcripts,
+			@DefaultValue("true") @QueryParam("transcript") String transcripts,
 			@DefaultValue("") @QueryParam("biotype") String biotype) {
 		try {
 			checkVersionAndSpecies();
@@ -123,8 +122,10 @@ public class RegionWSServer extends GenericRestWSServer {
 //				logger.info("Old histogram: " + (System.currentTimeMillis() - t1) + ",  resp: " + res.toString());
 				return createOkResponse(res);
 			} else {
-				QueryOptions queryOptions = new QueryOptions("biotypes", StringUtils.toList(biotype, ","));
-				queryOptions.put("transcripts", transcripts.equalsIgnoreCase("true"));
+//				QueryOptions queryOptions = new QueryOptions("biotypes", StringUtils.toList(biotype, ","));
+				queryOptions.put("biotype", biotype);
+//				queryOptions.put("transcripts", transcripts.equalsIgnoreCase("true"));
+				addExcludeReturnFields("transcripts.exons.sequence", queryOptions);
 //				return createOkResponse(chregionId, "GENE",	geneDBAdaptor.getAllByRegionList(regions, queryOptions));
 				return createOkResponse(geneDBAdaptor.getAllByRegionList(regions, queryOptions));
 //				if (transcripts != null) {

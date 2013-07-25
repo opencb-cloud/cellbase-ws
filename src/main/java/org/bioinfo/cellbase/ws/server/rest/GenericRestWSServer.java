@@ -305,8 +305,10 @@ public class GenericRestWSServer implements IWSServer {
 			querySeparator = "\n";
 		}
 
-		queryOptions.put("exclude", (multivaluedMap.get("exclude") != null) ? Arrays.asList(multivaluedMap.get("exclude").get(0).split(",")) : new ArrayList<String>());
-		queryOptions.put("include", (multivaluedMap.get("include") != null) ? Arrays.asList(multivaluedMap.get("include").get(0).split(",")) : new ArrayList<String>());
+//		queryOptions.put("exclude", (multivaluedMap.get("exclude") != null) ? Arrays.asList(multivaluedMap.get("exclude").get(0).split(",")) : new ArrayList<String>());
+//		queryOptions.put("include", (multivaluedMap.get("include") != null) ? Arrays.asList(multivaluedMap.get("include").get(0).split(",")) : new ArrayList<String>());
+		queryOptions.put("exclude", (multivaluedMap.get("exclude") != null) ? multivaluedMap.get("exclude").get(0) : "");
+		queryOptions.put("include", (multivaluedMap.get("include") != null) ? multivaluedMap.get("include").get(0) : "");
 		queryOptions.put("metadata", (multivaluedMap.get("metadata") != null) ? multivaluedMap.get("metadata").get(0).equals("true") : true);
 
 		fileFormat = (multivaluedMap.get("fileformat") != null) ? multivaluedMap.get("fileformat").get(0) : "";
@@ -322,6 +324,17 @@ public class GenericRestWSServer implements IWSServer {
 		password = (multivaluedMap.get("password") != null) ? multivaluedMap.get("password").get(0) : "";
 	}
 
+	protected QueryOptions addExcludeReturnFields(String returnField, QueryOptions options) {
+		if(options != null && !options.getBoolean(returnField, true)) {
+			if(options.get("exclude") != null) {
+				options.put("exclude", options.get("exclude")+","+returnField);
+			}else {
+				options.put("exclude", returnField);
+			}
+		}
+		return options;
+	}
+	
 	/**
 	 * Overriden methods
 	 */
