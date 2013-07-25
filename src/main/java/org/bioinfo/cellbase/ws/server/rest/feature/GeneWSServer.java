@@ -19,11 +19,10 @@ import org.bioinfo.cellbase.lib.api.GeneDBAdaptor;
 import org.bioinfo.cellbase.lib.api.MirnaDBAdaptor;
 import org.bioinfo.cellbase.lib.api.MutationDBAdaptor;
 import org.bioinfo.cellbase.lib.api.ProteinDBAdaptor;
-import org.bioinfo.cellbase.lib.api.RegulatoryRegion.TfbsDBAdaptor;
 import org.bioinfo.cellbase.lib.api.TranscriptDBAdaptor;
 import org.bioinfo.cellbase.lib.api.XRefsDBAdaptor;
+import org.bioinfo.cellbase.lib.api.RegulatoryRegion.TfbsDBAdaptor;
 import org.bioinfo.cellbase.lib.common.core.Exon;
-import org.bioinfo.cellbase.lib.common.core.Transcript;
 import org.bioinfo.cellbase.lib.common.variation.MutationPhenotypeAnnotation;
 //import org.bioinfo.cellbase.lib.common.variation.Snp;
 import org.bioinfo.cellbase.ws.server.rest.GenericRestWSServer;
@@ -160,17 +159,13 @@ public class GeneWSServer extends GenericRestWSServer {
 //		}
 //	}
 
-	@SuppressWarnings("unchecked")
 	@GET
 	@Path("/{geneId}/transcript")
 	public Response getTranscriptsByXref(@PathParam("geneId") String query) {
 		try {
 			checkVersionAndSpecies();
-
             TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species, this.version);
-            List<List<List<Transcript>>> transcriptsList = transcriptDBAdaptor.getAllByNameList(StringUtils.toList(query, ","), null);
-
-			return generateResponse(query, "TRANSCRIPT", transcriptsList);
+			return createOkResponse(transcriptDBAdaptor.getAllByIdList(StringUtils.toList(query, ","), queryOptions));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getTranscriptsByEnsemblId", e.toString());
@@ -233,7 +228,7 @@ public class GeneWSServer extends GenericRestWSServer {
 		try {
 			checkVersionAndSpecies();
 			TfbsDBAdaptor tfbsDBAdaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species, this.version);
-			return  generateResponse(query, "TFBS", tfbsDBAdaptor.getAllByTargetGeneNameList(StringUtils.toList(query, ",")));
+			return  createOkResponse(tfbsDBAdaptor.getAllByTargetGeneIdList(StringUtils.toList(query, ","), queryOptions));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getAllTfbs", e.toString());

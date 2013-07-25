@@ -13,6 +13,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
@@ -30,7 +31,7 @@ import org.bioinfo.commons.utils.StringUtils;
 import org.bioinfo.formats.parser.uniprot.v140jaxb.FeatureType;
 
 @Path("/{version}/{species}/feature/transcript")
-@Produces("text/plain")
+@Produces(MediaType.APPLICATION_JSON)
 public class TranscriptWSServer extends GenericRestWSServer {
 
     private List<String> exclude = new ArrayList<>();
@@ -42,22 +43,19 @@ public class TranscriptWSServer extends GenericRestWSServer {
         this.exclude = Arrays.asList(exclude.trim().split(","));
 	}
 
-	@SuppressWarnings("unchecked")
 	@GET
-	@Path("/{transcriptId}/all")
+	@Path("/all")
 	public Response getAll() {
 		try {
 			checkVersionAndSpecies();
-			TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species,
-					this.version);
-			return generateResponse(new String(), Arrays.asList(transcriptDBAdaptor.getAll()));
+			TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species,	this.version);
+			return createOkResponse(Arrays.asList(transcriptDBAdaptor.getAll(queryOptions)));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getAll", e.toString());
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	@GET
 	@Path("/{transcriptId}/info")
 	public Response getByEnsemblId(@PathParam("transcriptId") String query) {
@@ -65,8 +63,7 @@ public class TranscriptWSServer extends GenericRestWSServer {
 			checkVersionAndSpecies();
 			TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species,
 					this.version);
-			return generateResponse(query, "TRANSCRIPT",
-					Arrays.asList(transcriptDBAdaptor.getAllByEnsemblIdList(StringUtils.toList(query, ","))));
+			return createOkResponse(transcriptDBAdaptor.getAllByIdList(StringUtils.toList(query, ","), queryOptions));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getByEnsemblId", e.toString());
@@ -341,13 +338,14 @@ public class TranscriptWSServer extends GenericRestWSServer {
 		try {
 			checkVersionAndSpecies();
 			ExonDBAdaptor dbAdaptor = dbAdaptorFactory.getExonDBAdaptor(this.species, this.version);
-			List<String> transcripts = StringUtils.toList(query, ",");
-			List<List<Exon>> exonListList = dbAdaptor.getByEnsemblTranscriptIdList(transcripts);
-			List<String> cdnaSequenceList = new ArrayList<String>(transcripts.size());
-			for (List<Exon> exonList : exonListList) {
-
-			}
-			return generateResponse(query, "", cdnaSequenceList);
+//			List<String> transcripts = StringUtils.toList(query, ",");
+//			List<List<Exon>> exonListList = dbAdaptor.getByEnsemblTranscriptIdList(transcripts);
+//			List<String> cdnaSequenceList = new ArrayList<String>(transcripts.size());
+//			for (List<Exon> exonList : exonListList) {
+//
+//			}
+//			return generateResponse(query, "", cdnaSequenceList);
+			return null;
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getMutationByGene", e.toString());

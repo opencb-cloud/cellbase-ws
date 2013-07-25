@@ -26,10 +26,10 @@ import org.bioinfo.cellbase.lib.api.GenomicVariantEffectDBAdaptor;
 import org.bioinfo.cellbase.lib.api.MutationDBAdaptor;
 import org.bioinfo.cellbase.lib.api.SnpDBAdaptor;
 import org.bioinfo.cellbase.lib.common.GenomicVariant;
-import org.bioinfo.cellbase.lib.common.GenomicVariantConsequenceType;
 import org.bioinfo.cellbase.lib.common.Position;
 import org.bioinfo.cellbase.lib.common.core.Transcript;
 import org.bioinfo.cellbase.lib.common.variation.MutationPhenotypeAnnotation;
+import org.bioinfo.cellbase.lib.impl.dbquery.QueryResponse;
 import org.bioinfo.cellbase.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.cellbase.ws.server.rest.exception.VersionException;
 import org.bioinfo.commons.utils.StringUtils;
@@ -38,7 +38,7 @@ import com.sun.jersey.api.client.ClientResponse.Status;
 import com.sun.jersey.multipart.FormDataParam;
 
 @Path("/{version}/{species}/genomic/variant")
-@Produces("text/plain")
+@Produces(MediaType.APPLICATION_JSON)
 public class VariantWSServer extends GenericRestWSServer {
 
 	protected static HashMap<String, List<Transcript>> CACHE_TRANSCRIPT = new HashMap<String, List<Transcript>>();
@@ -74,7 +74,8 @@ public class VariantWSServer extends GenericRestWSServer {
 		List<GenomicVariant> genomicVariantList = null;
 		String[] excludeArray = null;
 		Set<String> excludeSet = null;
-		List<GenomicVariantConsequenceType> genomicVariantConsequenceTypes = null;
+//		List<GenomicVariantConsequenceType> genomicVariantConsequenceTypes = null;
+		QueryResponse genomicVariantConsequenceTypes = null;
 		GenomicVariantEffectDBAdaptor gv = null;
 		try {
 			checkVersionAndSpecies();
@@ -88,11 +89,12 @@ public class VariantWSServer extends GenericRestWSServer {
 				excludeSet = new HashSet<String>(Arrays.asList(excludeArray));
 				//				return generateResponse(variants, gv.getAllConsequenceTypeByVariantList(genomicVariantList));
 				long t0 = System.currentTimeMillis();
-				genomicVariantConsequenceTypes = gv.getAllConsequenceTypeByVariantList(genomicVariantList, excludeSet);
+//				genomicVariantConsequenceTypes = gv.getAllConsequenceTypeByVariantList(genomicVariantList, excludeSet);
+				genomicVariantConsequenceTypes = gv.getAllConsequenceTypeByVariantList(genomicVariantList, queryOptions);
 				logger.debug("GenomicVariantEffect execution time: num. variants: "+genomicVariantList.size()+", time to process: "+(System.currentTimeMillis()-t0)+"ms");
 //				System.out.println("VariantWSServer: genomicVariantConsequenceTypes => "+genomicVariantConsequenceTypes);
-				return generateResponse(variants, "GENOMIC_VARIANT_EFFECT", genomicVariantConsequenceTypes);
-//				return generateResponse(variants, gv.getAllConsequenceTypeByVariantList(genomicVariantList, excludeSet));
+//				return generateResponse(variants, "GENOMIC_VARIANT_EFFECT", genomicVariantConsequenceTypes);
+				return createOkResponse(genomicVariantConsequenceTypes);
 			} else {
 				logger.error("ERRRORRRRRR EN VARIATNWSSERVER");
 				return Response.status(Status.BAD_REQUEST).build();
@@ -103,17 +105,14 @@ public class VariantWSServer extends GenericRestWSServer {
 //			System.out.println("ERROR: getConsequenceTypeByPosition: VARIANTS: "+variants);
 			System.out.println("ERROR: getConsequenceTypeByPosition: "+StringUtils.getStackTrace(e));
 			if(genomicVariantList != null && excludes != null) {
-				try {
-					gv = dbAdaptorFactory.getGenomicVariantEffectDBAdaptor(species, this.version);
-					excludeArray = excludes.split(",");
-					excludeSet = new HashSet<String>(Arrays.asList(excludeArray));
-					genomicVariantConsequenceTypes = gv.getAllConsequenceTypeByVariantList(genomicVariantList, excludeSet);
-					logger.warn("VariantWSServer: in catch of genomicVariantConsequenceTypes => "+genomicVariantConsequenceTypes);
-					return generateResponse(variants, "GENOMIC_VARIANT_EFFECT", genomicVariantConsequenceTypes);
-				} catch (IOException e1) {
-					e1.printStackTrace();
-					return createErrorResponse("getConsequenceTypeByPositionByGet", e.toString());
-				}
+				gv = dbAdaptorFactory.getGenomicVariantEffectDBAdaptor(species, this.version);
+				excludeArray = excludes.split(",");
+				excludeSet = new HashSet<String>(Arrays.asList(excludeArray));
+//					genomicVariantConsequenceTypes = gv.getAllConsequenceTypeByVariantList(genomicVariantList, excludeSet);
+				genomicVariantConsequenceTypes = gv.getAllConsequenceTypeByVariantList(genomicVariantList, queryOptions);
+				logger.warn("VariantWSServer: in catch of genomicVariantConsequenceTypes => "+genomicVariantConsequenceTypes);
+//					return generateResponse(variants, "GENOMIC_VARIANT_EFFECT", genomicVariantConsequenceTypes);
+				return createOkResponse(genomicVariantConsequenceTypes);
 			}
 			return createErrorResponse("getConsequenceTypeByPositionByGet", e.toString());
 		}

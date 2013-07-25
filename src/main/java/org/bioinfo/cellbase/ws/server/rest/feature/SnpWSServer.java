@@ -6,14 +6,20 @@ import java.util.Arrays;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.bioinfo.cellbase.lib.api.SnpDBAdaptor;
-import org.bioinfo.cellbase.lib.api.RegulatoryRegion.TfbsDBAdaptor;
 //import org.bioinfo.cellbase.lib.common.variation.Snp;
 import org.bioinfo.cellbase.lib.api.VariationDBAdaptor;
 import org.bioinfo.cellbase.ws.server.rest.GenericRestWSServer;
@@ -249,8 +255,9 @@ public class SnpWSServer extends GenericRestWSServer {
 	public Response getXrefs(@PathParam("snpId") String query) {
 		try {
 			checkVersionAndSpecies();
-			TfbsDBAdaptor tfbsDBAdaptor = dbAdaptorFactory.getTfbsDBAdaptor(this.species, this.version);
-			return  generateResponse(query, "XREF", tfbsDBAdaptor.getAllByTargetGeneNameList(StringUtils.toList(query, ",")));
+			SnpDBAdaptor tfbsDBAdaptor = dbAdaptorFactory.getSnpDBAdaptor(this.species, this.version);
+//			return  createOkResponse(tfbsDBAdaptor.getAllByTargetGeneNameList(StringUtils.toList(query, ",")));
+			return null;
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getXrefs", e.toString());

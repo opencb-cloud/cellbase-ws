@@ -12,6 +12,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
@@ -25,7 +26,7 @@ import org.bioinfo.cellbase.ws.server.rest.exception.VersionException;
 import org.bioinfo.commons.utils.StringUtils;
 
 @Path("/{version}/{species}/genomic/position")
-@Produces("text/plain")
+@Produces(MediaType.APPLICATION_JSON)
 public class PositionWSServer extends GenericRestWSServer {
 
 	public PositionWSServer(@PathParam("version") String version, @PathParam("species") String species, @Context UriInfo uriInfo, @Context HttpServletRequest hsr) throws VersionException, IOException {
@@ -76,11 +77,8 @@ public class PositionWSServer extends GenericRestWSServer {
 			checkVersionAndSpecies();
 			List<Position> positionList = Position.parsePositions(query);
 			GeneDBAdaptor geneDBAdaptor = dbAdaptorFactory.getGeneDBAdaptor(this.species, this.version);
-			
 			QueryOptions queryOptions = new QueryOptions("exclude", null);
-			
-			return createJsonResponse(geneDBAdaptor.getAllByIdList(StringUtils.toList(query, ","), queryOptions));
-			
+			return createOkResponse(geneDBAdaptor.getAllByIdList(StringUtils.toList(query, ","), queryOptions));
 //			return generateResponse(query, geneDBAdaptor.getAllByPositionList(positionList));
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -95,7 +93,7 @@ public class PositionWSServer extends GenericRestWSServer {
 			checkVersionAndSpecies();
 			List<Position> positionList = Position.parsePositions(query);
 			TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species, this.version);
-			return generateResponse(query,  transcriptDBAdaptor.getAllByPositionList(positionList));
+			return createOkResponse(transcriptDBAdaptor.getAllByPositionList(positionList, queryOptions));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getTranscriptByPosition", e.toString());

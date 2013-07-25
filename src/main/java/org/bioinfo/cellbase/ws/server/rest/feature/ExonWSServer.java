@@ -42,7 +42,6 @@ public class ExonWSServer extends GenericRestWSServer {
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
 	@GET
 	@Path("/{snpId}/bysnp")
 	public Response getAllBySnpIdList(@PathParam("snpId") String query) {
@@ -131,7 +130,7 @@ public class ExonWSServer extends GenericRestWSServer {
 		try {
 			checkVersionAndSpecies();
 			TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species, this.version);
-			return generateResponse(query, transcriptDBAdaptor.getAllByEnsemblExonId(StringUtils.toList(query, ",")));
+			return createOkResponse(transcriptDBAdaptor.getAllByEnsemblExonIdList(StringUtils.toList(query, ","), queryOptions));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getTranscriptsByEnsemblId", e.toString());

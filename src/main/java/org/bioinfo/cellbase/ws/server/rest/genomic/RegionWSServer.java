@@ -13,6 +13,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
@@ -33,7 +34,7 @@ import org.bioinfo.cellbase.ws.server.rest.exception.VersionException;
 import org.bioinfo.commons.utils.StringUtils;
 
 @Path("/{version}/{species}/genomic/region")
-@Produces("text/plain")
+@Produces(MediaType.APPLICATION_JSON)
 public class RegionWSServer extends GenericRestWSServer {
 	// private int histogramIntervalSize = 1000000;
 	private int histogramIntervalSize = 200000;
@@ -139,19 +140,15 @@ public class RegionWSServer extends GenericRestWSServer {
 
 	@GET
 	@Path("/{chrRegionId}/transcript")
-	public Response getTranscriptByRegion(@PathParam("chrRegionId") String chregionId,
-			@DefaultValue("") @QueryParam("biotype") String biotype) {
+	public Response getTranscriptByRegion(@PathParam("chrRegionId") String chregionId, @DefaultValue("") @QueryParam("biotype") String biotype) {
 		try {
 			checkVersionAndSpecies();
-			TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species,
-					this.version);
+			TranscriptDBAdaptor transcriptDBAdaptor = dbAdaptorFactory.getTranscriptDBAdaptor(this.species,	this.version);
 			List<Region> regions = Region.parseRegions(chregionId);
 			if (biotype != null && !biotype.equals("")) {
-				return generateResponse(chregionId, "TRANSCRIPT",
-						transcriptDBAdaptor.getAllByRegionList(regions, StringUtils.toList(biotype, ",")));
-			} else {
-				return generateResponse(chregionId, "TRANSCRIPT", transcriptDBAdaptor.getAllByRegionList(regions));
+				queryOptions.put("biotype", biotype);
 			}
+			return createOkResponse(transcriptDBAdaptor.getAllByRegionList(regions, queryOptions));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getTranscriptByRegion", e.toString());
@@ -166,7 +163,7 @@ public class RegionWSServer extends GenericRestWSServer {
 			checkVersionAndSpecies();
 			ExonDBAdaptor exonDBAdaptor = dbAdaptorFactory.getExonDBAdaptor(this.species, this.version);
 			List<Region> regions = Region.parseRegions(chregionId);
-			return generateResponse(chregionId, "EXON", exonDBAdaptor.getAllByRegionList(regions));
+			return createOkResponse(exonDBAdaptor.getAllByRegionList(regions));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getExonByRegion", e.toString());
@@ -285,17 +282,9 @@ public class RegionWSServer extends GenericRestWSServer {
 		try {
 			checkVersionAndSpecies();
 			List<Region> regions = Region.parseRegions(chregionId);
-			GenomeSequenceDBAdaptor genomeSequenceDBAdaptor = dbAdaptorFactory.getGenomeSequenceDBAdaptor(this.species,
-					this.version);
-			int strand = 1;
-			try {
-				strand = Integer.parseInt(strandParam);
-			} catch (Exception e) {
-				strand = 1;
-				logger.warn("RegionWSServer: method getSequence could not convert strand to integer");
-			}
-			List<GenomeSequenceFeature> a = genomeSequenceDBAdaptor.getByRegionList(regions, strand);
-			return generateResponse(chregionId, a);
+			GenomeSequenceDBAdaptor genomeSequenceDBAdaptor = dbAdaptorFactory.getGenomeSequenceDBAdaptor(this.species,	this.version);
+			queryOptions.put("strand", strandParam);
+			return createOkResponse(genomeSequenceDBAdaptor.getAllByRegionList(regions, queryOptions));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getSequenceByRegion", e.toString());
@@ -309,10 +298,9 @@ public class RegionWSServer extends GenericRestWSServer {
 		try {
 			checkVersionAndSpecies();
 			List<Region> regions = Region.parseRegions(chregionId);
-
 			GenomeSequenceDBAdaptor dbAdaptor = dbAdaptorFactory.getGenomeSequenceDBAdaptor(this.species, this.version);
-			List<GenomeSequenceFeature> result = dbAdaptor.getByRegionList(regions, -1);
-			return this.generateResponse(chregionId, result);
+			queryOptions.put("strand", -1);
+			return createOkResponse(dbAdaptor.getAllByRegionList(regions, queryOptions));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getReverseSequenceByRegion", e.toString());
@@ -328,12 +316,10 @@ public class RegionWSServer extends GenericRestWSServer {
 			List<Region> regions = Region.parseRegions(query);
 
 			if (hasHistogramQueryParam()) {
-				List<IntervalFeatureFrequency> intervalList = tfbsDBAdaptor.getAllTfIntervalFrequencies(regions.get(0),
-						getHistogramIntervalSize());
+				List<IntervalFeatureFrequency> intervalList = tfbsDBAdaptor.getAllTfIntervalFrequencies(regions.get(0),	getHistogramIntervalSize());
 				return generateResponse(query, intervalList);
 			} else {
-				List<List<Tfbs>> tfList = tfbsDBAdaptor.getAllByRegionList(regions);
-				return this.generateResponse(query, "TFBS", tfList);
+				return createOkResponse(tfbsDBAdaptor.getAllByRegionList(regions, queryOptions));
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -483,7 +469,7 @@ public class RegionWSServer extends GenericRestWSServer {
 //                return this.generateResponse(query,
 //                        regulatoryRegionDBAdaptor.getAllConservedRegionByRegionList(regions));
 //            }
-            return generateResponse(query, conservedRegionDBAdaptor.getByRegionList(regions));
+            return createOkResponse(conservedRegionDBAdaptor.getAllByRegionList(regions, queryOptions));
 
         } catch (Exception e) {
             e.printStackTrace();
