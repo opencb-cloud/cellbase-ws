@@ -18,14 +18,24 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import org.bioinfo.cellbase.lib.api.*;
+import org.bioinfo.cellbase.lib.api.ConservedRegionDBAdaptor;
+import org.bioinfo.cellbase.lib.api.CpGIslandDBAdaptor;
+import org.bioinfo.cellbase.lib.api.CytobandDBAdaptor;
+import org.bioinfo.cellbase.lib.api.ExonDBAdaptor;
+import org.bioinfo.cellbase.lib.api.GeneDBAdaptor;
+import org.bioinfo.cellbase.lib.api.GenomeSequenceDBAdaptor;
+import org.bioinfo.cellbase.lib.api.MirnaDBAdaptor;
+import org.bioinfo.cellbase.lib.api.RegulationDBAdaptor;
+import org.bioinfo.cellbase.lib.api.RegulatoryRegionDBAdaptor;
+import org.bioinfo.cellbase.lib.api.TranscriptDBAdaptor;
 import org.bioinfo.cellbase.lib.api.RegulatoryRegion.TfbsDBAdaptor;
-import org.bioinfo.cellbase.lib.common.GenomeSequenceFeature;
+import org.bioinfo.cellbase.lib.api.variation.MutationDBAdaptor;
+import org.bioinfo.cellbase.lib.api.variation.StructuralVariationDBAdaptor;
+import org.bioinfo.cellbase.lib.api.variation.VariationDBAdaptor;
 import org.bioinfo.cellbase.lib.common.IntervalFeatureFrequency;
 import org.bioinfo.cellbase.lib.common.Region;
 import org.bioinfo.cellbase.lib.common.core.CpGIsland;
 import org.bioinfo.cellbase.lib.common.regulatory.MirnaTarget;
-import org.bioinfo.cellbase.lib.common.regulatory.Tfbs;
 import org.bioinfo.cellbase.lib.common.variation.MutationPhenotypeAnnotation;
 import org.bioinfo.cellbase.lib.common.variation.StructuralVariation;
 import org.bioinfo.cellbase.lib.impl.dbquery.QueryOptions;
@@ -187,13 +197,13 @@ public class RegionWSServer extends GenericRestWSServer {
 //            }
 
             if (hasHistogramQueryParam()) {
-                return createOkResponse(variationDBAdaptor.getAllIntervalFrequencies(regions.get(0), getHistogramIntervalSize()));
+            	queryOptions.put("interval", getHistogramIntervalSize());
+                return createOkResponse(variationDBAdaptor.getAllIntervalFrequencies(regions.get(0), queryOptions));
             } else {
                 if (consequenceTypes.equals("")) {
-                    return generateResponse(chregionId, variationDBAdaptor.getByRegionList(regions, exclude));
-                } else {
-                    return generateResponse(chregionId, variationDBAdaptor.getByRegionList(regions, Arrays.asList(consequenceTypes.split(",")),exclude));
+                	queryOptions.put("consequence_type", consequenceTypes);
                 }
+                return createOkResponse(variationDBAdaptor.getAllByRegionList(regions, queryOptions));
             }
 		} catch (Exception e) {
 			e.printStackTrace();

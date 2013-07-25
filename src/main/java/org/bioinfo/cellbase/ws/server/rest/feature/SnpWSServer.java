@@ -20,13 +20,13 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.bioinfo.cellbase.lib.api.SnpDBAdaptor;
-//import org.bioinfo.cellbase.lib.common.variation.Snp;
-import org.bioinfo.cellbase.lib.api.VariationDBAdaptor;
+import org.bioinfo.cellbase.lib.api.variation.VariationDBAdaptor;
 import org.bioinfo.cellbase.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.cellbase.ws.server.rest.exception.VersionException;
 import org.bioinfo.commons.utils.StringUtils;
 
 import com.sun.jersey.multipart.FormDataParam;
+//import org.bioinfo.cellbase.lib.common.variation.Snp;
 
 @Path("/{version}/{species}/feature/snp")
 @Produces("text/plain")
@@ -47,7 +47,7 @@ public class SnpWSServer extends GenericRestWSServer {
 		try {
 			checkVersionAndSpecies();
 			VariationDBAdaptor variationDBAdaptor = dbAdaptorFactory.getVariationDBAdaptor(this.species, this.version);
-			return  generateResponse(query, "SNP", variationDBAdaptor.getByIdList(StringUtils.toList(query, ","), exclude));
+			return createOkResponse(variationDBAdaptor.getAllByIdList(StringUtils.toList(query, ","), queryOptions));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getByEnsemblId", e.toString());

@@ -19,10 +19,9 @@ import javax.ws.rs.core.UriInfo;
 
 import org.bioinfo.cellbase.lib.api.ExonDBAdaptor;
 import org.bioinfo.cellbase.lib.api.GeneDBAdaptor;
-import org.bioinfo.cellbase.lib.api.MutationDBAdaptor;
 import org.bioinfo.cellbase.lib.api.ProteinDBAdaptor;
 import org.bioinfo.cellbase.lib.api.TranscriptDBAdaptor;
-import org.bioinfo.cellbase.lib.common.core.Exon;
+import org.bioinfo.cellbase.lib.api.variation.MutationDBAdaptor;
 import org.bioinfo.cellbase.lib.common.variation.MutationPhenotypeAnnotation;
 import org.bioinfo.cellbase.lib.impl.dbquery.QueryOptions;
 import org.bioinfo.cellbase.ws.server.rest.GenericRestWSServer;

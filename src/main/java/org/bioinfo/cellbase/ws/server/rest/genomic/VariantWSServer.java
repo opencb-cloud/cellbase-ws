@@ -22,9 +22,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import org.bioinfo.cellbase.lib.api.GenomicVariantEffectDBAdaptor;
-import org.bioinfo.cellbase.lib.api.MutationDBAdaptor;
 import org.bioinfo.cellbase.lib.api.SnpDBAdaptor;
+import org.bioinfo.cellbase.lib.api.variation.GenomicVariantEffectDBAdaptor;
+import org.bioinfo.cellbase.lib.api.variation.MutationDBAdaptor;
 import org.bioinfo.cellbase.lib.common.GenomicVariant;
 import org.bioinfo.cellbase.lib.common.Position;
 import org.bioinfo.cellbase.lib.common.core.Transcript;
