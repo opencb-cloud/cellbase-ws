@@ -238,7 +238,7 @@ public class GenericRestWSServer implements IWSServer {
 
 		init(version, species, uriInfo);
 
-		System.out.println("constructor4");
+		logger.debug("GenericrestWSServer: in 'constructor'");
 
 		// if(version != null && species != null) {
 		// }
@@ -255,7 +255,7 @@ public class GenericRestWSServer implements IWSServer {
 		queryOptions = new QueryOptions();
 		// logger = new Logger();
 		// logger.setLevel(Logger.DEBUG_LEVEL);
-		logger.debug("GenericrestWSServer init method");
+		logger.debug("GenericrestWSServer: in 'init' method");
 
 		/**
 		 * Check version parameter, must be: v1, v2, ... If 'latest' then is
