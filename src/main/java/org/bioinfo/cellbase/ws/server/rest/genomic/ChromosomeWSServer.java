@@ -46,7 +46,7 @@ public class ChromosomeWSServer extends GenericRestWSServer {
 			checkVersionAndSpecies();
 			ChromosomeDBAdaptor dbAdaptor = dbAdaptorFactory.getChromosomeDBAdaptor(this.species, this.version);
 			QueryOptions options = new QueryOptions();
-			options.put("include", "name");
+			options.put("include", "chromosomes.name");
 			return createOkResponse(dbAdaptor.getAll(options));
 		} catch (Exception e) {
 			e.printStackTrace();
