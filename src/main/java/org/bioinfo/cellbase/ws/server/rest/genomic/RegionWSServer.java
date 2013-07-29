@@ -118,9 +118,8 @@ public class RegionWSServer extends GenericRestWSServer {
 				// getHistogramByFeatures(dbAdaptor.getAllByRegionList(regions)));
 //				Response resp = generateResponse(chregionId,
 //						geneDBAdaptor.getAllIntervalFrequencies(regions.get(0), getHistogramIntervalSize()));
-				String res = geneDBAdaptor.getAllIntervalFrequencies(regions.get(0), getHistogramIntervalSize());
+                return createOkResponse(geneDBAdaptor.getAllIntervalFrequencies(regions.get(0), getHistogramIntervalSize()));
 //				logger.info("Old histogram: " + (System.currentTimeMillis() - t1) + ",  resp: " + res.toString());
-				return createOkResponse(res);
 			} else {
 //				QueryOptions queryOptions = new QueryOptions("biotypes", StringUtils.toList(biotype, ","));
 				queryOptions.put("biotype", biotype);
