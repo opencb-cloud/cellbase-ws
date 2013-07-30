@@ -39,6 +39,7 @@ import org.bioinfo.cellbase.lib.common.regulatory.MirnaTarget;
 import org.bioinfo.cellbase.lib.common.variation.MutationPhenotypeAnnotation;
 import org.bioinfo.cellbase.lib.common.variation.StructuralVariation;
 import org.bioinfo.cellbase.lib.impl.dbquery.QueryOptions;
+import org.bioinfo.cellbase.lib.impl.dbquery.QueryResponse;
 import org.bioinfo.cellbase.ws.server.rest.GenericRestWSServer;
 import org.bioinfo.cellbase.ws.server.rest.exception.VersionException;
 import org.bioinfo.commons.utils.StringUtils;
@@ -326,7 +327,7 @@ public class RegionWSServer extends GenericRestWSServer {
 			List<Region> regions = Region.parseRegions(query);
 
 			if (hasHistogramQueryParam()) {
-				List<IntervalFeatureFrequency> intervalList = tfbsDBAdaptor.getAllTfIntervalFrequencies(regions.get(0),	getHistogramIntervalSize());
+				List<IntervalFeatureFrequency> intervalList = tfbsDBAdaptor.getAllTfIntervalFrequencies(regions.get(0), getHistogramIntervalSize());
 				return generateResponse(query, intervalList);
 			} else {
 				return createOkResponse(tfbsDBAdaptor.getAllByRegionList(regions, queryOptions));
@@ -444,18 +445,22 @@ public class RegionWSServer extends GenericRestWSServer {
 	public Response getConservedRegionByRegion(@PathParam("chrRegionId") String query) {
 		try {
 			checkVersionAndSpecies();
-			RegulatoryRegionDBAdaptor regulatoryRegionDBAdaptor = dbAdaptorFactory.getRegulatoryRegionDBAdaptor(
-					this.species, this.version);
+            ConservedRegionDBAdaptor conservedRegionDBAdaptor = dbAdaptorFactory.getConservedRegionDBAdaptor(this.species, this.version);
 			List<Region> regions = Region.parseRegions(query);
+            QueryResponse qr = conservedRegionDBAdaptor.getAllByRegionList(regions,queryOptions);
+            return createOkResponse(qr);
 
-			if (hasHistogramQueryParam()) {
-				List<IntervalFeatureFrequency> intervalList = regulatoryRegionDBAdaptor
-						.getAllConservedRegionIntervalFrequencies(regions.get(0), getHistogramIntervalSize());
-				return generateResponse(query, intervalList);
-			} else {
-				return this.generateResponse(query,
-						regulatoryRegionDBAdaptor.getAllConservedRegionByRegionList(regions));
-			}
+//			RegulatoryRegionDBAdaptor regulatoryRegionDBAdaptor = dbAdaptorFactory.getRegulatoryRegionDBAdaptor(
+//					this.species, this.version);
+//
+//			if (hasHistogramQueryParam()) {
+//				List<IntervalFeatureFrequency> intervalList = regulatoryRegionDBAdaptor
+//						.getAllConservedRegionIntervalFrequencies(regions.get(0), getHistogramIntervalSize());
+//				return generateResponse(query, intervalList);
+//			} else {
+//				return this.generateResponse(query,
+//						regulatoryRegionDBAdaptor.getAllConservedRegionByRegionList(regions));
+//			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			return createErrorResponse("getConservedRegionByRegion", e.toString());
